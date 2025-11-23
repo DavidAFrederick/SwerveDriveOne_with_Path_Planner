@@ -1,13 +1,25 @@
 import wpilib
+from commands2 import Subsystem, Command, cmd
+
 from wpilib import SmartDashboard
 from photonlibpy.photonCamera import PhotonCamera
 from photonlibpy.photonPoseEstimator import PhotonPoseEstimator, PoseStrategy
 
-class VisionSubsystem:
+from robotpy_apriltag import AprilTagFieldLayout, AprilTag, AprilTagFields
+from wpimath.geometry import Pose3d, Rotation3d
+from wpimath.units import meters
+
+#  DF:  Camera Name:  OV9281
+# https://github.com/wpilibsuite/allwpilib/blob/main/apriltag/src/main/native/resources/edu/wpi/first/apriltag/2025-reefscape-welded.json
+
+
+
+class VisionSubsystem(Subsystem):
     def __init__(self):
-        self.camera = PhotonCamera("your_camera_name") # Replace with your camera name
+        self.camera = PhotonCamera("OV9281") # Replace with your camera name
         self.pose_estimator = PhotonPoseEstimator(
-            wpilib.apriltag.AprilTagFieldLayout(wpilib.apriltag.loadAprilTagFieldLayout("2024Game.json")), # Load field layout
+            # wpilib.apriltag.AprilTagFieldLayout(wpilib.apriltag.loadAprilTagFieldLayout("2024Game.json")), # Load field layout
+            AprilTagFieldLayout(wpilib.apriltag.loadAprilTagFieldLayout("2025Game.json")), # Load field layout
             PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
             self.camera,
             wpilib.Transform3d(
@@ -15,6 +27,14 @@ class VisionSubsystem:
                 wpilib.Rotation3d(0, 0, 0) # Camera rotation relative to robot center
             )
         )
+        print (f"Vision System Instantiated ========================================")
+        print (f"Vision System Instantiated ========================================")
+        print (f"Vision System Instantiated ========================================")
+        print (f"Vision System Instantiated ========================================")
+        print (f"Vision System Instantiated ========================================")
+        print (f"Vision System Instantiated ========================================")
+        print (f"Vision System Instantiated ========================================")
+        print (f"Vision System Instantiated ========================================")
 
     def get_latest_result(self):
         return self.camera.getLatestResult()
