@@ -7,7 +7,9 @@
 
 # March 19, 2025
 #   WHEN YOU GET AN FATAL ERROR RUN: 
-#   py -3 -m robotpy installer niweb disable
+#   py -3 -m robotpy installer niweb disabley
+
+## DF Nov 23, 2025
 
 import wpilib
 import commands2
