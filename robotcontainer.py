@@ -21,7 +21,8 @@ from wpimath.units import rotationsToRadians
 from subsystems.ledsubsystem import LEDSubsystem
 from commands.ledcommand import LEDCommand
 
-
+# Added for robot-centric control (for AprilTag Vision Alignment)
+# from phoenix6.controls import SwerveRequest
 
 class RobotContainer:
     """
@@ -36,20 +37,28 @@ class RobotContainer:
             TunerConstants.speed_at_12_volts
         )  # speed_at_12_volts desired top speed
         self._max_angular_rate = rotationsToRadians(
-            0.75
+            0.85
         )  # 3/4 of a rotation per second max angular velocity
 
         # Setting up bindings for necessary control of the swerve drive platform
         self._drive = (
             swerve.requests.FieldCentric()
-            .with_deadband(self._max_speed * 0.1)
             .with_rotational_deadband(
-                self._max_angular_rate * 0.1
+                self._max_angular_rate * 0.075
             )  # Add a 10% deadband
             .with_drive_request_type(
                 swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
             )  # Use open-loop control for drive motors
         )
+
+        ###   DF:   Added to support robot-centric driving for AprilTag Alignment
+        self._robot_centric_drive = (
+            swerve.requests.RobotCentric()
+            .with_deadband(self._max_speed * 0.1)
+            .with_rotational_deadband(self._max_angular_rate * 0.1)  
+            .with_drive_request_type(swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE)
+        )
+
         self._brake = swerve.requests.SwerveDriveBrake()
         self._point = swerve.requests.PointWheelsAt()
         self._forward_straight = (
@@ -84,30 +93,56 @@ class RobotContainer:
         # Note that X is defined as forward according to WPILib convention,
         # and Y is defined as to the left according to WPILib convention.
 
-        move_speed_reduction = 0.3    #### Added to reduce speed while learning about swerve
-        rotate_speed_reduction = 0.7  ###  NOTE THAT updating _max_speed did not seem to affect speed
+        move_speed_reduction = 0.4    #### Added to reduce speed while learning about swerve
+        rotate_speed_reduction = 1.0  ###  NOTE THAT updating _max_speed did not seem to affect speed
+        dead_zone = 0.055
+        exp_scaling = 2.0
 
+        ###   DF:   Added to TEST support robot-centric driving for AprilTag Alignment
 
-        self.drivetrain.setDefaultCommand(
-            # Drivetrain will execute this command periodically
-            self.drivetrain.apply_request(
-                lambda: (
-                    self._drive.with_velocity_x(
-                        # -self._joystick.getLeftY() * self._max_speed  #### DF:  Original
-                        -self._joystick.getLeftY() * self._max_speed  * move_speed_reduction 
-                        #### DF:  Updated:  Negated
-                    )  # Drive forward with negative Y (forward)
-                    .with_velocity_y(
-                        -self._joystick.getLeftX() * self._max_speed * move_speed_reduction
-                    )  # Drive left with negative X (left)
-                    .with_rotational_rate(
-                        # -self._joystick.getRightX() * self._max_angular_rate    #### DF:  Original
-                        -self._joystick.getRightX() * self._max_angular_rate * rotate_speed_reduction
-                              #### DF:  Updated:  Negated
-                    )  # Drive counterclockwise with negative X (left)
-                )
-            )
-        )
+        if (False):
+        # if (True):
+            self.drivetrain.setDefaultCommand(
+                # >>>>>> DRIVE FIELD-CENTRIC <<<<<<<<<<<<<<<<
+                self.drivetrain.apply_request(
+                    lambda: (
+                        self
+                        ._drive
+                        .with_velocity_x(
+                            # -self._joystick.getLeftY() * self._max_speed  * move_speed_reduction
+                            -self.apply_deadzone_and_curve( self._joystick.getLeftY(), dead_zone, exp_scaling ) * self._max_speed  * move_speed_reduction
+                            #### DF:  Updated:  Negated
+                        )  # Drive forward with negative Y (forward)
+                        .with_velocity_y(
+                            # -self._joystick.getLeftX() * self._max_speed * move_speed_reduction
+                            -self.apply_deadzone_and_curve( self._joystick.getLeftX(), dead_zone, exp_scaling ) * self._max_speed  * move_speed_reduction
+                        )  # Drive left with negative X (left)
+                        .with_rotational_rate(
+                            # -self._joystick.getRightX() * self._max_angular_rate    #### DF:  Original
+                            -self._joystick.getRightX() * self._max_angular_rate * rotate_speed_reduction
+                                #### DF:  Updated:  Negated
+                        )  # Drive counterclockwise with negative X (left)
+                    ) # End of Lambda
+                ) # End of Apply_request
+            )  # End of Default Command
+
+        else:
+            self.drivetrain.setDefaultCommand(
+
+            # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -    
+                # >>>>>> DRIVE ROBOT-CENTRIC <<<<<<<<<<<<<<<<
+                self.drivetrain.apply_request(
+                    lambda: (
+                        self
+                        ._robot_centric_drive
+                        .with_velocity_x(self._joystick.getLeftY() *  self._max_speed)
+                        .with_velocity_y(self._joystick.getLeftX() *  self._max_speed)
+                        .with_rotational_rate(self._joystick.getRightX() * self._max_angular_rate)
+                    ) # End of Lambda
+                ) # End of Apply_request
+            )  # End of Default Command
+
+            # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -    
 
         self._ledsubsystem.setDefaultCommand(LEDCommand( self._ledsubsystem, 0.5))
 
@@ -121,6 +156,9 @@ class RobotContainer:
         self._joystick.a().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
         self._joystick.a().whileFalse(LEDCommand( self._ledsubsystem, 0))
         self._joystick.a().whileTrue(LEDCommand( self._ledsubsystem, 135))
+
+        self._joystick.x().whileFalse(LEDCommand( self._ledsubsystem, 0))
+        self._joystick.x().whileTrue(LEDCommand( self._ledsubsystem, 200))
 
         self._joystick.b().whileTrue(
             self.drivetrain.apply_request(
@@ -164,6 +202,18 @@ class RobotContainer:
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)
         )
+
+    def apply_deadzone_and_curve(self, axis_value: float, deadzone: float = 0.1, exponent: float = 2.0) -> float:
+        if abs(axis_value) < deadzone:
+            return 0.0
+        # Normalize to 0-1 range after deadzone
+        normalized = (abs(axis_value) - deadzone) / (1.0 - deadzone)
+        # Apply curve (e.g., square for smoother ramp)
+        curved = normalized ** exponent
+        # Reapply sign
+        final = curved * (1 if axis_value > 0 else -1)
+        print(f"Axis value: {axis_value}, Normalized: {normalized}, Curved: {curved}, final: {final}")
+        return final
 
     def getAutonomousCommand(self) -> commands2.Command:
         """Use this to pass the autonomous command to the main {@link Robot} class.
