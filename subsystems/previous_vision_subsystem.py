@@ -263,6 +263,11 @@ class SimpleTagDetectionPhotonCamera:
             # we have no targets
             return 1000
 
+
+#             ==========================================
+#  self._latest_result.getTargets()   [PhotonTrackedTarget(yaw=10.314490364269597, pitch=8.781454398117983, area=4.884765625, skew=0.0, fiducialId=1, bestCameraToTarget=Transform3d(Translation3d(x=0.000000, y=0.000000, z=0.000000), Rotation3d(x=0.000000, y=0.000000, z=0.000000)), altCameraToTarget=Transform3d(Translation3d(x=0.000000, y=0.000000, z=0.000000), Rotation3d(x=0.000000, y=0.000000, z=0.000000)), minAreaRectCorners=[TargetCorner(x=179.99999993625107, y=128.99999827820096), TargetCorner(x=180.9999997839388, y=67.00000181259198), TargetCorner(x=243.00000006374893, y=68.00000172179904), TargetCorner(x=242.0000002160612, y=129.99999818740804)], detectedCorners=[TargetCorner(x=182.8006591796875, y=69.13839721679688), TargetCorner(x=180.6760711669922, y=129.71650695800784), TargetCorner(x=242.9111328125, y=130.98941040039062), TargetCorner(x=243.5400848388672, y=68.06653594970703)], poseAmbiguity=-1.0, objDetectId=-1, objDetectConf=-1.0)]
+# ==========================================
+
         # Iterate through the target list and filter on the April tag ID.
         for target in target_list:
             if target.getFiducialId() == self._target_fididial_id:   ## NEED TO SET THIS
