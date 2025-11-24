@@ -59,7 +59,7 @@ class VisionSystem(Subsystem):
         super().__init__()
 
         # Value to track whether or not we've gotten good information from the camera
-        self._timeout_in_seconds = 1
+        self._timeout_in_seconds = 1   ## DF:  Existing Code Review Comment:    Not used anywhere - REMOVE
 
         self._tag_camera = SimpleTagDetectionPhotonCamera("OV9281")
         # # Intialize cameras to None and instantiate them if they should be used    ## DF: Might use later
@@ -68,13 +68,14 @@ class VisionSystem(Subsystem):
         # else:
         #     self._tag_camera = SimpleTagDetectionPhotonCamera("OV9281")
 
-        # Keep trag of a given tag
-        self.__tag_id = TAG_NONE
+        # Keep track of a given tag
+        self.__tag_id = TAG_NONE      ## DF:  Existing Code Review Comment:   NOT USED ANYMORE - REMOVE
 
-    def periodic(self) -> None:
-        # if RobotBase.isSimulation():
+    def periodic(self) -> None:             ## Runs 50 times per second
+        # if RobotBase.isSimulation():      ## Disabling to allow hardware in the loop simulation testing
         #     # Don't do anything in sim
         #     return
+
         # Update the camera results
         if self._tag_camera is not None:
             self._tag_camera.update_camera_results()
@@ -160,6 +161,7 @@ class AprilTagPhotonCamera:
         # Ignore pose estimates which are very close together (and hard to differentiate)
         # Use multiple cameras to look at the same target, such that at least one camera can generate a good pose estimate
         # Look at many targets at once, using each to generate multiple pose estimates. Discard the outlying estimates, use the ones which are tightly clustered together.
+        
         for target in result.getTargets():
             target_ID = target.getFiducialId()
 
@@ -251,7 +253,7 @@ class SimpleTagDetectionPhotonCamera:
         detected in the pipeline
         """
 
-        # target_list: List[PhotonTrackedTarget] = self._latest_result.getTargets()
+           ## DF:  Existing Code Review Comment: Robotpy and libraries don't recognize "PhotonTrackedTarget", Researched and replaced
         # target_list: List[PhotonTrackedTarget] = self._latest_result.getTargets()
         target_list = self._latest_result.getTargets()
 
@@ -265,7 +267,29 @@ class SimpleTagDetectionPhotonCamera:
 
 
 #             ==========================================
-#  self._latest_result.getTargets()   [PhotonTrackedTarget(yaw=10.314490364269597, pitch=8.781454398117983, area=4.884765625, skew=0.0, fiducialId=1, bestCameraToTarget=Transform3d(Translation3d(x=0.000000, y=0.000000, z=0.000000), Rotation3d(x=0.000000, y=0.000000, z=0.000000)), altCameraToTarget=Transform3d(Translation3d(x=0.000000, y=0.000000, z=0.000000), Rotation3d(x=0.000000, y=0.000000, z=0.000000)), minAreaRectCorners=[TargetCorner(x=179.99999993625107, y=128.99999827820096), TargetCorner(x=180.9999997839388, y=67.00000181259198), TargetCorner(x=243.00000006374893, y=68.00000172179904), TargetCorner(x=242.0000002160612, y=129.99999818740804)], detectedCorners=[TargetCorner(x=182.8006591796875, y=69.13839721679688), TargetCorner(x=180.6760711669922, y=129.71650695800784), TargetCorner(x=242.9111328125, y=130.98941040039062), TargetCorner(x=243.5400848388672, y=68.06653594970703)], poseAmbiguity=-1.0, objDetectId=-1, objDetectConf=-1.0)]
+#  self._latest_result.getTargets()   
+# [PhotonTrackedTarget( yaw=10.314490364269597, 
+#                       pitch=8.781454398117983, 
+#                       area=4.884765625, 
+#                       skew=0.0, 
+#                       fiducialId=1, 
+#                       bestCameraToTarget=Transform3d(Translation3d(x=0.000000, y=0.000000, z=0.000000), 
+#                       Rotation3d(x=0.000000, y=0.000000, z=0.000000)), 
+#                       altCameraToTarget=Transform3d(Translation3d(x=0.000000, y=0.000000, z=0.000000), 
+#                       Rotation3d(x=0.000000, y=0.000000, z=0.000000)), 
+#                       minAreaRectCorners=[
+#                           TargetCorner(x=179.99999993625107, y=128.99999827820096), 
+#                           TargetCorner(x=180.9999997839388, y=67.00000181259198), 
+#                           TargetCorner(x=243.00000006374893, y=68.00000172179904), 
+#                           TargetCorner(x=242.0000002160612, y=129.99999818740804)], 
+#                       detectedCorners=[
+#                           TargetCorner(x=182.8006591796875, y=69.13839721679688), 
+#                           TargetCorner(x=180.6760711669922, y=129.71650695800784), 
+#                           TargetCorner(x=242.9111328125, y=130.98941040039062), 
+#                           TargetCorner(x=243.5400848388672, y=68.06653594970703)], 
+#                       poseAmbiguity=-1.0, 
+#                       objDetectId=-1, 
+#                       objDetectConf=-1.0)]
 # ==========================================
 
         # Iterate through the target list and filter on the April tag ID.

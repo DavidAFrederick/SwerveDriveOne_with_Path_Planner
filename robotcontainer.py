@@ -24,10 +24,9 @@ from commands.ledcommand import LEDCommand
 
 # Adding to support network tables and vision  
 # from subsystems.vision_subsystem import VisionSubsystem 
-from subsystems.previous_vision_subsystem import VisionSystem 
+from subsystems.vision_subsystem import VisionSystem 
+# from subsystems.previous_vision_subsystem import VisionSystem 
 
-# import ntcore
-# import threading
 
 # Added for robot-centric control (for AprilTag Vision Alignment)
 # from phoenix6.controls import SwerveRequest
@@ -42,24 +41,6 @@ class RobotContainer:
 
     def __init__(self) -> None:
 
-
-#==============================================================
-        # inst = ntcore.NetworkTableInstance.getDefault()
-        # # start a NT4 client
-        # inst.startClient4("example client")
-        # # connect to a roboRIO with team number TEAM
-        # # inst.setServerTeam(1895)
-        # inst.setServer("10.18.95.11")
-        # # starting a DS client will try to get the roboRIO address from the DS application
-        # inst.startDSClient()
-        # # connect to a specific host/port
-        # inst.setServer("host", ntcore.NetworkTableInstance.kDefaultPort4)
-
-        # NetworkTables.initialize(server='10.18.95.11')
-        # self.cond = threading.Condition()
-        # self.notified = [False]
-        # NetworkTables.addConnectionListener(self.connectionListener, immediateNotify=True)
-#==============================================================
         self._max_speed = (
             TunerConstants.speed_at_12_volts
         )  # speed_at_12_volts desired top speed

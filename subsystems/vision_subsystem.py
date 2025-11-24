@@ -1,90 +1,137 @@
-import wpilib
-from commands2 import Subsystem, Command, cmd
+from commands2 import Subsystem
+from wpilib import SmartDashboard, RobotBase
+from wpimath.geometry import Transform3d, Translation3d, Rotation3d
 
-from wpilib import SmartDashboard
-from photonlibpy.photonCamera import PhotonCamera
-from photonlibpy.photonPoseEstimator import PhotonPoseEstimator, PoseStrategy
+from photonlibpy.photonCamera import (
+    PhotonCamera,
+    PhotonPipelineResult,
+)
 
-from robotpy_apriltag import AprilTagFieldLayout, AprilTag, AprilTagFields
-from wpimath.geometry import Pose3d, Rotation3d
-from wpimath.units import meters
+class VisionSystem(Subsystem):
+    """
+    This Vision Subsystem only supports the close alignment of the robot to a near-field April Tag.
+    The subsystem returns the following results in a tuple:
+    - AprilTag Present
+    - Yaw
+    - Skew
+    - Distance
 
-#  DF:  Camera Name:  OV9281
-# https://github.com/wpilibsuite/allwpilib/blob/main/apriltag/src/main/native/resources/edu/wpi/first/apriltag/2025-reefscape-welded.json
+    """    
+    def __init__(self) -> None:
+        # Run the constructor for the subsystem class
+        super().__init__()
 
+        # Initialize the camera and the results variable
+        self._camera: PhotonCamera = PhotonCamera("OV9281")
+        self._latest_result: PhotonPipelineResult = PhotonPipelineResult()
 
+        # Get current results from the camera
+        self._latest_result = self._camera.getLatestResult()
 
-class VisionSubsystem(Subsystem):
-    def __init__(self):
-        self.camera = PhotonCamera("OV9281") # Replace with your camera name
-        self.pose_estimator = PhotonPoseEstimator(
-            # wpilib.apriltag.AprilTagFieldLayout(wpilib.apriltag.loadAprilTagFieldLayout("2024Game.json")), # Load field layout
-            AprilTagFieldLayout(wpilib.apriltag.loadAprilTagFieldLayout("2025Game.json")), # Load field layout
-            PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
-            self.camera,
-            wpilib.Transform3d(
-                wpilib.Translation3d(0.0, 0.0, 0.0), # Camera position relative to robot center
-                wpilib.Rotation3d(0, 0, 0) # Camera rotation relative to robot center
-            )
-        )
-        print (f"Vision System Instantiated ========================================")
-        print (f"Vision System Instantiated ========================================")
-        print (f"Vision System Instantiated ========================================")
-        print (f"Vision System Instantiated ========================================")
-        print (f"Vision System Instantiated ========================================")
-        print (f"Vision System Instantiated ========================================")
-        print (f"Vision System Instantiated ========================================")
-        print (f"Vision System Instantiated ========================================")
+        # Initialize the return variables
+        self.apriltag_present = False
+        self.apriltag_yaw = 0
+        self.apriltag_skew = 0
+        self.apriltag_distance = 0
 
-    def get_latest_result(self):
-        return self.camera.getLatestResult()
+    def periodic(self) -> None:             ## Runs 50 times per second
+        if RobotBase.isSimulation():      ## Disabling to allow hardware in the loop simulation testing
+            # Don't do anything in sim
+            return
 
-    def get_estimated_pose(self, current_robot_pose):
-        self.pose_estimator.setReferencePose(current_robot_pose)
-        return self.pose_estimator.update()
-    
-
-"""
-    Swerve Drivetrain Control: Your swerve drive code will need to accept desired vx, vy (field-centric or robot-centric), and omega (angular velocity).
-
-Alignment Logic:
-- When an AprilTag is detected, obtain its pose relative to the camera.
-Calculate the desired robot pose relative to the AprilTag (e.g., a specific distance and angle from the tag).
-- Use a PID controller (or similar control loop) to generate vx, vy, and omega commands for your swerve drive to move the robot towards the desired alignment.
-- For example, if aligning to face the tag squarely, you might use the tag's yaw to control the robot's angular velocity and its range to control forward/backward movement.
-
-Command Implementation:
-- Create a command (e.g., AlignToAprilTagCommand) that utilizes the VisionSubsystem and the SwerveDrivetrain.
-- This command will periodically read vision data, calculate alignment errors, and send appropriate commands to the swerve drive.
-
-Example Alignment Strategy:
-- Aiming: Use the tx (yaw) from the vision system to control the robot's turning (omega) to center the tag in the camera's view.
-- Ranging: Use the ty (pitch) or calculated distance to control the robot's forward/backward movement (vx).
-- Strafing: If aiming for a precise lateral position relative to the tag, use the tx to control strafing (vy) or adjust the robot's field-centric position based on the tag's field-relative pose.
-
-Key Considerations:
-- Coordinate Systems: Be mindful of the different coordinate systems (camera-centric, robot-centric, field-centric) and perform necessary transformations.
-- PID Tuning: Carefully tune your PID controllers for smooth and accurate alignment.
-- Error Handling: Implement error handling for cases where no AprilTag is detected.
-- Field Layout: Ensure your robot code accurately reflects the AprilTag field layout for proper pose estimation.
-
-https://www.google.com/search?q=ctre+swerve+drive+python+how+to+add+april+tag+alignment+using+vision&sca_esv=9ce27de1500c60ce&sxsrf=AE3TifOVQhqzLwwnQPbBsKUG2V8U7zry_Q%3A1763839379257&ei=kw0iabKyD4Dl5NoP09iv6Ak&ved=0ahUKEwjyx5DdvYaRAxWAMlkFHVPsC50Q4dUDCBE&uact=5&oq=ctre+swerve+drive+python+how+to+add+april+tag+alignment+using+vision&gs_lp=Egxnd3Mtd2l6LXNlcnAiRGN0cmUgc3dlcnZlIGRyaXZlIHB5dGhvbiBob3cgdG8gYWRkIGFwcmlsIHRhZyBhbGlnbm1lbnQgdXNpbmcgdmlzaW9uSM_ZAVDuCFjmwgFwCHgBkAEBmAGrAaAByyaqAQUzNy4xNbgBA8gBAPgBAZgCM6ACiCLCAgoQABiwAxjWBBhHwgIFECEYoAHCAgUQIRirAsICBxAhGKABGAqYAwCIBgGQBgiSBwUzNi4xNaAH8a8CsgcFMjguMTW4B-YhwgcGMC40OS4yyAdw&sclient=gws-wiz-serp
-
-"""
-
-# ========================
-
-"""
-DRIVING THE ROBOT ROBOT_CENTRIC
-
-ctre swerve drive python how to drive the robot robot-centric
+        if self._camera is not None:
+            self._latest_result = self._camera.getLatestResult()
 
 
+    def get_tag_data(self) -> tuple:
+        target_list = self._latest_result.getTargets()
+
+        # if len(target_list) == 0:   #  No targets present
+        if (self._latest_result.hasTargets()):
+            self.apriltag_present = False
+            self.apriltag_yaw = 0
+            self.apriltag_skew = 0
+            self.apriltag_distance = 0
+
+        else:
+            print (f"vvvvvvvvvvvvvvvvvvvvvvvvvvv")
+            print (f" Target_list {target_list}")
+            print (f"{len(target_list)} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ")
+
+            for target in target_list:
+                print (f"target.getYaw()  {target.getYaw()}")
+                self.apriltag_present = True
+                self.apriltag_yaw = target.getYaw()
+                self.apriltag_skew = 0
+                self.apriltag_distance = 0
+
+        SmartDashboard.putBoolean("See Tag", self.apriltag_present)
+        print (f"Tag Present: {self.apriltag_present:6.2f} Yaw: {self.apriltag_yaw:6.2f}  Skew: {self.apriltag_skew:6.2f} Distance:{self.apriltag_distance:6.2f}")
+
+        return self.apriltag_present, self.apriltag_yaw, self.apriltag_skew, self.apriltag_distance
 
 
-https://www.google.com/search?q=ctre+swerve+drive+python+how+to+drive+the+robot+robot-centric&oq=ctre+swerve+drive+python+how+to+drive+the+robot+robot-centric&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIHCAEQIRiPAjIHCAIQIRiPAtIBCjE0NTM1ajBqMTWoAgiwAgHxBSlPXyJM_RSM8QUpT18iTP0UjA&sourceid=chrome&ie=UTF-8
+    def get_tag_data_v2(self) -> float:
+
+        if self._latest_result.hasTargets():
+            # Accessing 2D information (e.g., yaw, pitch, area of the best target)
+            best_target = self._latest_result.getBestTarget()
+            self.yaw_2d = best_target.getYaw()
+            self.pitch_2d = best_target.getPitch()
+            self.area_2d = best_target.getArea()
+
+            # Accessing 3D pose information (if 3D mode is enabled in PhotonVision)
+            # The getBestTarget().getBestCameraToTarget() returns a Transform3d
+            # representing the camera's pose relative to the target.
+            camera_to_target_pose: Transform3d = best_target.getBestCameraToTarget()
+
+            # You can then extract translation and rotation components
+            self.translation: Translation3d = camera_to_target_pose.translation()
+            self.rotation: Rotation3d = camera_to_target_pose.rotation()
+
+            self.apriltag_present = True
+            self.apriltag_yaw = 0
+            self.apriltag_skew = 0
+            self.apriltag_distance = 0
+
+            print ("====================================")
+            print (f"self.translation {self.translation}")
+            print ("- - - - - - - - - - - - - - - - - - ")
+            print (f"self.rotation {self.rotation}")
+            print ("====================================")
+
+            print (f"Tag Present: {self.apriltag_present:6.2f} Yaw: {self.apriltag_yaw:6.2f}   Skew: {self.apriltag_skew:6.2f} Distance:{self.apriltag_distance:6.2f}")
 
 
 
-"""
+
+#===(Example results)==========================================
+#  self._latest_result.getTargets()   
+# [PhotonTrackedTarget( yaw=10.314490364269597, 
+#                       pitch=8.781454398117983, 
+#                       area=4.884765625, 
+#                       skew=0.0, 
+#                       fiducialId=1, 
+#                       bestCameraToTarget=Transform3d(Translation3d(x=0.000000, y=0.000000, z=0.000000), 
+#                       Rotation3d(x=0.000000, y=0.000000, z=0.000000)), 
+#                       altCameraToTarget=Transform3d(Translation3d(x=0.000000, y=0.000000, z=0.000000), 
+#                       Rotation3d(x=0.000000, y=0.000000, z=0.000000)), 
+#                       minAreaRectCorners=[
+#                           TargetCorner(x=179.99999993625107, y=128.99999827820096), 
+#                           TargetCorner(x=180.9999997839388, y=67.00000181259198), 
+#                           TargetCorner(x=243.00000006374893, y=68.00000172179904), 
+#                           TargetCorner(x=242.0000002160612, y=129.99999818740804)], 
+#                       detectedCorners=[
+#                           TargetCorner(x=182.8006591796875, y=69.13839721679688), 
+#                           TargetCorner(x=180.6760711669922, y=129.71650695800784), 
+#                           TargetCorner(x=242.9111328125, y=130.98941040039062), 
+#                           TargetCorner(x=243.5400848388672, y=68.06653594970703)], 
+#                       poseAmbiguity=-1.0, 
+#                       objDetectId=-1, 
+#                       objDetectConf=-1.0)]
+# ==========================================
+
+
+
+
 
