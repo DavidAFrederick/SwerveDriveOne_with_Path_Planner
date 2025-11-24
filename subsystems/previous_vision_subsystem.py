@@ -6,6 +6,10 @@ from photonlibpy.photonCamera import (
     setVersionCheckEnabled,
     PhotonPipelineResult,
 )
+
+# https://docs.photonvision.org/en/v2026.0.0-alpha-2/docs/programming/photonlib/getting-target-data.html
+# Used in JAVA
+
 # from photonlibpy.photonTrackedTarget import PhotonTrackedTarget
 from robotpy_apriltag import AprilTagFieldLayout
 from wpilib import RobotBase, DriverStation, SmartDashboard
@@ -68,14 +72,12 @@ class VisionSystem(Subsystem):
         self.__tag_id = TAG_NONE
 
     def periodic(self) -> None:
-        if RobotBase.isSimulation():
-            # Don't do anything in sim
-            return
-
+        # if RobotBase.isSimulation():
+        #     # Don't do anything in sim
+        #     return
         # Update the camera results
         if self._tag_camera is not None:
             self._tag_camera.update_camera_results()
-            print (f"Vision Periodic camera detected =======================================================  Not getting here")
 
         SmartDashboard.putBoolean("See Tag", self.has_desired_tag_in_sight())
 
@@ -233,25 +235,28 @@ class SimpleTagDetectionPhotonCamera:
         setVersionCheckEnabled(False)
 
         self._camera: PhotonCamera = PhotonCamera(name)
-        print (f"self._camera >>>>>>>>>>>>>>>>>>>>>> {self._camera}")
 
         self._latest_result: PhotonPipelineResult = PhotonPipelineResult()
-        print (f"Camera Results {PhotonPipelineResult}  ===================================")
 
         # Initialize to a nonsense value, we will update this during auto init and
         # when the shooter is set to a specific site like amp or speaker
-        self._target_fididial_id = 100
+        self._target_fididial_id = 1
 
     def update_camera_results(self) -> None:
         self._latest_result = self._camera.getLatestResult()
-        print (f"Get camera results 2222 ")
 
     def get_tag_yaw(self) -> float:
         """
         Return the yaw of the April Tag, or 1000 if the correct speaker tag isn't
         detected in the pipeline
         """
-        target_list: List[PhotonTrackedTarget] = self._latest_result.getTargets()
+
+        # target_list: List[PhotonTrackedTarget] = self._latest_result.getTargets()
+        # target_list: List[PhotonTrackedTarget] = self._latest_result.getTargets()
+        target_list = self._latest_result.getTargets()
+
+        # print (f" Target_list {target_list}")
+        # print (f"{len(target_list)} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  ")
 
         # If there are no current results, return 1000 to signify no target
         if len(target_list) == 0:
@@ -260,7 +265,8 @@ class SimpleTagDetectionPhotonCamera:
 
         # Iterate through the target list and filter on the April tag ID.
         for target in target_list:
-            if target.getFiducialId() == self._target_fididial_id:
+            if target.getFiducialId() == self._target_fididial_id:   ## NEED TO SET THIS
+                print (f"target.getYaw()  {target.getYaw()}")
                 return target.getYaw()
 
         # We had some targets, but none matched so return the
