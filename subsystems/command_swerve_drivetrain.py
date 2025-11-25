@@ -349,3 +349,14 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         :type vision_measurement_std_devs:  tuple[float, float, float] | None
         """
         swerve.SwerveDrivetrain.add_vision_measurement(self, vision_robot_pose, utils.fpga_to_current_time(timestamp), vision_measurement_std_devs)
+
+    def drive_robot_centric_swervedrive(self, velocity_forward : float, velocity_lateral : float, rotate : float):
+        print (f"velocity_forward: {velocity_forward}")
+        self.apply_request(
+            lambda: (
+                self._robot_centric_drive
+                .with_velocity_x(velocity_forward *  self._max_speed)
+                .with_velocity_y(velocity_lateral *  self._max_speed)
+                .with_rotational_rate(rotate * self._max_angular_rate)
+            ) # End of Lambda
+        ) # End of Apply_request

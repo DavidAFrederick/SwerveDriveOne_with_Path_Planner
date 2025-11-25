@@ -23,6 +23,7 @@ from commands.ledcommand import LEDCommand
 
 from subsystems.vision_subsystem import VisionSystem 
 from apriltagalignmentdata import AprilTagAlignmentData
+from commands.vision_alignment_mode import AprilTagAligmentMode
 
 class RobotContainer:
     """
@@ -70,14 +71,11 @@ class RobotContainer:
         )
 
         self._logger = Telemetry(self._max_speed)
-
         self._joystick = CommandXboxController(0)
-
         self.drivetrain = TunerConstants.create_drivetrain()
 
         self._apriltag_alignment_data = AprilTagAlignmentData()
         self._ledsubsystem = LEDSubsystem()
-        # self._visionsubsystem = VisionSubsystem()
         self._visionsubsystem = VisionSystem(self._apriltag_alignment_data)
 
         # Path follower
@@ -161,8 +159,16 @@ class RobotContainer:
         self._joystick.a().whileFalse(LEDCommand( self._ledsubsystem, 0))
         self._joystick.a().whileTrue(LEDCommand( self._ledsubsystem, 135))
 
-        self._joystick.x().whileFalse(LEDCommand( self._ledsubsystem, 0))
-        self._joystick.x().whileTrue(LEDCommand( self._ledsubsystem, 200))
+        # self._joystick.x().whileFalse(LEDCommand( self._ledsubsystem, 0))
+        # self._joystick.x().whileTrue(LEDCommand( self._ledsubsystem, 200))
+
+        self._joystick.x().whileTrue(AprilTagAligmentMode( self.drivetrain,
+                                                          self._visionsubsystem, 
+                                                          self._ledsubsystem))
+
+        # self._joystick.x().whileFalse(AprilTagAligmentMode( self.drivetrain,
+        #                                                   self._visionsubsystem, 
+        #                                                   self._ledsubsystem))
 
         self._joystick.b().whileTrue(
             self.drivetrain.apply_request(
