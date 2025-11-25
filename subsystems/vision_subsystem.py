@@ -7,6 +7,9 @@ from photonlibpy.photonCamera import (
     PhotonPipelineResult,
 )
 
+from apriltagalignmentdata import AprilTagAlignmentData
+
+
 class VisionSystem(Subsystem):
     """
     This Vision Subsystem only supports the close alignment of the robot to a near-field April Tag.
@@ -17,9 +20,10 @@ class VisionSystem(Subsystem):
     - Distance
 
     """    
-    def __init__(self) -> None:
+    def __init__(self, apriltag_alignment_data : AprilTagAlignmentData) -> None:
         # Run the constructor for the subsystem class
         super().__init__()
+        self.apriltag_alignment_data = apriltag_alignment_data
 
         # Initialize the camera and the results variable
         self._camera: PhotonCamera = PhotonCamera("OV9281")
@@ -28,11 +32,11 @@ class VisionSystem(Subsystem):
         # Get current results from the camera
         self._latest_result = self._camera.getLatestResult()
 
-        # Initialize the return variables
-        self.apriltag_present = False
-        self.apriltag_yaw = 0
-        self.apriltag_skew = 0
-        self.apriltag_distance = 0
+        # # Initialize the return variables
+        # self.apriltag_present = False
+        # self.apriltag_yaw = 0
+        # self.apriltag_skew = 0
+        # self.apriltag_distance = 0
 
     def periodic(self) -> None:             ## Runs 50 times per second
         if RobotBase.isSimulation():      ## Disabling to allow hardware in the loop simulation testing
@@ -42,33 +46,25 @@ class VisionSystem(Subsystem):
         if self._camera is not None:
             self._latest_result = self._camera.getLatestResult()
 
-
-    def get_tag_data(self) -> tuple:
+    def get_tag_data(self) -> list:
         target_list = self._latest_result.getTargets()
 
         # if len(target_list) == 0:   #  No targets present
         if (self._latest_result.hasTargets()):
-            self.apriltag_present = False
-            self.apriltag_yaw = 0
-            self.apriltag_skew = 0
-            self.apriltag_distance = 0
-
-        else:
             print (f"vvvvvvvvvvvvvvvvvvvvvvvvvvv")
             print (f" Target_list {target_list}")
             print (f"{len(target_list)} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ")
 
             for target in target_list:
                 print (f"target.getYaw()  {target.getYaw()}")
-                self.apriltag_present = True
-                self.apriltag_yaw = target.getYaw()
-                self.apriltag_skew = 0
-                self.apriltag_distance = 0
+                self.apriltag_alignment_data.set_apriltag_alignment_data_yaw(target.getYaw())
+        else:
+            self.apriltag_alignment_data.set_apriltag_alignment_data_not_available()
 
-        SmartDashboard.putBoolean("See Tag", self.apriltag_present)
-        print (f"Tag Present: {self.apriltag_present:6.2f} Yaw: {self.apriltag_yaw:6.2f}  Skew: {self.apriltag_skew:6.2f} Distance:{self.apriltag_distance:6.2f}")
+        SmartDashboard.putBoolean("See Tag", self._latest_result.hasTargets())
+        self.apriltag_alignment_data.print_all_apriltag_alignment_data()
 
-        return self.apriltag_present, self.apriltag_yaw, self.apriltag_skew, self.apriltag_distance
+        # return self.apriltag_present, self.apriltag_yaw, self.apriltag_skew, self.apriltag_distance
 
 
     def get_tag_data_v2(self) -> float:

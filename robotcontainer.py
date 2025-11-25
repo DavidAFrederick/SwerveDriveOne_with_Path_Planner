@@ -21,15 +21,8 @@ from wpimath.units import rotationsToRadians
 from subsystems.ledsubsystem import LEDSubsystem
 from commands.ledcommand import LEDCommand
 
-
-# Adding to support network tables and vision  
-# from subsystems.vision_subsystem import VisionSubsystem 
 from subsystems.vision_subsystem import VisionSystem 
-# from subsystems.previous_vision_subsystem import VisionSystem 
-
-
-# Added for robot-centric control (for AprilTag Vision Alignment)
-# from phoenix6.controls import SwerveRequest
+from apriltagalignmentdata import AprilTagAlignmentData
 
 class RobotContainer:
     """
@@ -82,9 +75,10 @@ class RobotContainer:
 
         self.drivetrain = TunerConstants.create_drivetrain()
 
+        self._apriltag_alignment_data = AprilTagAlignmentData()
         self._ledsubsystem = LEDSubsystem()
         # self._visionsubsystem = VisionSubsystem()
-        self._visionsubsystem = VisionSystem()
+        self._visionsubsystem = VisionSystem(self._apriltag_alignment_data)
 
         # Path follower
         self._auto_chooser = AutoBuilder.buildAutoChooser("Tests")
@@ -110,8 +104,8 @@ class RobotContainer:
 
         ###   DF:   Added to TEST support robot-centric driving for AprilTag Alignment
 
-        if (False):
-        # if (True):
+        if (False):   # Use Field Oriented Drive
+        # if (True):  # Use Robot Oriented Drive
             self.drivetrain.setDefaultCommand(
                 # >>>>>> DRIVE FIELD-CENTRIC <<<<<<<<<<<<<<<<
                 self.drivetrain.apply_request(
