@@ -24,6 +24,7 @@ from commands.ledcommand import LEDCommand
 from subsystems.vision_subsystem import VisionSystem 
 from apriltagalignmentdata import AprilTagAlignmentData
 from commands.vision_alignment_mode import AprilTagAligmentMode
+from commands.drive_swerve import DriveSwerveCommand
 
 class RobotContainer:
     """
@@ -58,17 +59,12 @@ class RobotContainer:
             swerve.requests.RobotCentric()
             .with_deadband(self._max_speed * 0.1)
             .with_rotational_deadband(self._max_angular_rate * 0.1)  
-            .with_drive_request_type(swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE)
-        )
+            .with_drive_request_type(swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE))
 
         self._brake = swerve.requests.SwerveDriveBrake()
         self._point = swerve.requests.PointWheelsAt()
-        self._forward_straight = (
-            swerve.requests.RobotCentric()
-            .with_drive_request_type(
-                swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
-            )
-        )
+        self._forward_straight = (swerve.requests.RobotCentric()
+            .with_drive_request_type(swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE))
 
         self._logger = Telemetry(self._max_speed)
         self._joystick = CommandXboxController(0)
@@ -78,10 +74,7 @@ class RobotContainer:
         self._ledsubsystem = LEDSubsystem()
         self._visionsubsystem = VisionSystem(self._apriltag_alignment_data)
 
-        # Path follower
-        self._auto_chooser = AutoBuilder.buildAutoChooser("Tests")
-        SmartDashboard.putData("Auto Mode", self._auto_chooser)
-
+    
         # Configure the button bindings
         self.configureButtonBindings()
 
@@ -92,59 +85,34 @@ class RobotContainer:
         and then passing it to a JoystickButton.
         """
 
-        # Note that X is defined as forward according to WPILib convention,
-        # and Y is defined as to the left according to WPILib convention.
-
         move_speed_reduction = 0.4    #### Added to reduce speed while learning about swerve
         rotate_speed_reduction = 1.0  ###  NOTE THAT updating _max_speed did not seem to affect speed
         dead_zone = 0.055
         exp_scaling = 2.0
 
-        ###   DF:   Added to TEST support robot-centric driving for AprilTag Alignment
-
-        if (False):   # Use Field Oriented Drive
-        # if (True):  # Use Robot Oriented Drive
-            self.drivetrain.setDefaultCommand(
-                # >>>>>> DRIVE FIELD-CENTRIC <<<<<<<<<<<<<<<<
-                self.drivetrain.apply_request(
-                    lambda: (
-                        self
-                        ._drive
-                        .with_velocity_x(
-                            # -self._joystick.getLeftY() * self._max_speed  * move_speed_reduction
-                            -self.apply_deadzone_and_curve( self._joystick.getLeftY(), dead_zone, exp_scaling ) * self._max_speed  * move_speed_reduction
+        self.drivetrain.setDefaultCommand(
+            # >>>>>> DRIVE FIELD-CENTRIC <<<<<<<<<<<<<<<<
+            self.drivetrain.apply_request(
+                lambda: (
+                    self
+                    ._drive
+                    .with_velocity_x(
+                        # -self._joystick.getLeftY() * self._max_speed  * move_speed_reduction
+                        -self.apply_deadzone_and_curve( self._joystick.getLeftY(), dead_zone, exp_scaling ) * self._max_speed  * move_speed_reduction
+                        #### DF:  Updated:  Negated
+                    )  # Drive forward with negative Y (forward)
+                    .with_velocity_y(
+                        # -self._joystick.getLeftX() * self._max_speed * move_speed_reduction
+                        -self.apply_deadzone_and_curve( self._joystick.getLeftX(), dead_zone, exp_scaling ) * self._max_speed  * move_speed_reduction
+                    )  # Drive left with negative X (left)
+                    .with_rotational_rate(
+                        # -self._joystick.getRightX() * self._max_angular_rate    #### DF:  Original
+                        -self._joystick.getRightX() * self._max_angular_rate * rotate_speed_reduction
                             #### DF:  Updated:  Negated
-                        )  # Drive forward with negative Y (forward)
-                        .with_velocity_y(
-                            # -self._joystick.getLeftX() * self._max_speed * move_speed_reduction
-                            -self.apply_deadzone_and_curve( self._joystick.getLeftX(), dead_zone, exp_scaling ) * self._max_speed  * move_speed_reduction
-                        )  # Drive left with negative X (left)
-                        .with_rotational_rate(
-                            # -self._joystick.getRightX() * self._max_angular_rate    #### DF:  Original
-                            -self._joystick.getRightX() * self._max_angular_rate * rotate_speed_reduction
-                                #### DF:  Updated:  Negated
-                        )  # Drive counterclockwise with negative X (left)
-                    ) # End of Lambda
-                ) # End of Apply_request
-            )  # End of Default Command
-
-        else:
-            self.drivetrain.setDefaultCommand(
-
-            # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -    
-                # >>>>>> DRIVE ROBOT-CENTRIC <<<<<<<<<<<<<<<<
-                self.drivetrain.apply_request(
-                    lambda: (
-                        self
-                        ._robot_centric_drive
-                        .with_velocity_x(self._joystick.getLeftY() *  self._max_speed)
-                        .with_velocity_y(self._joystick.getLeftX() *  self._max_speed)
-                        .with_rotational_rate(self._joystick.getRightX() * self._max_angular_rate)
-                    ) # End of Lambda
-                ) # End of Apply_request
-            )  # End of Default Command
-
-            # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -    
+                    )  # Drive counterclockwise with negative X (left)
+                ) # End of Lambda
+            ) # End of Apply_request
+        )  # End of Default Command
 
         self._ledsubsystem.setDefaultCommand(LEDCommand( self._ledsubsystem, 0.5))
 
@@ -155,59 +123,19 @@ class RobotContainer:
             self.drivetrain.apply_request(lambda: idle).ignoringDisable(True)
         )
 
-        self._joystick.a().whileTrue(self.drivetrain.apply_request(lambda: self._brake))
-        self._joystick.a().whileFalse(LEDCommand( self._ledsubsystem, 0))
-        self._joystick.a().whileTrue(LEDCommand( self._ledsubsystem, 135))
-
-        # self._joystick.x().whileFalse(LEDCommand( self._ledsubsystem, 0))
-        # self._joystick.x().whileTrue(LEDCommand( self._ledsubsystem, 200))
-
-        self._joystick.x().whileTrue(AprilTagAligmentMode( self.drivetrain,
-                                                          self._visionsubsystem, 
-                                                          self._ledsubsystem))
-
-        # self._joystick.x().whileFalse(AprilTagAligmentMode( self.drivetrain,
-        #                                                   self._visionsubsystem, 
-        #                                                   self._ledsubsystem))
-
         self._joystick.b().whileTrue(
             self.drivetrain.apply_request(
-                lambda: self._point.with_module_direction(
-                    Rotation2d(-self._joystick.getLeftY(), -self._joystick.getLeftX())
-                )
-            )
+                lambda: (
+                    self
+                    ._robot_centric_drive
+                    .with_velocity_x(2.0)
+                    .with_velocity_y(2.0)
+                    .with_rotational_rate(0)
+                ) 
+            ) 
         )
 
-        self._joystick.pov(0).whileTrue(
-            self.drivetrain.apply_request(
-                lambda: self._forward_straight.with_velocity_x(0.5).with_velocity_y(0)
-            )
-        )
-        self._joystick.pov(180).whileTrue(
-            self.drivetrain.apply_request(
-                lambda: self._forward_straight.with_velocity_x(-0.5).with_velocity_y(0)
-            )
-        )
-
-        # Run SysId routines when holding back/start and X/Y.
-        # Note that each routine should be run exactly once in a single log.
-        (self._joystick.back() & self._joystick.y()).whileTrue(
-            self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.kForward)
-        )
-        (self._joystick.back() & self._joystick.x()).whileTrue(
-            self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.kReverse)
-        )
-        (self._joystick.start() & self._joystick.y()).whileTrue(
-            self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kForward)
-        )
-        (self._joystick.start() & self._joystick.x()).whileTrue(
-            self.drivetrain.sys_id_quasistatic(SysIdRoutine.Direction.kReverse)
-        )
-
-        # reset the field-centric heading on left bumper press
-        self._joystick.leftBumper().onTrue(
-            self.drivetrain.runOnce(lambda: self.drivetrain.seed_field_centric())
-        )
+        self._joystick.x().whileTrue(DriveSwerveCommand(self.drivetrain))
 
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)
@@ -224,17 +152,3 @@ class RobotContainer:
         final = curved * (1 if axis_value > 0 else -1)
         print(f"Axis value: {axis_value}, Normalized: {normalized}, Curved: {curved}, final: {final}")
         return final
-
-    def getAutonomousCommand(self) -> commands2.Command:
-        """Use this to pass the autonomous command to the main {@link Robot} class.
-
-        :returns: the command to run in autonomous
-        """
-        return self._auto_chooser.getSelected()
-
-
-    def connectionListener(self, connected, info):
-        print(info, '; Connected=%s' % connected)
-        with self.cond:
-            self.notified[0] = True
-            self.cond.notify()
