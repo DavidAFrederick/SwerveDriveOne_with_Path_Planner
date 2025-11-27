@@ -2,6 +2,7 @@ import wpilib
 from commands2 import Command
 from subsystems.command_swerve_drivetrain import CommandSwerveDrivetrain
 from phoenix6 import swerve
+from phoenix6.swerve.requests import FieldCentric, RobotCentric
 
 
 class DriveSwerveCommand(Command):
@@ -14,20 +15,15 @@ class DriveSwerveCommand(Command):
         pass
 
     def execute(self) -> None:
-        print ("Calling command")
 
-        self.drivetrain.apply_request(
-            lambda: (
-                self
-                ._robot_centric_drive
-                .with_velocity_x(2)
-                .with_velocity_y(2)
-                .with_rotational_rate(0)
-            ) 
-        ) 
+        self.swerve_request = (RobotCentric()
+                               .with_velocity_x(2)
+                               .with_velocity_y(2))
+        
+        self.drivetrain.set_control(self.swerve_request)
 
     def isFinished(self) -> bool:
-       return False        ## Key command running until button released
+       return False        
 
     def end(self, interrupted: bool) -> None:
         pass
