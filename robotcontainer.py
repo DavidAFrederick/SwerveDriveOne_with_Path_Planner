@@ -24,6 +24,8 @@ from commands.ledcommand import LEDCommand
 from subsystems.vision_subsystem import VisionSystem 
 from apriltagalignmentdata import AprilTagAlignmentData
 from commands.vision_alignment_mode import AprilTagAligmentMode
+from commands.vision_heading_alignment_mode_with_PID import AprilTagHeadingAligmentModePID
+# from commands.vision_alignment_mode import AprilTagHeadingAligmentModePID
 from commands.drive_swerve import DriveSwerveCommand
 
 class RobotContainer:
@@ -74,6 +76,9 @@ class RobotContainer:
         self._ledsubsystem = LEDSubsystem()
         self._visionsubsystem = VisionSystem(self._apriltag_alignment_data)
 
+        self._ledsubsystem.setDefaultCommand(LEDCommand( self._ledsubsystem, 100))
+
+
     
         # Configure the button bindings
         self.configureButtonBindings()
@@ -114,7 +119,6 @@ class RobotContainer:
             ) # End of Apply_request
         )  # End of Default Command
 
-        self._ledsubsystem.setDefaultCommand(LEDCommand( self._ledsubsystem, 0.5))
 
         # Idle while the robot is disabled. This ensures the configured
         # neutral mode is applied to the drive motors while disabled.
@@ -123,19 +127,27 @@ class RobotContainer:
             self.drivetrain.apply_request(lambda: idle).ignoringDisable(True)
         )
 
-        self._joystick.b().whileTrue(
-            self.drivetrain.apply_request(
-                lambda: (
-                    self
-                    ._robot_centric_drive
-                    .with_velocity_x(2.0)
-                    .with_velocity_y(2.0)
-                    .with_rotational_rate(0)
-                ) 
-            ) 
-        )
+        # self._joystick.b().whileTrue(
+        #     self.drivetrain.apply_request(
+        #         lambda: (
+        #             self
+        #             ._robot_centric_drive
+        #             .with_velocity_x(2.0)
+        #             .with_velocity_y(2.0)
+        #             .with_rotational_rate(0)
+        #         ) 
+        #     ) 
+        # )
 
-        self._joystick.x().whileTrue(DriveSwerveCommand(self.drivetrain))
+        # self._joystick.x().onTrue(AprilTagHeadingAligmentModePID(self.drivetrain,
+        #                                                   self._visionsubsystem,
+        #                                                   self._ledsubsystem,
+        #                                                   self._apriltag_alignment_data))
+
+        self._joystick.x().onTrue(AprilTagAligmentMode(self.drivetrain,
+                                                          self._visionsubsystem,
+                                                          self._ledsubsystem,
+                                                          self._apriltag_alignment_data))
 
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)

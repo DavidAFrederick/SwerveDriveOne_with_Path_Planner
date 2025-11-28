@@ -18,7 +18,7 @@ class AprilTagAlignmentData:
         self.apriltag_skew = 0
         self.apriltag_distance = 0
 
-    def set_apriltag_alignment_data_yaw(self, yaw : FloatingPointError): 
+    def set_apriltag_alignment_data_yaw(self, yaw : float): 
         self.apriltag_present = True
         self.apriltag_yaw = yaw
 

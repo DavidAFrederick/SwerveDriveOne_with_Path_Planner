@@ -1,7 +1,6 @@
 from commands2 import Subsystem
 from wpilib import SmartDashboard, RobotBase
 from wpimath.geometry import Transform3d, Translation3d, Rotation3d
-
 from photonlibpy.photonCamera import (
     PhotonCamera,
     PhotonPipelineResult,
@@ -9,11 +8,10 @@ from photonlibpy.photonCamera import (
 
 from apriltagalignmentdata import AprilTagAlignmentData
 
-
 class VisionSystem(Subsystem):
     """
     This Vision Subsystem only supports the close alignment of the robot to a near-field April Tag.
-    The subsystem returns the following results in a tuple:
+    The subsystem returns the following results in a data class:
     - AprilTag Present
     - Yaw
     - Skew
@@ -32,15 +30,13 @@ class VisionSystem(Subsystem):
         # Get current results from the camera
         self._latest_result = self._camera.getLatestResult()
 
-        # # Initialize the return variables
-        # self.apriltag_present = False
-        # self.apriltag_yaw = 0
-        # self.apriltag_skew = 0
-        # self.apriltag_distance = 0
+        self.apriltag_alignment_data.set_apriltag_alignment_data_yaw(5.0)  # Temp for test
+
 
     def periodic(self) -> None:             ## Runs 50 times per second
         if RobotBase.isSimulation():      ## Disabling to allow hardware in the loop simulation testing
             # Don't do anything in sim
+
             return
 
         if self._camera is not None:
@@ -62,10 +58,8 @@ class VisionSystem(Subsystem):
             self.apriltag_alignment_data.set_apriltag_alignment_data_not_available()
 
         SmartDashboard.putBoolean("See Tag", self._latest_result.hasTargets())
+
         self.apriltag_alignment_data.print_all_apriltag_alignment_data()
-
-        # return self.apriltag_present, self.apriltag_yaw, self.apriltag_skew, self.apriltag_distance
-
 
     def get_tag_data_v2(self) -> float:
 
@@ -85,10 +79,6 @@ class VisionSystem(Subsystem):
             self.translation: Translation3d = camera_to_target_pose.translation()
             self.rotation: Rotation3d = camera_to_target_pose.rotation()
 
-            self.apriltag_present = True
-            self.apriltag_yaw = 0
-            self.apriltag_skew = 0
-            self.apriltag_distance = 0
 
             print ("====================================")
             print (f"self.translation {self.translation}")
@@ -96,7 +86,6 @@ class VisionSystem(Subsystem):
             print (f"self.rotation {self.rotation}")
             print ("====================================")
 
-            print (f"Tag Present: {self.apriltag_present:6.2f} Yaw: {self.apriltag_yaw:6.2f}   Skew: {self.apriltag_skew:6.2f} Distance:{self.apriltag_distance:6.2f}")
 
 
 

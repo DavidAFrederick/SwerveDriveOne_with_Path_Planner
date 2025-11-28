@@ -8,6 +8,7 @@ from typing import Callable, overload
 from wpilib import DriverStation, Notifier, RobotController
 from wpilib.sysid import SysIdRoutineLog
 from wpimath.geometry import Pose2d, Rotation2d
+from phoenix6.swerve.requests import RobotCentric
 
 
 class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
@@ -91,4 +92,14 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         self._last_sim_time = utils.get_current_time_seconds()
         self._sim_notifier = Notifier(_sim_periodic)
         self._sim_notifier.startPeriodic(self._SIM_LOOP_PERIOD)
+
+    def stop_driving(self):
+        self.swerve_drive_request = (
+            RobotCentric()
+            .with_velocity_x( 0.0 )
+            .with_velocity_y( 0.0 )
+            .with_rotational_rate(0.0)
+            .with_drive_request_type(swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE)
+        )
+        self.set_control(self.swerve_drive_request)
 

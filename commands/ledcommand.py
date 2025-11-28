@@ -19,11 +19,27 @@ class LEDCommand(Command):
     def execute(self) -> None:
     #    Xaxis = self.controller.getRawAxis(0)
     #    Yaxis = self.controller.getRawAxis(1)
+        # Xaxis = self.tempControlValue
+        # Yaxis = self.tempControlValue
+        # self.led.joystickControlsColor(Xaxis,Yaxis)
 
-        Xaxis = self.tempControlValue
-        Yaxis = self.tempControlValue
-   
-        self.led.joystickControlsColor(Xaxis,Yaxis)
+        self.led.setHue(self.tempControlValue)
+        #  0 =  red
+        #  30 = yellow-gold
+        #  60 = green
+        #  90 = Blue - Aqua
+        # 120 = Dark Blue
+        # 150 = Purple
+        # -------------------
+        # 180 = red
+        # 210 = yellow-gold
+        # 240 = green
+        # 270 = Blue-aqua
+        # 300 = Dark Blue
+        # 330 = Purple
+        
+
+
 
     def end(self, interrupted: bool) -> None:
        pass       #  This function is not being used.
