@@ -27,6 +27,7 @@ from commands.vision_alignment_mode import AprilTagAligmentMode
 from commands.vision_heading_alignment_mode_with_PID import AprilTagHeadingAligmentModePID
 # from commands.vision_alignment_mode import AprilTagHeadingAligmentModePID
 from commands.drive_swerve import DriveSwerveCommand
+from commands.drive_specific_distance import DriveDistanceSwerveCommand
 
 class RobotContainer:
     """
@@ -148,6 +149,9 @@ class RobotContainer:
                                                           self._visionsubsystem,
                                                           self._ledsubsystem,
                                                           self._apriltag_alignment_data))
+
+        self._joystick.y().onTrue(DriveDistanceSwerveCommand(self.drivetrain, 10.0))
+
 
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)

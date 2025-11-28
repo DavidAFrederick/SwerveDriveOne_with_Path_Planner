@@ -93,6 +93,16 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         self._sim_notifier = Notifier(_sim_periodic)
         self._sim_notifier.startPeriodic(self._SIM_LOOP_PERIOD)
 
+    def driving_forward(self, drive_forward_speed : float):
+        self.swerve_drive_request = (
+            RobotCentric()
+            .with_velocity_x( drive_forward_speed )
+            .with_velocity_y( 0.0 )
+            .with_rotational_rate(0.0)
+            .with_drive_request_type(swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE)
+        )
+        self.set_control(self.swerve_drive_request)
+
     def stop_driving(self):
         self.swerve_drive_request = (
             RobotCentric()
@@ -102,4 +112,3 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
             .with_drive_request_type(swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE)
         )
         self.set_control(self.swerve_drive_request)
-

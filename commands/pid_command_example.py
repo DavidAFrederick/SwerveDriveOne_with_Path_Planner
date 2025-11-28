@@ -1,3 +1,88 @@
+import wpilib
+import commands2
+import commands2.pidcontroller
+import rev
+
+class ElevatorSubsystem(commands2.PIDSubsystem):
+    """
+    A subsystem that controls an elevator using a PID controller.
+    """
+
+    # PID Constants (tune these for your specific elevator)
+    kP = 0.05
+    kI = 0.001
+    kD = 0.00
+    kF = 0.0  # Feedforward constant (optional, but often useful)
+
+    # Elevator positions (in units relevant to your sensor, e.g., rotations, inches)
+    BOTTOM_POSITION = 0.0
+    TOP_POSITION = 10.0
+
+    def __init__(self):
+        super().__init__(
+            commands2.PIDController(self.kP, self.kI, self.kD),
+            self.kF  # Optional feedforward
+        )
+
+        # Motor Controller (e.g., SparkMax, TalonSRX)
+        self.motor = rev.CANSparkMax(1, rev.CANSparkMax.MotorType.kBrushless)
+        self.encoder = self.motor.getEncoder()
+
+        # Set output range for PID controller (e.g., -1 to 1 for motor speed)
+        self.getController().setSetpoint(self.BOTTOM_POSITION)  # Initial setpoint
+        self.getController().setTolerance(0.1)  # Tolerance for setpoint
+        self.getController().setOutputRange(-0.8, 0.8) # Limit motor output
+
+        # Configure the motor
+        self.motor.setInverted(False) # Adjust as needed
+
+    def getMeasurement(self) -> float:
+        """
+        Returns the current position of the elevator.
+        This method is called by the PIDController to get the process variable.
+        """
+        return self.encoder.getPosition()
+
+    def useOutput(self, output: float, setpoint: float):
+        """
+        Uses the output of the PID controller to control the elevator motor.
+        This method is called periodically by the PIDSubsystem.
+        """
+        # Apply feedforward if used
+        # output += self.kF * setpoint # Example feedforward
+
+        self.motor.set(output)
+
+    def setElevatorPosition(self, position: float):
+        """
+        Sets the desired position for the elevator.
+        """
+        self.getController().setSetpoint(position)
+
+    def atSetpoint(self) -> bool:
+        """
+        Checks if the elevator is at the desired setpoint within the tolerance.
+        """
+        return self.getController().atSetpoint()
+
+    def periodic(self):
+        """
+        This method is called once per scheduler run.
+        """
+        # You can add additional periodic tasks here if needed
+        pass
+
+    def stop(self):
+        """
+        Stops the elevator motor.
+        """
+        self.motor.stopMotor()
+        self.disable() # Disable the PID controller
+
+
+#################################
+
+
 # from commands2 import PIDCommand
 # from wpimath.controller import PIDController
 # from wpimath.geometry import Rotation2d
