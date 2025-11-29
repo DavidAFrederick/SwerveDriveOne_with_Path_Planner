@@ -2,8 +2,10 @@ import wpilib
 from commands2 import Command, PIDCommand
 from subsystems.command_swerve_drivetrain import CommandSwerveDrivetrain
 from phoenix6 import swerve
-from phoenix6.swerve.requests import FieldCentric, RobotCentric, Translation2d
+from phoenix6.swerve.requests import FieldCentric, RobotCentric, Translation2d, Transform2d
 from wpimath.controller import PIDController
+from wpimath.geometry import Pose2d, Translation2d, Rotation2d
+
 
 
 class DriveDistanceSwerveCommand(Command):
@@ -24,6 +26,71 @@ class DriveDistanceSwerveCommand(Command):
 
     def initialize(self) -> None:
         self.pid_controller.reset()
+##################
+
+        # from wpimath.geometry import Pose2d, Translation2d, Rotation2d
+
+        # Initial pose of the robot (x, y, rotation)
+        initial_pose = Pose2d(1.0, 2.0, Rotation2d.fromDegrees(0))
+        print(f"Initial pose: {initial_pose}")
+
+        # Relative translation to apply
+        relative_translation = Translation2d(0.5, 0.1)
+        print(f"Relative translation: {relative_translation}")
+
+        # Rotation to apply to the translation component
+        # This is often derived from the robot's current orientation
+        relative_rotation = Rotation2d.fromDegrees(90)
+        print(f"Relative rotation: {relative_rotation}")
+
+        # Create a Transform2d from the translation and rotation
+        relative_transform = Transform2d(relative_translation, relative_rotation)
+
+        # Apply the transformation to the pose
+        updated_pose = initial_pose.transformBy(relative_transform)
+        print(f"Updated pose: {updated_pose}")
+
+        # The updated_pose is a new Pose2d object with the transformation applied.
+        # The original initial_pose remains unchanged.
+        print(f"Original pose after transformation: {initial_pose}")
+
+
+###########
+
+        # # Create an initial Pose2d
+        # self.initial_pose = Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0))
+
+        # # Create a Translation2d representing the desired shift
+        # self.translation_to_add = Translation2d(1.0, 2.0)  # Shift by 1 meter in X, 2 meters in Y
+
+        # # Create a Transform2d from the Translation2d (no additional rotation in this case)
+        # # If you also wanted to rotate, you would include a Rotation2d here.
+        # self.transform_to_apply = Transform2d(self.translation_to_add, Rotation2d.fromDegrees(0.0))
+
+        # # Add the Transform2d to the Pose2d
+        # self.new_pose = self.initial_pose.plus(self.transform_to_apply)
+        # print (f" self.new_pose  {self.new_pose}")
+
+##########
+        # self.start_pose = Pose2d(Translation2d(0.0, 0.0), Rotation2d.fromDegrees(0.0))
+        # self.translation_to_add = Translation2d(x=1.0, y=2.0)
+        # self.target_pose = self.start_pose + self.translation_to_add
+        # print(f"self.start_pose {self.start_pose}    self.target_pose:{self.target_pose}")
+
+        # self.target_pose = Pose2d(Translation2d(0.0, 0.0), Rotation2d.fromDegrees(0.0))
+
+        # Example: A starting pose at (1, 1) meters with a heading of 90 degrees
+        # Rotation2d.fromDegrees(90)
+        # start_pose = Pose2d(Translation2d(1.0, 1.0), Rotation2d.fromDegrees(90))
+        # self.start_pose = Pose2d(Translation2d(0.0, 0.0), Rotation2d.fromDegrees(0.0))
+
+        # self.current_robot_pose = self.drivetrain.get_state().pose
+
+        # self.current_robot_pose = m_odometry.getPose()
+        # This 'current_robot_pose' is a Pose2d object containing x, y, and rotation.
+
+        # self.drivetrain.reset_pose(self.start_pose)
+        #  Pose to make the current pose
 
 
     def execute(self) -> None:
