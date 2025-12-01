@@ -26,10 +26,13 @@ class AprilTagAligmentMode(Command):
     def initialize(self) -> None:
         self.led.red()
 
+
     def execute(self) -> None:
 
+        self.vision.get_tag_data()
+        
         current_fpga_time = wpilib.Timer.getFPGATimestamp()
-        print (f"Vision    Current Yaw: {self.apriltag_alignment_data.apriltag_yaw:5.1f}  at {current_fpga_time:6.1f} ")
+        # print (f"Vision    Current Yaw: {self.apriltag_alignment_data.apriltag_yaw:5.1f}  at {current_fpga_time:6.1f} ")
 
         self.turn_rate = 0.2 * self.apriltag_alignment_data.apriltag_yaw
 
