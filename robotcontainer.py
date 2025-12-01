@@ -15,7 +15,7 @@ from telemetry import Telemetry
 from pathplannerlib.auto import AutoBuilder
 from phoenix6 import swerve
 from wpilib import DriverStation, SmartDashboard
-from wpimath.geometry import Rotation2d
+from wpimath.geometry import Rotation2d, Pose2d, Translation2d
 from wpimath.units import rotationsToRadians
 
 from subsystems.ledsubsystem import LEDSubsystem
@@ -150,8 +150,9 @@ class RobotContainer:
                                                           self._ledsubsystem,
                                                           self._apriltag_alignment_data))
 
-        self._joystick.y().onTrue(DriveDistanceSwerveCommand(self.drivetrain, 10.0))
-
+        self.movement_translation = Translation2d(1.0, 0.0)
+        self._joystick.y().onTrue(DriveDistanceSwerveCommand(self.drivetrain, self.movement_translation))
+        # Pass in the robot and the desired movement in the  form of a translation (x,y object)
 
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)
