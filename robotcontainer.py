@@ -145,12 +145,14 @@ class RobotContainer:
         #                                                   self._ledsubsystem,
         #                                                   self._apriltag_alignment_data))
 
+        # self._joystick.a().onTrue(lambda: (print("Heading")))
+        # self._joystick.a().onTrue(lambda: (print(f"Heading {self.drivetrain.get_state().pose.rotation().degrees()}")))
         self._joystick.x().onTrue(AprilTagAligmentMode(self.drivetrain,
                                                           self._visionsubsystem,
                                                           self._ledsubsystem,
                                                           self._apriltag_alignment_data))
 
-        self.movement_translation = Translation2d(1.0, 0.0)
+        self.movement_translation = Translation2d(2.0, 1.0)
         self._joystick.y().onTrue(DriveDistanceSwerveCommand(self.drivetrain, self.movement_translation))
         # Pass in the robot and the desired movement in the  form of a translation (x,y object)
 

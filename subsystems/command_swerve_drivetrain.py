@@ -65,6 +65,10 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         return self.run(lambda: self.set_control(request()))
 
     def periodic(self):
+        
+        
+        # print(f"Heading {self.get_state().pose.rotation().degrees()}")
+
         # Periodically try to apply the operator perspective.
         # If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
         # This allows us to correct the perspective in case the robot code restarts mid-match.
@@ -93,6 +97,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         self._sim_notifier = Notifier(_sim_periodic)
         self._sim_notifier.startPeriodic(self._SIM_LOOP_PERIOD)
 
+    ### NEED TO CREATE
     def driving_any_direction(self, drive_forward_speed : float):
         self.swerve_drive_request = (
             RobotCentric()
