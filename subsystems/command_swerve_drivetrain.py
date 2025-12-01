@@ -97,13 +97,12 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         self._sim_notifier = Notifier(_sim_periodic)
         self._sim_notifier.startPeriodic(self._SIM_LOOP_PERIOD)
 
-    ### NEED TO CREATE
-    def driving_any_direction(self, drive_forward_speed : float):
+    def driving_change_heading(self, drive_turn_speed : float):
         self.swerve_drive_request = (
             RobotCentric()
-            .with_velocity_x( drive_forward_speed )
+            .with_velocity_x( 0.0 )
             .with_velocity_y( 0.0 )
-            .with_rotational_rate(0.0)
+            .with_rotational_rate(drive_turn_speed)
             .with_drive_request_type(swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE)
         )
         self.set_control(self.swerve_drive_request)

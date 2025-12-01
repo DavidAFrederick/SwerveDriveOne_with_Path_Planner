@@ -25,6 +25,7 @@ from subsystems.vision_subsystem import VisionSystem
 from apriltagalignmentdata import AprilTagAlignmentData
 from commands.vision_alignment_mode import AprilTagAligmentMode
 from commands.vision_heading_alignment_mode_with_PID import AprilTagHeadingAligmentModePID
+from commands.turn_specific_heading import TurnHeadingSwerveCommand
 # from commands.vision_alignment_mode import AprilTagHeadingAligmentModePID
 from commands.drive_swerve import DriveSwerveCommand
 from commands.drive_specific_distance import DriveDistanceSwerveCommand
@@ -152,9 +153,14 @@ class RobotContainer:
                                                           self._ledsubsystem,
                                                           self._apriltag_alignment_data))
 
-        self.movement_translation = Translation2d(2.0, 1.0)
-        self._joystick.y().onTrue(DriveDistanceSwerveCommand(self.drivetrain, self.movement_translation))
+        # self.movement_translation = Translation2d(2.0, 1.0)
+        # self._joystick.y().onTrue(DriveDistanceSwerveCommand(self.drivetrain, self.movement_translation))
         # Pass in the robot and the desired movement in the  form of a translation (x,y object)
+
+
+        self.heading_change_degrees = 30   # Degrees with positive is Counter-Clockwise
+        self._joystick.y().onTrue(TurnHeadingSwerveCommand(self.drivetrain, self.heading_change_degrees))
+
 
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)
