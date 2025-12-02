@@ -30,6 +30,8 @@ from commands.turn_specific_heading import TurnHeadingSwerveCommand
 from commands.drive_swerve import DriveSwerveCommand
 from commands.drive_specific_distance import DriveDistanceSwerveCommand
 from commands.apriltag_align_group_command import AprilTagAlignGroupCommand
+from commands.drive_in_square_command_group import DriveInSquareDemo
+
 
 class RobotContainer:
     """
@@ -146,11 +148,10 @@ class RobotContainer:
         #                                                   self._visionsubsystem,
         #                                                   self._ledsubsystem,
         #                                                   self._apriltag_alignment_data))
-
-        self._joystick.x().onTrue(AprilTagAlignGroupCommand(self.drivetrain,
-                                                          self._visionsubsystem,
-                                                          self._ledsubsystem,
-                                                          self._apriltag_alignment_data))
+        self._joystick.x().onTrue(DriveInSquareDemo(self.drivetrain,
+                                                    self._visionsubsystem,
+                                                    self._ledsubsystem,
+                                                    2.0))  # size in meters
 
         # self.movement_translation = Translation2d(2.0, 1.0)
         # self._joystick.y().onTrue(DriveDistanceSwerveCommand(self.drivetrain, self.movement_translation))

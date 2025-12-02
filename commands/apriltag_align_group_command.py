@@ -28,23 +28,35 @@ class AprilTagAlignGroupCommand(SequentialCommandGroup):
         self.led = led
         self.apriltag_alignment_data = apriltag_alignment_data
 
-        self.heading_change_degrees = 45.0
-        self.movement_translation = Translation2d(2.0, 0.0)
+        # self.heading_change_degrees = 45.0
+        # self.movement_translation = Translation2d(2.0, 0.0)
 
         self.addCommands(
-        PauseCommand(3.0),
-        DriveDistanceSwerveCommand(self.drivetrain, self.movement_translation),
-        PauseCommand(3.0),
-        TurnHeadingSwerveCommand(self.drivetrain, self.heading_change_degrees),
-        PauseCommand(3.0),
-        DriveDistanceSwerveCommand(self.drivetrain, self.movement_translation),
-        PauseCommand(3.0),
-        TurnHeadingSwerveCommand(self.drivetrain, self.heading_change_degrees),
-        PauseCommand(3.0),
-        DriveDistanceSwerveCommand(self.drivetrain, self.movement_translation),
-        PauseCommand(3.0),
-        TurnHeadingSwerveCommand(self.drivetrain, self.heading_change_degrees),
-        PauseCommand(3.0),
+            PauseCommand(3.0),
+            DriveDistanceSwerveCommand(self.drivetrain, Translation2d(2.0, 0.0)),
+            PauseCommand(3.0),
+
+            TurnHeadingSwerveCommand(self.drivetrain, 90),
+            PauseCommand(3.0),
+            DriveDistanceSwerveCommand(self.drivetrain, Translation2d(0.0, 2.0)),
+            PauseCommand(3.0),
+
+
+            TurnHeadingSwerveCommand(self.drivetrain, 90),
+            PauseCommand(3.0),
+            DriveDistanceSwerveCommand(self.drivetrain, Translation2d(-2.0, 0.0)),
+            PauseCommand(3.0),
+
+            TurnHeadingSwerveCommand(self.drivetrain, 90),
+            PauseCommand(3.0),
+            DriveDistanceSwerveCommand(self.drivetrain, Translation2d(0.0, -2.0)),
+            PauseCommand(3.0),
+
+
+        # DriveDistanceSwerveCommand(self.drivetrain, self.movement_translation),
+        # PauseCommand(3.0),
+        # TurnHeadingSwerveCommand(self.drivetrain, self.heading_change_degrees),
+        # PauseCommand(3.0),
 
         )
 

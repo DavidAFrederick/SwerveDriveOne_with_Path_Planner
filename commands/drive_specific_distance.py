@@ -20,7 +20,7 @@ class DriveDistanceSwerveCommand(Command):
         self.kD = 0.0
         self.kF = 0.0  # Feedforward constant (optional, but often useful)
         self.pid_controller = PIDController(self.kP, self.kI, self.kD)
-        self.pid_controller.setTolerance(0.1) # Set tolerance for onTarget()
+        self.pid_controller.setTolerance(0.2) # Set tolerance for onTarget()
         self.addRequirements(drivetrain)
 
     def initialize(self) -> None:

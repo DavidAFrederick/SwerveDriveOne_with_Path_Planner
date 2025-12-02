@@ -4,7 +4,7 @@ from wpimath.controller import PIDController
 from wpimath.geometry import Pose2d
 
 #  NEED TO UPDATE TO HANDLE FULL ROTATION.  SEEMS TO HAVE AN ERROR WHEN CROSSING +/-180
-
+##  Pose2d heading is relative to the field. Can I make it relative to the front azimuth of the robot
 
 class TurnHeadingSwerveCommand(Command):
     def __init__(self, drivetrain : CommandSwerveDrivetrain, heading_change_degrees : float) -> None:
@@ -12,8 +12,8 @@ class TurnHeadingSwerveCommand(Command):
 
         self.speed = 0.0
         self.heading_change_degrees = heading_change_degrees
-        self.kP = 0.25
-        self.kI = 0.1
+        self.kP = 0.1
+        self.kI = 0.05
         self.kD = 0.0
         self.kF = 0.0  # Feedforward constant (optional, but often useful)
         self.pid_controller = PIDController(self.kP, self.kI, self.kD)
