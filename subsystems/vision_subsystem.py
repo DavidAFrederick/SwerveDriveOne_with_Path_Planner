@@ -137,6 +137,65 @@ class VisionSystem(Subsystem):
 # CAMERA PRESENT PhotonPipelineResult(ntReceiveTimestampMicros=15380157, targets=[PhotonTrackedTarget(yaw=-17.435556427175996, pitch=10.947993721042003, area=5.981770833333333, skew=0.0, fiducialId=1, bestCameraToTarget=Transform3d(Translation3d(x=0.692110, y=0.219953, z=0.141846), Rotation3d(x=0.008514, y=-0.056553, z=-2.586896)), altCameraToTarget=Transform3d(Translation3d(x=0.000000, y=0.000000, z=0.000000), Rotation3d(x=0.000000, y=0.000000, z=-3.141593)), minAreaRectCorners=[TargetCorner(x=22.000000267373686, y=121.00000140655237), TargetCorner(x=26.00000025808989, y=50.00000122088267), TargetCorner(x=93.89717075313413, y=53.82519390594763), TargetCorner(x=89.89717076241791, y=124.82519409161733)], detectedCorners=[TargetCorner(x=22.32546806335451, y=121.8176956176758), TargetCorner(x=90.84500885009767, y=123.26327514648436), TargetCorner(x=90.99295043945311, y=55.12897872924804), TargetCorner(x=26.279123306274403, y=50.28087234497071)], poseAmbiguity=0.0, objDetectId=-1, objDetectConf=-1.0)], metadata=PhotonPipelineMetadata(captureTimestampMicros=15339709, publishTimestampMicros=15371714, sequenceID=137318, timeSinceLastPong=406215), multitagResult=None)
 # CAMERA PRESENT
 
+# ==================
+
+#  2D Capture
+# CAMERA PRESENT 
+# PhotonPipelineResult(ntReceiveTimestampMicros=22788945, 
+# targets=[PhotonTrackedTarget(
+#   yaw=-17.435458193921075, 
+#   pitch=10.952675124429012, 
+#   area=5.981770833333333, 
+#   skew=0.0, fiducialId=1, 
+# bestCameraToTarget=Transform3d(
+#   Translation3d(x=0.000000, y=0.000000, z=0.000000), 
+#   Rotation3d(x=0.000000, y=0.000000, z=0.000000)), 
+# altCameraToTarget=Transform3d(
+#   Translation3d(x=0.000000, y=0.000000, z=0.000000), 
+#   Rotation3d(x=0.000000, y=0.000000, z=0.000000)), 
+# minAreaRectCorners=[
+#   TargetCorner(x=22.000000267373686, y=121.00000140655237), 
+#   TargetCorner(x=26.00000025808989, y=50.00000122088267), 
+#   TargetCorner(x=93.89717075313413, y=53.82519390594763), 
+#   TargetCorner(x=89.89717076241791, y=124.82519409161733)], 
+# detectedCorners=[
+#   TargetCorner(x=22.304798126220696, y=121.80617523193364), 
+#   TargetCorner(x=90.86666107177734, y=123.26227569580077), 
+#   TargetCorner(x=90.95269012451173, y=55.14942550659177), 
+#   TargetCorner(x=26.32320404052734, y=50.29891586303711)], 
+#   poseAmbiguity=-1.0, objDetectId=-1, objDetectConf=-1.0)], 
+# metadata=PhotonPipelineMetadata(captureTimestampMicros=22744805, 
+# publishTimestampMicros=22775687, sequenceID=131382, timeSinceLastPong=185966), multitagResult=None)
+
+
+#  3D Capture
+# CAMERA PRESENT 
+# PhotonPipelineResult(ntReceiveTimestampMicros=15380157, 
+# targets=[PhotonTrackedTarget(
+#   yaw=-17.435556427175996, 
+#   pitch=10.947993721042003, 
+#   area=5.981770833333333, 
+#   skew=0.0, 
+#   fiducialId=1, 
+# bestCameraToTarget=Transform3d(
+#   Translation3d(x=0.692110, y=0.219953, z=0.141846), 
+#   Rotation3d(x=0.008514, y=-0.056553, z=-2.586896)), 
+# altCameraToTarget=Transform3d(
+#   Translation3d(x=0.000000, y=0.000000, z=0.000000), 
+#   Rotation3d(x=0.000000, y=0.000000, z=-3.141593)), 
+# minAreaRectCorners=[
+#   TargetCorner(x=22.000000267373686, y=121.00000140655237), 
+#   TargetCorner(x=26.00000025808989, y=50.00000122088267), 
+#   TargetCorner(x=93.89717075313413, y=53.82519390594763), 
+#   TargetCorner(x=89.89717076241791, y=124.82519409161733)], 
+# detectedCorners=[
+#   TargetCorner(x=22.32546806335451, y=121.8176956176758), 
+#   TargetCorner(x=90.84500885009767, y=123.26327514648436), 
+#   TargetCorner(x=90.99295043945311, y=55.12897872924804), 
+#   TargetCorner(x=26.279123306274403, y=50.28087234497071)], 
+#   poseAmbiguity=0.0, objDetectId=-1, objDetectConf=-1.0)], 
+# metadata=PhotonPipelineMetadata(captureTimestampMicros=15339709, 
+# publishTimestampMicros=15371714, sequenceID=137318, timeSinceLastPong=406215), multitagResult=None)
 
 
 

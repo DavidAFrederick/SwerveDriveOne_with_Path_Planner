@@ -29,6 +29,7 @@ from commands.turn_specific_heading import TurnHeadingSwerveCommand
 # from commands.vision_alignment_mode import AprilTagHeadingAligmentModePID
 from commands.drive_swerve import DriveSwerveCommand
 from commands.drive_specific_distance import DriveDistanceSwerveCommand
+from commands.apriltag_align_group_command import AprilTagAlignGroupCommand
 
 class RobotContainer:
     """
@@ -146,9 +147,7 @@ class RobotContainer:
         #                                                   self._ledsubsystem,
         #                                                   self._apriltag_alignment_data))
 
-        # self._joystick.a().onTrue(lambda: (print("Heading")))
-        # self._joystick.a().onTrue(lambda: (print(f"Heading {self.drivetrain.get_state().pose.rotation().degrees()}")))
-        self._joystick.x().onTrue(AprilTagAligmentMode(self.drivetrain,
+        self._joystick.x().onTrue(AprilTagAlignGroupCommand(self.drivetrain,
                                                           self._visionsubsystem,
                                                           self._ledsubsystem,
                                                           self._apriltag_alignment_data))
@@ -160,6 +159,8 @@ class RobotContainer:
 
         self.heading_change_degrees = 30   # Degrees with positive is Counter-Clockwise
         self._joystick.y().onTrue(TurnHeadingSwerveCommand(self.drivetrain, self.heading_change_degrees))
+
+
 
 
         self.drivetrain.register_telemetry(

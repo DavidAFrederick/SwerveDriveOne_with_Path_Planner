@@ -3,7 +3,7 @@ from subsystems.command_swerve_drivetrain import CommandSwerveDrivetrain
 from wpimath.controller import PIDController
 from wpimath.geometry import Pose2d
 
-#  NEED TO UPDATE TO HANDLE FULL ROTATION.  SEEMS TO HAVE AN ERROR WHEN CROSSING -180
+#  NEED TO UPDATE TO HANDLE FULL ROTATION.  SEEMS TO HAVE AN ERROR WHEN CROSSING +/-180
 
 
 class TurnHeadingSwerveCommand(Command):
@@ -17,6 +17,9 @@ class TurnHeadingSwerveCommand(Command):
         self.kD = 0.0
         self.kF = 0.0  # Feedforward constant (optional, but often useful)
         self.pid_controller = PIDController(self.kP, self.kI, self.kD)
+        # self.pid_controller.setInputRange(-180.0, 180.0) # Gyro range
+        # self.pid_controller.setContinuous(True) # Heading is continuous (wraps around)
+        #  NEED TO UPDATE TO HANDLE FULL ROTATION.  SEEMS TO HAVE AN ERROR WHEN CROSSING +/-180
         self.pid_controller.setTolerance(0.5)  
         self.addRequirements(drivetrain)
 
