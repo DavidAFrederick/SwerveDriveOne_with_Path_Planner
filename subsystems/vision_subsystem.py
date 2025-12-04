@@ -8,6 +8,29 @@ from photonlibpy.photonCamera import (
 
 from apriltagalignmentdata import AprilTagAlignmentData
 
+#  Notes on Reading AprilTag 3D data
+#  from networktables import NetworkTables
+
+# As a client to connect to a robot
+# Replace 'roborio-XXX-frc.local' with your robot's actual hostname or IP address
+# (e.g., '10.XX.YY.2' where XXYY is your team number)
+# NetworkTables.initialize(server='roborio-YOURTEAMNUMBER-frc.local')  
+# 
+# sd = NetworkTables.getTable('SmartDashboard')
+# # Read a number
+# someNumber = sd.getNumber('someNumber', 0.0)  # 0.0 is the default value
+
+# # Read a string
+# message = sd.getString('robotMessage', 'No message yet')
+
+# # Read a boolean
+# isRobotEnabled = sd.getBoolean('robotEnabled', False)
+
+# # Read an array of numbers
+# sensorReadings = sd.getNumberArray('sensorData', []) # Empty list as default
+
+
+
 class VisionSystem(Subsystem):
     """
     This Vision Subsystem only supports the close alignment of the robot to a near-field April Tag.
