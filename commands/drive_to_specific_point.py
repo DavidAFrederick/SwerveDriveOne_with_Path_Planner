@@ -9,23 +9,40 @@ from wpimath import units
 import math
 
 
-class DriveDistanceSwerveCommand(Command):
+class DriveToSpecificPointSwerveCommand(Command):
     """
-    Drives the robot forward in a straight line.  Robot Centric movement
+    Drives the robot forward (robot-centric) to a point defined x meters forward and y meters across.  
+    Robot Centric movement using PID loops for both forward movement and heading change movemment.
+
     """
 
 
-    def __init__(self, drivetrain : CommandSwerveDrivetrain, forward_movement_meters : float) -> None:
+    def __init__(self, drivetrain : CommandSwerveDrivetrain, forward_movement_meters : float, lateral_position_meters : float) -> None:
         self.drivetrain = drivetrain
+
+        
 
         self.speed = 0.0
         self.forward_movement_meters = forward_movement_meters
-        self.kP = 1.0
-        self.kI = 0.5
-        self.kD = 0.0
-        self.kF = 0.0  # Feedforward constant (optional, but often useful)
-        self.pid_controller = PIDController(self.kP, self.kI, self.kD)
-        self.pid_controller.setTolerance(0.1) # Set tolerance for onTarget()
+        self.distance_kP = 1.0
+        self.distance_kI = 0.5
+        self.distance_kD = 0.0
+        self.distance_kF = 0.0  # Feedforward constant (optional, but often useful)
+        self.pid_distance_controller = PIDController(self.distance_kP, self.distance_kI, self.distance_kD)
+        self.pid_distance_controller.setTolerance(0.1) # Set tolerance for onTarget()
+
+
+        self.lateral_position_meters = lateral_position_meters
+        self.heading_kP = 1.0
+        self.heading_kI = 0.5
+        self.heading_kD = 0.0
+        self.heading_kF = 0.0  # Feedforward constant (optional, but often useful)
+        self.pid_heading_controller = PIDController(self.heading_kP, self.heading_kI, self.heading_kD)
+        self.pid_heading_controller.setTolerance(0.2) # Set tolerance for onTarget()
+
+
+        # self.lateral_position_meters
+
         self.addRequirements(drivetrain)
 
         """
@@ -47,7 +64,7 @@ class DriveDistanceSwerveCommand(Command):
 
     def initialize(self) -> None:
 
-        self.pid_controller.reset()
+        self.pid_distance_controller.reset()
 
         ### Get robot's current pose (Position and heading)
         self.initial_pose = Pose2d(self.drivetrain.get_state().pose.x,
@@ -64,14 +81,54 @@ class DriveDistanceSwerveCommand(Command):
         self.delta_x_field_movement  = self.forward_movement_meters * math.cos(self.initial_heading_radians)
         self.delta_y_field_movement  = self.forward_movement_meters * math.sin(self.initial_heading_radians)
 
-        self.target_x_field_position = self.initial_translation.x + self.delta_x_field_movement
-        self.target_y_field_position = self.initial_translation.y + self.delta_y_field_movement
+        # Calculate field relative position of final_final (distance + cross) target point
+        self.distance_to_final_final_target_point = math.sqrt(  math.pow(self.forward_movement_meters, 2 ) +  
+                                          math.pow(self.lateral_position_meters, 2) )
+        
+        self.angle_to_final_final_target_point_radians = math.atan2 (self.lateral_position_meters, self.forward_movement_meters )
+
+        self.final_final_target_point_x = self.distance_to_final_final_target_point * math.cos(self.angle_to_final_final_target_point_radians)
+        self.final_final_target_point_y = self.distance_to_final_final_target_point * math.sin(self.angle_to_final_final_target_point_radians)
+        
+
+        # TBD
+        # self.cross_distance = math.sqrt(  math.pow(self.delta_x_field_movement, 2 ) +  
+        #                                   math.pow(self.delta_y_field_movement, 2) )
+        
+
+        # self.cross_angle = math.atan2( self.lateral_position_meters, self.forward_movement_meters)
+
+        # self.cross_delta_x_field_movement = -self.cross_distance * math.sin(self.cross_angle)
+        # self.cross_delta_y_field_movement = self.cross_distance * math.cos(self.cross_angle)
+
+
+        # self.cross_delta_x_field_movement = 0.0
+        # self.cross_delta_y_field_movement = 0.0
+
+        # self.target_x_field_position = self.initial_translation.x + self.delta_x_field_movement + self.cross_delta_x_field_movement
+        # self.target_y_field_position = self.initial_translation.y + self.delta_y_field_movement + self.cross_delta_y_field_movement
+
+        self.target_x_field_position = self.final_final_target_point_x
+        self.target_y_field_position = self.final_final_target_point_y
+
+        # self.target_x_field_position = self.initial_translation.x + self.delta_x_field_movement  ## original
+        # self.target_y_field_position = self.initial_translation.y + self.delta_y_field_movement 
 
         print (f"Start Drive ------")
-        print(f"Init:  {self.initial_translation.x:4.1f} {self.initial_translation.y:4.1f}  Heading: {self.initial_heading_degrees:4.1f}  ", end="")
-        print(f"Delta: {self.delta_x_field_movement:4.1f} {self.delta_y_field_movement:4.1f} ", end="")
-        print(f"Final: {self.target_x_field_position:4.1f} {self.target_y_field_position:4.1f}  ")
+        print(f"Init: {self.initial_translation.x:4.1f} {self.initial_translation.y:4.1f} Heading: {self.initial_heading_degrees:4.1f}  ", end="")
+        print(f"Delta: X: {self.delta_x_field_movement:4.1f} Y: {self.delta_y_field_movement:4.1f} ", end="")
+        # print(f"Cross: {self.cross_delta_x_field_movement:4.1f} {self.cross_delta_x_field_movement:4.1f} ", end='')
+        print(f"Final: X: {self.target_x_field_position:4.1f}  Y: {self.target_y_field_position:4.1f}  ")
+
+        print (f"Cross Point positions ------")
+        print (f"Distance:  {self.distance_to_final_final_target_point:5.2f}   ", end='')
+        print (f"Position:  X: {self.final_final_target_point_x} Y: {self.final_final_target_point_y} ", end='')
+        print (f"Angle:  {57.296 *  self.angle_to_final_final_target_point_radians:4.2f} ")
         
+        
+        # self.heading_to_drive = self.initial_heading_radians + math.atan2(self.lateral_position_meters, self.forward_movement_meters)
+        # self.heading_to_drive_robot_centric = math.atan2(self.lateral_position_meters, self.forward_movement_meters)
+
 
     def execute(self) -> None:
         """
@@ -90,34 +147,52 @@ class DriveDistanceSwerveCommand(Command):
 
         self.current_translation     = self.current_pose.translation()
         self.current_heading_degrees = self.current_pose.rotation().degrees()
+        self.current_heading_radians = self.current_pose.rotation().radians()
 
         self.remaining_delta_x_field_movement = self.target_x_field_position - self.current_translation.x
         self.remaining_delta_y_field_movement = self.target_y_field_position - self.current_translation.y
 
-        self.current_distance = math.sqrt( math.pow (self.remaining_delta_x_field_movement,  2 ) +  
+        self.current_distance = math.sqrt(math.pow(self.remaining_delta_x_field_movement, 2) +  
                                           math.pow(self.remaining_delta_y_field_movement, 2) )
 
         print(f"current:  {self.current_translation.x:4.1f} {self.current_translation.y:4.1f} Heading: {self.current_heading_degrees:4.1f}  ", end='')
         print (f"Remaining {self.remaining_delta_x_field_movement:4.1f}  {self.remaining_delta_x_field_movement:4.1f} Distance {self.current_distance:4.1f} " , end='')
         print(f"Final: {self.target_x_field_position:4.1f} {self.target_y_field_position:4.1f}  ")
 
-        self.speed = - self.pid_controller.calculate(self.current_distance, 0)
+        self.distance_speed = - self.pid_distance_controller.calculate(self.current_distance, 0)
 
         ## Clamp Speed
-        self.clamped_max_speed = 1.0
-        if (self.speed > self.clamped_max_speed): self.speed = self.clamped_max_speed
-        if (self.speed < -self.clamped_max_speed): self.speed = -self.clamped_max_speed
+        self.distance_clamped_max_speed = 1.0
+        if (self.distance_speed > self.distance_clamped_max_speed): self.distance_speed = self.distance_clamped_max_speed
+        if (self.distance_speed < -self.distance_clamped_max_speed): self.distance_speed = -self.distance_clamped_max_speed
           
-        # print (f"Current distance: {self.current_distance:5.2f}   at speed: {self.speed:5.2f}  Heading: {self.current_heading_degrees:5.1f}")
+        print (f"Current distance: {self.current_distance:5.2f}   at speed: {self.speed:5.2f}  Heading: {self.current_heading_degrees:5.1f}")
 
-        self.drivetrain.driving_forward(self.speed)
+        # self.drivetrain.driving_forward(self.distance_speed)
+
+        #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        # self.delta_x_for_angle = self.target_x_field_position - self.current_translation.x
+        # self.delta_y_for_angle = self.target_y_field_position - self.current_translation.y
+        # self.target_heading_radians = math.atan2( self.delta_y_for_angle, self.delta_x_for_angle)
+
+        self.target_heading_radians = math.atan2( self.remaining_delta_y_field_movement, self.remaining_delta_x_field_movement)
+
+        self.turn_speed = self.pid_heading_controller.calculate(self.current_heading_radians, self.target_heading_radians)
+
+        if (self.pid_heading_controller.atSetpoint()):
+            self.drivetrain.driving_forward(self.distance_speed)
+            print ("Forward")
+        else:
+            self.drivetrain.driving_change_heading(self.turn_speed)
+            print ("Turn")
+
 
     def isFinished(self) -> bool:
-       return self.pid_controller.atSetpoint()        
+       return self.pid_distance_controller.atSetpoint()        
 
     def end(self, interrupted: bool) -> None:
         self.drivetrain.stop_driving()
-        print (f"Complete Drive !!!!!!!!!!!!")
+        print (f"Complete Drive   SP !!!!!!!!!!!!")
         self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,
                             self.drivetrain.get_state().pose.y, 
                             self.drivetrain.get_state().pose.rotation().radians())

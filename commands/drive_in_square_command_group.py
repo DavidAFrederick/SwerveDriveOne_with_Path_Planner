@@ -1,4 +1,6 @@
-from commands2 import SequentialCommandGroup
+from commands2 import SequentialCommandGroup, PrintCommand
+import commands2
+import commands2.cmd
 from wpimath.geometry import Translation2d
 
 from commands.turn_specific_heading import TurnHeadingSwerveCommand
@@ -31,25 +33,50 @@ class DriveInSquareDemo(SequentialCommandGroup):
 
         self.addCommands(
             #  A to B Leg  
-            TurnHeadingSwerveCommand(self.drivetrain, 45),
+            PrintCommand("A to B Leg =========================="),
             DriveDistanceSwerveCommand(self.drivetrain, self.size_of_square),
             PauseCommand(1.0),
             TurnHeadingSwerveCommand(self.drivetrain, 90),
  
             #  B to C Leg
+            PrintCommand("B to C Leg ========================="),
             DriveDistanceSwerveCommand(self.drivetrain, self.size_of_square),
             PauseCommand(1.0),
             TurnHeadingSwerveCommand(self.drivetrain, 90),
 
             #  C to D Leg
+            PrintCommand("C to D Leg======================"),
             DriveDistanceSwerveCommand(self.drivetrain, self.size_of_square),
             PauseCommand(1.0),
             TurnHeadingSwerveCommand(self.drivetrain, 90),
 
-            #  D to A Leg
+            PrintCommand("#  D to A Leg"),
             DriveDistanceSwerveCommand(self.drivetrain, self.size_of_square),
             PauseCommand(1.0),
             TurnHeadingSwerveCommand(self.drivetrain, 90),
+
+
+            PrintCommand("#  A to B Leg  "),
+            TurnHeadingSwerveCommand(self.drivetrain, 45),
+            DriveDistanceSwerveCommand(self.drivetrain, self.size_of_square),
+            PauseCommand(1.0),
+            TurnHeadingSwerveCommand(self.drivetrain, -90),
+ 
+            PrintCommand("#  B to C Leg"),
+            DriveDistanceSwerveCommand(self.drivetrain, self.size_of_square),
+            PauseCommand(1.0),
+            TurnHeadingSwerveCommand(self.drivetrain, -90),
+
+            PrintCommand("#  C to D Leg"),
+            DriveDistanceSwerveCommand(self.drivetrain, self.size_of_square),
+            PauseCommand(1.0),
+            TurnHeadingSwerveCommand(self.drivetrain, -90),
+
+            PrintCommand("#  D to A Leg"),
+            DriveDistanceSwerveCommand(self.drivetrain, self.size_of_square),
+            PauseCommand(1.0),
+            TurnHeadingSwerveCommand(self.drivetrain, -90),
+
 
         )
 

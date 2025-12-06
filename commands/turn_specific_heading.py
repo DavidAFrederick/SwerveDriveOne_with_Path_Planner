@@ -43,9 +43,6 @@ class TurnHeadingSwerveCommand(Command):
         else:
             self.current_gyro_heading = self._gyro.getAngle()
 
-
-        # self.current_heading = self.drivetrain.get_state().pose.rotation().degrees()
-
         # Calculate target heading  (Positive is Counter-Clockwise)
         self.target_heading = self.current_gyro_heading + self.heading_change_degrees
 
@@ -64,8 +61,8 @@ class TurnHeadingSwerveCommand(Command):
 
         self.turn_speed = self.pid_controller.calculate(self.current_gyro_heading, self.target_heading)
 
-        print(f"self.current_gyro_heading:: {self.current_gyro_heading:5.1f}")
-        print(f"self.target_heading::  {self.target_heading:5.1f}")
+        # print(f"self.current_gyro_heading:: {self.current_gyro_heading:5.1f}   ", end='')
+        # print(f"self.target_heading::  {self.target_heading:5.1f}")
 
         self.drivetrain.driving_change_heading(self.turn_speed)
 
@@ -74,7 +71,7 @@ class TurnHeadingSwerveCommand(Command):
 
     def end(self, interrupted: bool) -> None:
         self.drivetrain.stop_driving()
-        print (f"Complete !!!!!!!!!!!!")
+        print (f"Complete Turn !!!!!!!!!!!!")
 
         if utils.is_simulation():
             self.current_gyro_heading = self.drivetrain.get_state().pose.rotation().degrees()
