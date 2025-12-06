@@ -20,105 +20,84 @@ class DriveToSpecificPointSwerveCommand(Command):
     def __init__(self, drivetrain : CommandSwerveDrivetrain, forward_movement_meters : float, lateral_position_meters : float) -> None:
         self.drivetrain = drivetrain
 
-        
-
+        # Create the two PID controllers,  One for forward movement and one for heading change
         self.speed = 0.0
         self.forward_movement_meters = forward_movement_meters
         self.distance_kP = 1.0
         self.distance_kI = 0.5
         self.distance_kD = 0.0
-        self.distance_kF = 0.0  # Feedforward constant (optional, but often useful)
+        self.distance_kF = 0.0  
         self.pid_distance_controller = PIDController(self.distance_kP, self.distance_kI, self.distance_kD)
         self.pid_distance_controller.setTolerance(0.1) # Set tolerance for onTarget()
 
-
+        self.turn_speed = 0.0
         self.lateral_position_meters = lateral_position_meters
         self.heading_kP = 1.0
         self.heading_kI = 0.5
         self.heading_kD = 0.0
-        self.heading_kF = 0.0  # Feedforward constant (optional, but often useful)
+        self.heading_kF = 0.0  
         self.pid_heading_controller = PIDController(self.heading_kP, self.heading_kI, self.heading_kD)
         self.pid_heading_controller.setTolerance(0.2) # Set tolerance for onTarget()
-
-
-        # self.lateral_position_meters
 
         self.addRequirements(drivetrain)
 
         """
                Algorithm:
-        __init__
+        Initialization (Runs each time the command is triggered)
+
         1) Get current Translation2d (x,y position on field) [Field-centric]
         2) Get the current pose.rotation (Heading in field centric)
-        3) Get input parameter. This is the distance to travel [Robot-centric]
-        4) Calculate the delta-x and delta-y distance to move [Field-centric]
-        5) Calculate target position (x,y on field-centric)
+        3) Get input parameters (forward and lateral). This is the distance to travel [Robot-centric]
+        4) Calculate the distance the robot needs to travel from the current position to the final position (Robot-Centric)
+        4) Calculate the delta-x and delta-y distance of the move [Field-centric]
+        5) Calculate target position (x,y on field-centric) by adding the current position to the delta-X and Y
 
-        __exec__
-        1) Get current Translation2d (x,y position on field) [Field-centric]
-        2) Calculate remaining delta-x  and delta-y
-        3) Calculate distance to target
-        4) Run PID calculation
 
         """
 
     def initialize(self) -> None:
 
         self.pid_distance_controller.reset()
+        self.pid_heading_controller.reset()
 
-        ### Get robot's current pose (Position and heading)
+        ### Get robot's current pose (Position and heading) [Field-Centric]
         self.initial_pose = Pose2d(self.drivetrain.get_state().pose.x,
                                    self.drivetrain.get_state().pose.y, 
                                    self.drivetrain.get_state().pose.rotation().radians())
 
-        #### ?????  IS THERE A BETTER WAY OF GETTING THE ROBOT POSE?
-
-        # Get just the X,Y position and rotation components of the current robot pose [Field-centric]
+        # Get the X,Y position and rotation components of the current robot pose [Field-centric]
         self.initial_translation     = self.initial_pose.translation()
         self.initial_heading_degrees = self.initial_pose.rotation().degrees()
         self.initial_heading_radians = self.initial_pose.rotation().radians()
 
-        self.delta_x_field_movement  = self.forward_movement_meters * math.cos(self.initial_heading_radians)
-        self.delta_y_field_movement  = self.forward_movement_meters * math.sin(self.initial_heading_radians)
+        # Calculate the field-centric change in X position and Y position from the current position to the target position
+        # for just the forward movement of the robot (Not including the cross motion)
 
-        # Calculate field relative position of final_final (distance + cross) target point
+        # Calculate field-centric position of final (distance + cross) target point
+        # This is robot-centric 
+        # First calculate the distance then calculate the heading [ ArcTan (Opposite over Adjancent)]
         self.distance_to_final_final_target_point = math.sqrt(  math.pow(self.forward_movement_meters, 2 ) +  
                                           math.pow(self.lateral_position_meters, 2) )
         
         self.angle_to_final_final_target_point_radians = math.atan2 (self.lateral_position_meters, self.forward_movement_meters )
 
+        #  Calculate the Field-centric, X component and Y component for the total planned movement to be used for PID calculations
         self.final_final_target_point_x = self.distance_to_final_final_target_point * math.cos(self.angle_to_final_final_target_point_radians)
         self.final_final_target_point_y = self.distance_to_final_final_target_point * math.sin(self.angle_to_final_final_target_point_radians)
         
+        ### >>> Does not include the robot start position
 
-        # TBD
-        # self.cross_distance = math.sqrt(  math.pow(self.delta_x_field_movement, 2 ) +  
-        #                                   math.pow(self.delta_y_field_movement, 2) )
-        
+        # Calculate  the Field-oriented X and Y position of the target field location (End point)
+        self.target_x_field_position = self.initial_translation.x + self.final_final_target_point_x
+        self.target_y_field_position = self.initial_translation.y + self.final_final_target_point_y
 
-        # self.cross_angle = math.atan2( self.lateral_position_meters, self.forward_movement_meters)
-
-        # self.cross_delta_x_field_movement = -self.cross_distance * math.sin(self.cross_angle)
-        # self.cross_delta_y_field_movement = self.cross_distance * math.cos(self.cross_angle)
-
-
-        # self.cross_delta_x_field_movement = 0.0
-        # self.cross_delta_y_field_movement = 0.0
-
-        # self.target_x_field_position = self.initial_translation.x + self.delta_x_field_movement + self.cross_delta_x_field_movement
-        # self.target_y_field_position = self.initial_translation.y + self.delta_y_field_movement + self.cross_delta_y_field_movement
-
-        self.target_x_field_position = self.final_final_target_point_x
-        self.target_y_field_position = self.final_final_target_point_y
-
-        # self.target_x_field_position = self.initial_translation.x + self.delta_x_field_movement  ## original
-        # self.target_y_field_position = self.initial_translation.y + self.delta_y_field_movement 
+        # self.target_x_field_position = self.final_final_target_point_x
+        # self.target_y_field_position = self.final_final_target_point_y
 
         print (f"Start Drive ------")
         print(f"Init: {self.initial_translation.x:4.1f} {self.initial_translation.y:4.1f} Heading: {self.initial_heading_degrees:4.1f}  ", end="")
-        print(f"Delta: X: {self.delta_x_field_movement:4.1f} Y: {self.delta_y_field_movement:4.1f} ", end="")
-        # print(f"Cross: {self.cross_delta_x_field_movement:4.1f} {self.cross_delta_x_field_movement:4.1f} ", end='')
-        print(f"Final: X: {self.target_x_field_position:4.1f}  Y: {self.target_y_field_position:4.1f}  ")
+        print(f"Delta: X: {self.final_final_target_point_x:4.1f} Y: {self.final_final_target_point_y:4.1f} ", end="")
+        print(f"Final Pos: X: {self.target_x_field_position:4.1f}  Y: {self.target_y_field_position:4.1f}  ")
 
         print (f"Cross Point positions ------")
         print (f"Distance:  {self.distance_to_final_final_target_point:5.2f}   ", end='')
@@ -126,17 +105,17 @@ class DriveToSpecificPointSwerveCommand(Command):
         print (f"Angle:  {57.296 *  self.angle_to_final_final_target_point_radians:4.2f} ")
         
         
-        # self.heading_to_drive = self.initial_heading_radians + math.atan2(self.lateral_position_meters, self.forward_movement_meters)
-        # self.heading_to_drive_robot_centric = math.atan2(self.lateral_position_meters, self.forward_movement_meters)
-
-
     def execute(self) -> None:
         """
+        Algorithm:
         __exec__
-        1) Get current Translation2d (x,y position on field) [Field-centric]
-        2) Calculate remaining delta-x  and delta-y
-        3) Calculate distance to target
-        4) Run PID calculation
+        1) Get current Translation2d (x,y position on field) and heading [Field-centric]
+        2) Calculate remaining delta-x  and delta-y  (Target position - current position)
+        3) Calculate distance to target position
+        4) Run PID calculation for forward movement
+
+        5) Calculate the current heading to the target end point 
+        6) 
 
         """
 
@@ -149,6 +128,7 @@ class DriveToSpecificPointSwerveCommand(Command):
         self.current_heading_degrees = self.current_pose.rotation().degrees()
         self.current_heading_radians = self.current_pose.rotation().radians()
 
+        # Calculate the remaining travel in X and Y components between the current position and the final position (Field-oriented)
         self.remaining_delta_x_field_movement = self.target_x_field_position - self.current_translation.x
         self.remaining_delta_y_field_movement = self.target_y_field_position - self.current_translation.y
 
@@ -159,6 +139,7 @@ class DriveToSpecificPointSwerveCommand(Command):
         print (f"Remaining {self.remaining_delta_x_field_movement:4.1f}  {self.remaining_delta_x_field_movement:4.1f} Distance {self.current_distance:4.1f} " , end='')
         print(f"Final: {self.target_x_field_position:4.1f} {self.target_y_field_position:4.1f}  ")
 
+        # PID Loop calculation
         self.distance_speed = - self.pid_distance_controller.calculate(self.current_distance, 0)
 
         ## Clamp Speed
@@ -168,17 +149,18 @@ class DriveToSpecificPointSwerveCommand(Command):
           
         print (f"Current distance: {self.current_distance:5.2f}   at speed: {self.speed:5.2f}  Heading: {self.current_heading_degrees:5.1f}")
 
-        # self.drivetrain.driving_forward(self.distance_speed)
-
         #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # self.delta_x_for_angle = self.target_x_field_position - self.current_translation.x
         # self.delta_y_for_angle = self.target_y_field_position - self.current_translation.y
         # self.target_heading_radians = math.atan2( self.delta_y_for_angle, self.delta_x_for_angle)
 
+        # Calculate the actual heading needed to get to the target end point
         self.target_heading_radians = math.atan2( self.remaining_delta_y_field_movement, self.remaining_delta_x_field_movement)
 
+        # PID heading calculation to get to the required heading
         self.turn_speed = self.pid_heading_controller.calculate(self.current_heading_radians, self.target_heading_radians)
 
+        # We can only drive the robot in forward motion or heading change. Do heading first, then distance from target
         if (self.pid_heading_controller.atSetpoint()):
             self.drivetrain.driving_forward(self.distance_speed)
             print ("Forward")
