@@ -22,22 +22,24 @@ class DriveToSpecificPointSwerveCommand(Command):
 
         # Create the two PID controllers,  One for forward movement and one for heading change
         self.speed = 0.0
+        self.distance_clamped_max_speed = 2.0
         self.forward_movement_meters = forward_movement_meters
         self.distance_kP = 1.0
         self.distance_kI = 0.5
         self.distance_kD = 0.0
         self.distance_kF = 0.0  
         self.pid_distance_controller = PIDController(self.distance_kP, self.distance_kI, self.distance_kD)
-        self.pid_distance_controller.setTolerance(0.1) # Set tolerance for onTarget()
+        self.pid_distance_controller.setTolerance(0.05) 
 
         self.turn_speed = 0.0
+        self.turn_clamped_max_speed = 2.0
         self.lateral_position_meters = lateral_position_meters
-        self.heading_kP = 1.0
+        self.heading_kP = 3.0
         self.heading_kI = 0.5
         self.heading_kD = 0.0
         self.heading_kF = 0.0  
         self.pid_heading_controller = PIDController(self.heading_kP, self.heading_kI, self.heading_kD)
-        self.pid_heading_controller.setTolerance(0.2) # Set tolerance for onTarget()
+        self.pid_heading_controller.setTolerance(0.5) 
 
         self.addRequirements(drivetrain)
 
@@ -115,7 +117,7 @@ class DriveToSpecificPointSwerveCommand(Command):
         4) Run PID calculation for forward movement
 
         5) Calculate the current heading to the target end point 
-        6) 
+        6) Run PID calculation for heading
 
         """
 
@@ -135,24 +137,16 @@ class DriveToSpecificPointSwerveCommand(Command):
         self.current_distance = math.sqrt(math.pow(self.remaining_delta_x_field_movement, 2) +  
                                           math.pow(self.remaining_delta_y_field_movement, 2) )
 
-        print(f"current:  {self.current_translation.x:4.1f} {self.current_translation.y:4.1f} Heading: {self.current_heading_degrees:4.1f}  ", end='')
-        print (f"Remaining {self.remaining_delta_x_field_movement:4.1f}  {self.remaining_delta_x_field_movement:4.1f} Distance {self.current_distance:4.1f} " , end='')
-        print(f"Final: {self.target_x_field_position:4.1f} {self.target_y_field_position:4.1f}  ")
-
         # PID Loop calculation
         self.distance_speed = - self.pid_distance_controller.calculate(self.current_distance, 0)
 
-        ## Clamp Speed
-        self.distance_clamped_max_speed = 1.0
+        ## Clamp Forward Motion Speed
         if (self.distance_speed > self.distance_clamped_max_speed): self.distance_speed = self.distance_clamped_max_speed
         if (self.distance_speed < -self.distance_clamped_max_speed): self.distance_speed = -self.distance_clamped_max_speed
           
-        print (f"Current distance: {self.current_distance:5.2f}   at speed: {self.speed:5.2f}  Heading: {self.current_heading_degrees:5.1f}")
 
         #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        # self.delta_x_for_angle = self.target_x_field_position - self.current_translation.x
-        # self.delta_y_for_angle = self.target_y_field_position - self.current_translation.y
-        # self.target_heading_radians = math.atan2( self.delta_y_for_angle, self.delta_x_for_angle)
+        #  Heading Calculations
 
         # Calculate the actual heading needed to get to the target end point
         self.target_heading_radians = math.atan2( self.remaining_delta_y_field_movement, self.remaining_delta_x_field_movement)
@@ -160,13 +154,25 @@ class DriveToSpecificPointSwerveCommand(Command):
         # PID heading calculation to get to the required heading
         self.turn_speed = self.pid_heading_controller.calculate(self.current_heading_radians, self.target_heading_radians)
 
+        ## Clamp Heading Change Speed
+        if (self.turn_speed >  self.turn_clamped_max_speed): self.turn_speed =  self.turn_clamped_max_speed
+        if (self.turn_speed < -self.turn_clamped_max_speed): self.turn_speed = -self.turn_clamped_max_speed
+
+
         # We can only drive the robot in forward motion or heading change. Do heading first, then distance from target
+
         if (self.pid_heading_controller.atSetpoint()):
             self.drivetrain.driving_forward(self.distance_speed)
-            print ("Forward")
+            print (f"^^^ Forward Speed:  {self.distance_speed:5.2f} ", end='')
+            print(f"Forward: current:  {self.current_translation.x:5.2f} {self.current_translation.y:5.2f} Heading: {self.current_heading_degrees:5.2f}  ", end='')
+            print (f"Remaining {self.remaining_delta_x_field_movement:5.2f}  {self.remaining_delta_x_field_movement:5.2f} Distance {self.current_distance:5.2f} " , end='')
+            print(f"Final: {self.target_x_field_position:5.2f} {self.target_y_field_position:5.2f}  ")
+
         else:
             self.drivetrain.driving_change_heading(self.turn_speed)
-            print ("Turn")
+            print (f">>>>> Turn Speed {self.turn_speed:5.1f}  ", end='')
+        print (f"Current distance: {self.current_distance:5.2f}   Heading: {self.current_heading_degrees:5.1f}  ", end='')
+        print (f"Heading Error: {57.296 * (self.target_heading_radians - self.current_heading_radians):5.2f} (Target-current) ")
 
 
     def isFinished(self) -> bool:

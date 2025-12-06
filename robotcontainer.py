@@ -155,7 +155,10 @@ class RobotContainer:
         #                                                   self._ledsubsystem,
         #                                                   self._apriltag_alignment_data))
 
-        self._joystick.x().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 2.0))  # size in meters
+        self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 0.0))  # forward, cross position Robot-centric in meters
+        self._joystick.b().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, -2.0))  # forward, cross position Robot-centric in meters
+        self._joystick.x().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 2.0))  # forward, cross position Robot-centric in meters
+        self._joystick.y().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 3.0, 4.0))  # forward, cross position Robot-centric in meters
 
 
         # self._joystick.x().onTrue(DriveInSquareDemo(self.drivetrain,
@@ -168,11 +171,11 @@ class RobotContainer:
         # Pass in the robot and the desired movement in the  form of a translation (x,y object)
 
 
-        self.heading_change_degrees = 30   # Degrees with positive is Counter-Clockwise
-        self._joystick.y().onTrue(TurnHeadingSwerveCommand(self.drivetrain, self.heading_change_degrees))
+        # self.heading_change_degrees = 30   # Degrees with positive is Counter-Clockwise
+        # self._joystick.y().onTrue(TurnHeadingSwerveCommand(self.drivetrain, self.heading_change_degrees))
 
         # Define the target pose (x, y, and heading)
-        target_pose = Pose2d(Translation2d(1.0, 2.0), Rotation2d.fromDegrees(90.0))
+        # target_pose = Pose2d(Translation2d(1.0, 2.0), Rotation2d.fromDegrees(90.0))
 
 
         self.drivetrain.register_telemetry(
