@@ -70,7 +70,6 @@ class VisionSystem(Subsystem):
         target_list = self._latest_result.getTargets()
         print (f"get_tag_data - Length:  {len(target_list)}")
 
-
         for target in target_list:
             self.fiducialId = target.getFiducialId()
 
@@ -98,14 +97,17 @@ class VisionSystem(Subsystem):
 
         self.apriltag_alignment_data.print_all_apriltag_alignment_data()
 
-    def get_tag_data_v2(self) -> float:
+    def get_tag_data_Transform_to_Tag(self) -> float:   # Requires AprilTag 3D Mode on PhotonVision
 
         if self._latest_result.hasTargets():
+            print (f"Getting Transform of 3D AprilTag position")
             # Accessing 2D information (e.g., yaw, pitch, area of the best target)
             best_target = self._latest_result.getBestTarget()
-            self.yaw_2d = best_target.getYaw()
+            self.yaw_2d = best_target.getYaw()     ### Not Used
             self.pitch_2d = best_target.getPitch()
             self.area_2d = best_target.getArea()
+
+            self.apriltag_alignment_data.set_apriltag_alignment_data_yaw(best_target.getYaw())
 
             # Accessing 3D pose information (if 3D mode is enabled in PhotonVision)
             # The getBestTarget().getBestCameraToTarget() returns a Transform3d

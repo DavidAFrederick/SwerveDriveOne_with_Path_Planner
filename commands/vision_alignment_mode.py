@@ -25,11 +25,13 @@ class AprilTagAligmentMode(Command):
 
     def initialize(self) -> None:
         self.led.red()
+        print(">>>>>  AprilTagAligmentMode <<<<<<<<<<<")
 
 
     def execute(self) -> None:
 
-        self.vision.get_tag_data()
+        self.vision.get_tag_data()                    #  Basic - Yaw to AprilTag
+        # self.vision.get_tag_data_Transform_to_Tag()   #  Advanced info = Transform to Best AprilTag
         
         current_fpga_time = wpilib.Timer.getFPGATimestamp()
         # print (f"Vision    Current Yaw: {self.apriltag_alignment_data.apriltag_yaw:5.1f}  at {current_fpga_time:6.1f} ")
@@ -46,7 +48,7 @@ class AprilTagAligmentMode(Command):
         self.drivetrain.set_control(self.swerve_drive_request)
 
         # TEMP
-        self.apriltag_alignment_data.apriltag_yaw  = self.apriltag_alignment_data.apriltag_yaw - 0.01
+        # self.apriltag_alignment_data.apriltag_yaw  = self.apriltag_alignment_data.apriltag_yaw - 0.01
         
     def isFinished(self) -> bool:
        if (self.apriltag_alignment_data.apriltag_yaw < self.YAW_THRESHOLD):
