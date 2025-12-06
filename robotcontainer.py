@@ -33,6 +33,11 @@ from commands.apriltag_align_group_command import AprilTagAlignGroupCommand
 from commands.drive_in_square_command_group import DriveInSquareDemo
 
 
+
+
+# from Old_Ready_to_Delete.path_planner_teleop_command import DriveToPoseCommand
+
+
 class RobotContainer:
     """
     This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -151,7 +156,7 @@ class RobotContainer:
         self._joystick.x().onTrue(DriveInSquareDemo(self.drivetrain,
                                                     self._visionsubsystem,
                                                     self._ledsubsystem,
-                                                    2.0))  # size in meters
+                                                    1.0))  # size in meters
 
         # self.movement_translation = Translation2d(2.0, 1.0)
         # self._joystick.y().onTrue(DriveDistanceSwerveCommand(self.drivetrain, self.movement_translation))
@@ -161,7 +166,8 @@ class RobotContainer:
         self.heading_change_degrees = 30   # Degrees with positive is Counter-Clockwise
         self._joystick.y().onTrue(TurnHeadingSwerveCommand(self.drivetrain, self.heading_change_degrees))
 
-
+        # Define the target pose (x, y, and heading)
+        target_pose = Pose2d(Translation2d(1.0, 2.0), Rotation2d.fromDegrees(90.0))
 
 
         self.drivetrain.register_telemetry(

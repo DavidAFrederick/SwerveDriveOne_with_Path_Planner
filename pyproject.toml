@@ -30,4 +30,5 @@ robotpy_extras = [
 requires = [
     "phoenix6~=25.4",
     "photonlibpy",
+    "robotpy-navx~=2025.0.1.2"
 ]

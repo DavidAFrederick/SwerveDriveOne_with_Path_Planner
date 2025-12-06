@@ -6,57 +6,119 @@ from phoenix6.swerve.requests import FieldCentric, RobotCentric, Translation2d, 
 from wpimath.controller import PIDController
 from wpimath.geometry import Pose2d, Translation2d, Rotation2d
 from wpimath import units
+import math
 
 
 class DriveDistanceSwerveCommand(Command):
-    def __init__(self, drivetrain : CommandSwerveDrivetrain, target_translation2d : Translation2d) -> None:
+    """
+    Drives the robot forward in a straight line.  Robot Centric movement
+    """
+
+
+    def __init__(self, drivetrain : CommandSwerveDrivetrain, forward_movement_meters : float) -> None:
         self.drivetrain = drivetrain
 
         self.speed = 0.0
-        # self.current_distance = 0.0
-        self.target_translation2d = target_translation2d
+        self.forward_movement_meters = forward_movement_meters
         self.kP = 1.0
         self.kI = 0.5
         self.kD = 0.0
         self.kF = 0.0  # Feedforward constant (optional, but often useful)
         self.pid_controller = PIDController(self.kP, self.kI, self.kD)
-        self.pid_controller.setTolerance(0.2) # Set tolerance for onTarget()
+        self.pid_controller.setTolerance(0.1) # Set tolerance for onTarget()
         self.addRequirements(drivetrain)
 
-    def initialize(self) -> None:
         """
-        1) Reset the PID controller
-        2) Get the robot's current pose
-        3) Calculate the target robot pose
+               Algorithm:
+        __init__
+        1) Get current Translation2d (x,y position on field) [Field-centric]
+        2) Get the current pose.rotation (Heading in field centric)
+        3) Get input parameter. This is the distance to travel [Robot-centric]
+        4) Calculate the delta-x and delta-y distance to move [Field-centric]
+        5) Calculate target position (x,y on field-centric)
+
+        __exec__
+        1) Get current Translation2d (x,y position on field) [Field-centric]
+        2) Calculate remaining delta-x  and delta-y
+        3) Calculate distance to target
+        4) Run PID calculation
 
         """
+
+    def initialize(self) -> None:
+
         self.pid_controller.reset()
+
+        ### Get robot's current pose (Position and heading)
+        self.initial_pose = Pose2d(self.drivetrain.get_state().pose.x,
+                                   self.drivetrain.get_state().pose.y, 
+                                   self.drivetrain.get_state().pose.rotation().radians())
+
+        #### ?????  IS THERE A BETTER WAY OF GETTING THE ROBOT POSE?
+
+        # Get just the X,Y position and rotation components of the current robot pose [Field-centric]
+        self.initial_translation     = self.initial_pose.translation()
+        self.initial_heading_degrees = self.initial_pose.rotation().degrees()
+        self.initial_heading_radians = self.initial_pose.rotation().radians()
+
+        self.delta_x_field_movement  = self.forward_movement_meters * math.cos(self.initial_heading_radians)
+        self.delta_y_field_movement  = self.forward_movement_meters * math.sin(self.initial_heading_radians)
+
+        self.target_x_field_position = self.initial_translation.x + self.delta_x_field_movement
+        self.target_y_field_position = self.initial_translation.y + self.delta_y_field_movement
+
+        print(f"Init:  {self.initial_translation.x:4.1f} {self.initial_translation.y:4.1f}  Heading: {self.initial_heading_degrees:4.1f}  ", end="")
+        print(f"Delta: {self.delta_x_field_movement:4.1f} {self.delta_y_field_movement:4.1f} ", end="")
+        print(f"Final: {self.target_x_field_position:4.1f} {self.target_y_field_position:4.1f}  ")
+        
+
+
+        # self.initial_heading = self.drivetrain.get_state().pose.rotation().degrees()
+        # self.initial_heading_radians = self.drivetrain.get_state().pose.rotation().radians()
+
+        # self.relative_transform = Transform2d(self.target_translation2d, Rotation2d.fromDegrees(0))
+        # Create a pose for the target position by adding the X,Y position parts and setting the rotation to zero
+        # self.target_pose = Pose2d((self.current_translation  + self.target_translation2d), Rotation2d.fromDegrees(0))
+        # self.target_translation = Translation2d((self.current_translation  + self.target_translation2d))
+
+        # print(f"self.current_translation:: {self.current_translation}")
+        # # print(f"self.relative_transform {self.relative_transform}")
+        # print(f"self.target_transform::  {self.target_translation}")
+        
+        ### NEED TO MAKE THIS ROBOT-CENTRIC VS FIELD-CENTRIC
+
+
+    def execute(self) -> None:
+        """
+        __exec__
+        1) Get current Translation2d (x,y position on field) [Field-centric]
+        2) Calculate remaining delta-x  and delta-y
+        3) Calculate distance to target
+        4) Run PID calculation
+
+        """
 
         ### Get robot's current pose (Position and heading)
         self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,
                                    self.drivetrain.get_state().pose.y, 
                                    self.drivetrain.get_state().pose.rotation().radians())
 
-        #### ?????  IS THERE A BETTER WAY OF GETTING THE ROBOT POSE?
+        self.current_translation     = self.current_pose.translation()
+        self.current_heading_degrees = self.current_pose.rotation().degrees()
 
-        # Get just the X,Y position components of the current robot pose
-        self.current_translation = self.current_pose.translation()
-        # 
-        # self.relative_transform = Transform2d(self.target_translation2d, Rotation2d.fromDegrees(0))
-        # Create a pose for the target position by adding the X,Y position parts and setting the rotation to zero
-        # self.target_pose = Pose2d((self.current_translation  + self.target_translation2d), Rotation2d.fromDegrees(0))
-        self.target_translation = Translation2d((self.current_translation  + self.target_translation2d))
+        self.remaining_delta_x_field_movement = self.target_x_field_position - self.current_translation.x
+        self.remaining_delta_y_field_movement = self.target_y_field_position - self.current_translation.y
 
-        print(f"self.current_translation:: {self.current_translation}")
-        # print(f"self.relative_transform {self.relative_transform}")
-        print(f"self.target_transform::  {self.target_translation}")
-        
-    def execute(self) -> None:
-        """
-        1) Get the current robot pose
-        2) Calculate the distance between current pose and target pose
-        3) 
-        """
+        self.current_distance = math.sqrt( math.pow (self.remaining_delta_x_field_movement,  2 ) +  
+                                          math.pow(self.remaining_delta_x_field_movement, 2) )
+
+
+        print(f"current:  {self.current_translation.x:4.1f} {self.current_translation.y:4.1f} Heading: {self.current_heading_degrees:4.1f}  ", end='')
+        print (f"Remaining {self.remaining_delta_x_field_movement:4.1f}  {self.remaining_delta_x_field_movement:4.1f} Distance {self.current_distance:4.1f} " , end='')
+        print(f"Final: {self.target_x_field_position:4.1f} {self.target_y_field_position:4.1f}  ")
+
+
+
 
                 ### Get robot's current pose (Position and heading)
         # self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,
@@ -64,19 +126,36 @@ class DriveDistanceSwerveCommand(Command):
         #                            self.drivetrain.get_state().pose.rotation().radians())
         
         # self.current_translation = self.current_pose.translation()
-        self.current_translation = Translation2d(self.drivetrain.get_state().pose.x,
-                                   self.drivetrain.get_state().pose.y)
-        
+        # self.current_translation = Translation2d(self.drivetrain.get_state().pose.x,
+        #                            self.drivetrain.get_state().pose.y)
+        # self.current_heading = self.drivetrain.get_state().pose.rotation().degrees()
+        # self.current_heading_radians = self.drivetrain.get_state().pose.rotation().radians()
+
+        # Calculate the distance to the target position using C = sqrt( sqr(Adjancent side) + sqr (Opposite side))
+
+        # self.adjancent_side = self.forward_movement_meters * math.cos(self.current_heading_radians) 
+        # self.opposite_side = self.forward_movement_meters * math.sin(self.current_heading_radians) 
+        # self.current_distance = math.sqrt( math.pow (self.adjancent_side,2 ) +  math.pow(self.opposite_side, 2) )
+        # print (f" Adj: {self.adjancent_side:4.1f}  Opp: {self.opposite_side:4.1f}  Distance {self.current_distance:4.1f}")
+
+        # print (f"target_translation2d:  X: {self.target_translation2d.x}    Y: {self.target_translation2d.y}")
+
         # Calculate the distance between the robot's current position and the target position
         # self.current_distance = self.current_pose.translation().distance(self.target_pose.translation())
-        self.current_distance = self.current_translation.distance(self.target_translation)
+        # self.current_distance = self.current_translation.distance(self.target_translation)
 
         self.speed = - self.pid_controller.calculate(self.current_distance, 0)
 
+        ## Clamp Speed
+        self.clamped_max_speed = 1.0
+        if (self.speed > self.clamped_max_speed): self.speed = self.clamped_max_speed
+        if (self.speed < -self.clamped_max_speed): self.speed = -self.clamped_max_speed
+          
 
-        print (f"Robot Pos {self.current_translation.x:4.2f}: {self.current_translation.y:4.2f} ",end='')
-        print (f"Target Pos {self.target_translation.x:4.2f}: {self.target_translation.y:4.2f}  ",end='')
-        print (f"Current distance: {self.current_distance:5.2f}   at speed: {self.speed:5.2f}")
+
+        # print (f"Robot Pos {self.current_translation.x:4.2f}: {self.current_translation.y:4.2f} ",end='')
+        # # print (f"Target Pos {self.target_translation.x:4.2f}: {self.target_translation.y:4.2f}  ",end='')
+        print (f"Current distance: {self.current_distance:5.2f}   at speed: {self.speed:5.2f}  Heading: {self.current_heading_degrees:5.1f}")
 
         self.drivetrain.driving_forward(self.speed)
 

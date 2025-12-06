@@ -5,10 +5,14 @@ from pathplannerlib.auto import AutoBuilder, RobotConfig
 from pathplannerlib.controller import PIDConstants, PPHolonomicDriveController
 from phoenix6 import SignalLogger, swerve, units, utils
 from typing import Callable, overload
+import wpilib
 from wpilib import DriverStation, Notifier, RobotController
 from wpilib.sysid import SysIdRoutineLog
 from wpimath.geometry import Pose2d, Rotation2d
 from phoenix6.swerve.requests import RobotCentric
+
+import navx # Or your navX interface
+# from navx import AHRS # Or your navX interface
 
 
 class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
@@ -50,6 +54,21 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         if utils.is_simulation():
             self._start_sim_thread()
 
+
+        # Assuming you have a navX device created
+        # self.navx = AHRS(4) # This will be intercepted in sim
+        self._gyro: navx.AHRS = navx.AHRS.create_spi()
+        self.current_gyro_heading = self._gyro.getAngle()
+        print (f"Initial Gyro value: {self.current_gyro_heading:5.1f}")
+
+
+
+        # self.gyro = wpilib.AnalogGyro(1)     # provides robot heading (like a compass)
+        # self.gyro.reset()
+        # self.current_gyro_heading = self.gyro.getAngle()
+        # print (f"Initial Gyro value: {self.current_gyro_heading:5.1f}")
+
+
     def apply_request(
         self, request: Callable[[], swerve.requests.SwerveRequest]
     ) -> Command:
@@ -83,6 +102,15 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
                     else self._BLUE_ALLIANCE_PERSPECTIVE_ROTATION
                 )
                 self._has_applied_operator_perspective = True
+
+
+        if utils.is_simulation():
+            self.current_gyro_heading = self.get_state().pose.rotation().degrees()
+        else:
+            self.current_gyro_heading = self._gyro.getAngle()
+
+        # print (f"Current Gyro value: {self.current_gyro_heading:5.1f}")
+
 
     def _start_sim_thread(self):
         def _sim_periodic():

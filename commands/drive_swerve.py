@@ -17,8 +17,8 @@ class DriveSwerveCommand(Command):
     def execute(self) -> None:
 
         self.swerve_request = (RobotCentric()
-                               .with_velocity_x(2)
-                               .with_velocity_y(2))
+                               .with_velocity_x(1)
+                               .with_velocity_y(1))
         
         self.drivetrain.set_control(self.swerve_request)
 

@@ -14,7 +14,7 @@ class DriveInSquareDemo(SequentialCommandGroup):
 
 
     def __init__(self, drivetrain : CommandSwerveDrivetrain, 
-                 vision : VisionSystem , 
+                 vision : VisionSystem, 
                  led : LEDSubsystem,
                  size_of_square : float) -> None:
 
@@ -31,22 +31,23 @@ class DriveInSquareDemo(SequentialCommandGroup):
 
         self.addCommands(
             #  A to B Leg  
-            DriveDistanceSwerveCommand(self.drivetrain, Translation2d(self.size_of_square, 0.0)),
+            TurnHeadingSwerveCommand(self.drivetrain, 45),
+            DriveDistanceSwerveCommand(self.drivetrain, self.size_of_square),
             PauseCommand(1.0),
             TurnHeadingSwerveCommand(self.drivetrain, 90),
-
+ 
             #  B to C Leg
-            DriveDistanceSwerveCommand(self.drivetrain, Translation2d(0.0, self.size_of_square)),
+            DriveDistanceSwerveCommand(self.drivetrain, self.size_of_square),
             PauseCommand(1.0),
             TurnHeadingSwerveCommand(self.drivetrain, 90),
 
             #  C to D Leg
-            DriveDistanceSwerveCommand(self.drivetrain, Translation2d(-self.size_of_square, 0.0)),
+            DriveDistanceSwerveCommand(self.drivetrain, self.size_of_square),
             PauseCommand(1.0),
             TurnHeadingSwerveCommand(self.drivetrain, 90),
 
             #  D to A Leg
-            DriveDistanceSwerveCommand(self.drivetrain, Translation2d(0.0, -self.size_of_square)),
+            DriveDistanceSwerveCommand(self.drivetrain, self.size_of_square),
             PauseCommand(1.0),
             TurnHeadingSwerveCommand(self.drivetrain, 90),
 
