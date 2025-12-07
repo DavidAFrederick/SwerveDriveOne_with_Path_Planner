@@ -68,7 +68,7 @@ class VisionSystem(Subsystem):
 
     def get_tag_data(self) -> list:
         target_list = self._latest_result.getTargets()
-        print (f"get_tag_data - Length:  {len(target_list)}")
+        # print (f"get_tag_data - Length:  {len(target_list)}")
 
         for target in target_list:
             self.fiducialId = target.getFiducialId()
@@ -77,25 +77,25 @@ class VisionSystem(Subsystem):
             self.bestCameraToTarget: Transform3d = target.getBestCameraToTarget()
 
             # Print or use the transform data
-            print(f"Target ID: {self.fiducialId}")
-            print(f"Best Camera to Target Transform: {self.bestCameraToTarget}")
+            # print(f"Target ID: {self.fiducialId}   ", end='')
+            # print(f"Best Camera to Target Transform: {self.bestCameraToTarget}")
 
 
-        if len(target_list) > 0:   #  No targets present
-        # if (self._latest_result.hasTargets()):
-            print (f"vvvvvvvvvvvvvvvvvvvvvvvvvvv")
-            print (f" Target_list {target_list}")
-            print (f"{len(target_list)} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ")
+        # if len(target_list) > 0:   #  No targets present
+        if (self._latest_result.hasTargets()):
+            # print (f"vvvvvvvvvvvvvvvvvvvvvvvvvvv")
+            # print (f" Target_list {target_list}")
+            # print (f"{len(target_list)} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ")
 
             for target in target_list:
-                print (f"target.getYaw()  {target.getYaw()}")
+                # print (f"target.getYaw()  {target.getYaw():5.2f}")
                 self.apriltag_alignment_data.set_apriltag_alignment_data_yaw(target.getYaw())
         else:
             self.apriltag_alignment_data.set_apriltag_alignment_data_not_available()
 
         SmartDashboard.putBoolean("See Tag", self._latest_result.hasTargets())
 
-        self.apriltag_alignment_data.print_all_apriltag_alignment_data()
+        # self.apriltag_alignment_data.print_all_apriltag_alignment_data()
 
     def get_tag_data_Transform_to_Tag(self) -> float:   # Requires AprilTag 3D Mode on PhotonVision
 

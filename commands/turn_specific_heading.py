@@ -4,10 +4,6 @@ from wpimath.controller import PIDController
 from wpimath.geometry import Pose2d
 from phoenix6 import utils
 
-
-#  NEED TO UPDATE TO HANDLE FULL ROTATION.  SEEMS TO HAVE AN ERROR WHEN CROSSING +/-180
-##  Pose2d heading is relative to the field. Can I make it relative to the front azimuth of the robot
-
 class TurnHeadingSwerveCommand(Command):
     def __init__(self, drivetrain : CommandSwerveDrivetrain, heading_change_degrees : float) -> None:
         self.drivetrain = drivetrain
@@ -19,13 +15,7 @@ class TurnHeadingSwerveCommand(Command):
         self.kD = 0.0
         self.kF = 0.0  # Feedforward constant (optional, but often useful)
         self.pid_controller = PIDController(self.kP, self.kI, self.kD)
-        # self.pid_controller.setInputRange(-180.0, 180.0) # Gyro range
-        # self.pid_controller.setContinuous(True) # Heading is continuous (wraps around)
-        # self.pid_controller.disableContinuousInput()
         self.pid_controller.enableContinuousInput(-180.0, 180.0)
-        # self.pid_controller.setInputRange(-180.0, 180.0)
-        # self.pid_controller.setOutputRange(-1.0, 1.0)
-        #  NEED TO UPDATE TO HANDLE FULL ROTATION.  SEEMS TO HAVE AN ERROR WHEN CROSSING +/-180
         self.pid_controller.setTolerance(1.0)  
         self.addRequirements(drivetrain)
 
@@ -38,6 +28,7 @@ class TurnHeadingSwerveCommand(Command):
         """
         self.pid_controller.reset()
 
+        # Get current Heading ( On the real robot, we should get the heading from the Gyro)
         if utils.is_simulation():
             self.current_gyro_heading = self.drivetrain.get_state().pose.rotation().degrees()
         else:
@@ -54,6 +45,7 @@ class TurnHeadingSwerveCommand(Command):
         3) Drive robot rotation
         """
 
+        # Get current Heading ( On the real robot, we should get the heading from the Gyro)
         if utils.is_simulation():
             self.current_gyro_heading = self.drivetrain.get_state().pose.rotation().degrees()
         else:
