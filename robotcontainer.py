@@ -20,23 +20,15 @@ from wpimath.units import rotationsToRadians
 
 from subsystems.ledsubsystem import LEDSubsystem
 from commands.ledcommand import LEDCommand
-
 from subsystems.vision_subsystem import VisionSystem 
+
 from apriltagalignmentdata import AprilTagAlignmentData
+
 from commands.vision_alignment_mode import AprilTagAligmentMode
-from commands.vision_heading_alignment_mode_with_PID import AprilTagHeadingAligmentModePID
 from commands.turn_specific_heading import TurnHeadingSwerveCommand
-# from commands.vision_alignment_mode import AprilTagHeadingAligmentModePID
-from commands.drive_swerve import DriveSwerveCommand
 from commands.drive_specific_distance import DriveDistanceSwerveCommand
-from commands.apriltag_align_group_command import AprilTagAlignGroupCommand
 from commands.drive_in_square_command_group import DriveInSquareDemo
 from commands.drive_to_specific_point import DriveToSpecificPointSwerveCommand
-
-
-
-
-# from Old_Ready_to_Delete.path_planner_teleop_command import DriveToPoseCommand
 
 
 class RobotContainer:
@@ -90,7 +82,6 @@ class RobotContainer:
         self._ledsubsystem.setDefaultCommand(LEDCommand( self._ledsubsystem, 100))
 
 
-    
         # Configure the button bindings
         self.configureButtonBindings()
 

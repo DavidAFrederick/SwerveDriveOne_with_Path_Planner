@@ -12,6 +12,7 @@ import math
 class DriveDistanceSwerveCommand(Command):
     """
     Drives the robot forward in a straight line.  Robot Centric movement
+    Use defines forward movement distance
     """
 
 

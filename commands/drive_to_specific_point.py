@@ -8,6 +8,9 @@ from wpimath.geometry import Pose2d, Translation2d, Rotation2d
 from wpimath import units
 import math
 
+# This code has errors in some quadrants.  Need to test and localize
+# Lots of trig so likely has some errors.
+
 
 class DriveToSpecificPointSwerveCommand(Command):
     """

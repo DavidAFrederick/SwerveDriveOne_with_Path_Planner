@@ -5,6 +5,9 @@ from wpimath.geometry import Pose2d
 from phoenix6 import utils
 
 class TurnHeadingSwerveCommand(Command):
+    """
+    Just changes heading of the robot.
+    """
     def __init__(self, drivetrain : CommandSwerveDrivetrain, heading_change_degrees : float) -> None:
         self.drivetrain = drivetrain
 
