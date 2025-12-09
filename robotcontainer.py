@@ -4,7 +4,7 @@
 # the WPILib BSD license file in the root directory of this project.
 #
 from commands2 import SequentialCommandGroup, PrintCommand
-
+from wpilib import LiveWindow
 import commands2
 import commands2.cmd
 from commands2.button import CommandXboxController, Trigger
@@ -41,6 +41,21 @@ class RobotContainer:
     """
 
     def __init__(self) -> None:
+
+
+        ##   >>>  This command 
+        # The function FRC LiveWindow.disableAllTelemetry() is a static method 
+        # in the FRC (FIRST Robotics Competition) WPILib library that disables t
+        # he sending of data for all sensors and actuators to the SmartDashboard 
+        # or Shuffleboard LiveWindow display.  
+
+        LiveWindow.disableAllTelemetry()
+
+        
+        # https://robotpy.readthedocs.io/projects/robotpy/en/latest/wpilib/LiveWindow.html        
+
+
+        ##  LiveWindow.disableAllTelemetry()
 
         self._max_speed = (
             TunerConstants.speed_at_12_volts
