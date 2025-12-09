@@ -43,21 +43,12 @@ class AprilTagAligmentMode(Command):
 
         self.pid_controller.reset()
         self.target_heading = 0.0
-
-        self.current_gyro_heading = self.drivetrain.get_robot_heading()
-
-        # # Get current Heading ( On the real robot, we should get the heading from the Gyro)
-        # if utils.is_simulation():
-        #     self.current_gyro_heading = self.drivetrain.get_state().pose.rotation().degrees()
-        # else:
-        #     self.current_gyro_heading = self._gyro.getAngle()
-
         self.led.red()
 
 
     def execute(self) -> None:
         """
-        1) Get the current robot Heading
+        1) Get the current Yaw to the AprilTag from PhotonVision
         2) Perform PID Calculation
         3) Drive robot rotation
         """
@@ -65,21 +56,13 @@ class AprilTagAligmentMode(Command):
         # Get Yaw to Target (Robot-Centric)
         self.vision.get_tag_data()                  #  Basic - Yaw to AprilTag
         
-        # Get current Heading ( On the real robot, we should get the heading from the Gyro)
-        # if utils.is_simulation():
-        #     self.current_gyro_heading = self.drivetrain.get_state().pose.rotation().degrees()
-        # else:
-        #     self.current_gyro_heading = self._gyro.getAngle()
-
-
         if (self.apriltag_alignment_data.get_apriltag_alignment_data_Target_present()):
-            self.current_gyro_heading = self.drivetrain.get_robot_heading()
             self.yaw = self.apriltag_alignment_data.get_apriltag_alignment_data_yaw()
-            self.turn_speed = self.pid_controller.calculate(self.current_gyro_heading, self.yaw)
-            print (f" DELTA:  {(self.current_gyro_heading - self.yaw):5.2f}")
+            self.turn_speed = self.pid_controller.calculate( self.yaw, 0)
+            print (f" Turning to Target:  {(self.yaw):5.2f}")
             
             ## Clamp Heading Change Speed
-            self.turn_clamped_max_speed = 0.5
+            self.turn_clamped_max_speed = 0.8
             if (self.turn_speed >  self.turn_clamped_max_speed): self.turn_speed =  self.turn_clamped_max_speed
             if (self.turn_speed < -self.turn_clamped_max_speed): self.turn_speed = -self.turn_clamped_max_speed
 
@@ -90,13 +73,8 @@ class AprilTagAligmentMode(Command):
             self.yaw = 0.0
 
 
-        print(f"self.current_gyro_heading:: {self.current_gyro_heading:5.2f}   ", end='')
-        print(f"self.target_heading::  {self.yaw:5.2f}")
-
-
     def isFinished(self) -> bool:       
         return self.pid_controller.atSetpoint()        
-
 
     def end(self, interrupted: bool) -> None:
         self.led.green()

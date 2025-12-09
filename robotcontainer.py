@@ -170,19 +170,16 @@ class RobotContainer:
         # self._joystick.y().onTrue(DriveDistanceSwerveCommand(self.drivetrain, self.movement_translation))
         # Pass in the robot and the desired movement in the  form of a translation (x,y object)
 
+        # ERROR HERE:    Buttons not mapping correctly.
 
-        # PrintCommand("AAAAAAAAA")
-        # self._joystick.a().onTrue(PrintCommand("AAAAAAAAA"))
-        # self._joystick.b().onTrue(PrintCommand("BBBBBBBB"))
-        # self._joystick.x().onTrue(PrintCommand("XXXXX"))
-        # self._joystick.y().onTrue(PrintCommand("YYYY"))
+        # self._joystick.a().onTrue(PrintCommand("AAAAAAAAAAAAAAAAAA"))  # Triggered with A button
+        # self._joystick.b().onTrue(PrintCommand("BBBBBBBBBBBBBBBBBB"))  # Triggered with X button
+        # self._joystick.x().onTrue(PrintCommand("XXXXXXXXXXXXXXXXXX"))  # Triggered with B button
+        # self._joystick.y().onTrue(PrintCommand("YYYYYYYYYYYYYYYYYY"))  # Triggered with Y button
 
         # self.heading_change_degrees = 30   # Degrees with positive is Counter-Clockwise
         # self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -self.heading_change_degrees))
         # self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, self.heading_change_degrees))
-
-        # Define the target pose (x, y, and heading)
-        # target_pose = Pose2d(Translation2d(1.0, 2.0), Rotation2d.fromDegrees(90.0))
 
 
         self.drivetrain.register_telemetry(
