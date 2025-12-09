@@ -54,7 +54,7 @@ class RobotContainer:
         # he sending of data for all sensors and actuators to the SmartDashboard 
         # or Shuffleboard LiveWindow display.  
 
-        LiveWindow.disableAllTelemetry()
+        # LiveWindow.disableAllTelemetry()
         
         # https://robotpy.readthedocs.io/projects/robotpy/en/latest/wpilib/LiveWindow.html        
 
@@ -100,6 +100,11 @@ class RobotContainer:
         self._visionsubsystem = VisionSystem(self._apriltag_alignment_data)
 
         self._ledsubsystem.setDefaultCommand(LEDCommand( self._ledsubsystem, 100))
+
+
+        # Path follower
+        self._auto_chooser = AutoBuilder.buildAutoChooser("Tests")
+        SmartDashboard.putData("Auto Mode", self._auto_chooser)
 
 
         # Configure the button bindings
@@ -161,10 +166,6 @@ class RobotContainer:
         #     ) 
         # )
 
-        # self._joystick.x().onTrue(AprilTagHeadingAligmentModePID(self.drivetrain,
-        #                                                   self._visionsubsystem,
-        #                                                   self._ledsubsystem,
-        #                                                   self._apriltag_alignment_data))
 
         # self._joystick.y().onTrue(AprilTagAligmentMode(self.drivetrain,
         #                                                   self._visionsubsystem,
@@ -223,8 +224,8 @@ class RobotContainer:
 
         #
 
-
-        # self.heading_change_degrees = 30   # Degrees with positive is Counter-Clockwise
+        ## DF:  These command seem to be working.  No excess printing to console
+        # self.heading_change_degrees = 10   # Degrees with positive is Counter-Clockwise
         # self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -self.heading_change_degrees))
         # self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, self.heading_change_degrees))
 
@@ -245,3 +246,11 @@ class RobotContainer:
         final = curved * (1 if axis_value > 0 else -1)
         print(f"Axis value: {axis_value}, Normalized: {normalized}, Curved: {curved}, final: {final}")
         return final
+
+    def getAutonomousCommand(self) -> commands2.Command:
+        """Use this to pass the autonomous command to the main {@link Robot} class.
+
+        :returns: the command to run in autonomous
+        """
+        return self._auto_chooser.getSelected()
+

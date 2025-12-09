@@ -51,21 +51,41 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         self._has_applied_operator_perspective = False
         """Keep track if we've ever applied the operator perspective before or not"""
 
+                # Swerve request to apply during path following
+        self._apply_robot_speeds = swerve.requests.ApplyRobotSpeeds()
+
+        # Instantiate the Gyro on the NAVX board on the ROBOTRIO
+        self._gyro: navx.AHRS = navx.AHRS.create_spi()
+
         if utils.is_simulation():
             self._start_sim_thread()
 
+        self._configure_auto_builder()
 
-        # Assuming you have a navX device created
-        # self.navx = AHRS(4) # This will be intercepted in sim
-        self._gyro: navx.AHRS = navx.AHRS.create_spi()
-
-
-
-        # self.gyro = wpilib.AnalogGyro(1)     # provides robot heading (like a compass)
-        # self.gyro.reset()
-        # self.current_gyro_heading = self.gyro.getAngle()
-        # print (f"Initial Gyro value: {self.current_gyro_heading:5.1f}")
-
+    def _configure_auto_builder(self):
+        config = RobotConfig.fromGUISettings()
+        AutoBuilder.configure(
+            lambda: self.get_state().pose,   # Supplier of current robot pose
+            self.reset_pose,                 # Consumer for seeding pose against auto
+            lambda: self.get_state().speeds, # Supplier of current robot speeds
+            # Consumer of ChassisSpeeds and feedforwards to drive the robot
+            lambda speeds, feedforwards: self.set_control(
+                self._apply_robot_speeds
+                .with_speeds(speeds)
+                .with_wheel_force_feedforwards_x(feedforwards.robotRelativeForcesXNewtons)
+                .with_wheel_force_feedforwards_y(feedforwards.robotRelativeForcesYNewtons)
+            ),
+            PPHolonomicDriveController(
+                # PID constants for translation
+                PIDConstants(10.0, 0.0, 0.0),
+                # PID constants for rotation
+                PIDConstants(7.0, 0.0, 0.0)
+            ),
+            config,
+            # Assume the path needs to be flipped for Red vs Blue, this is normally the case
+            lambda: (DriverStation.getAlliance() or DriverStation.Alliance.kBlue) == DriverStation.Alliance.kRed,
+            self # Subsystem for requirements
+        )
 
     def apply_request(
         self, request: Callable[[], swerve.requests.SwerveRequest]
