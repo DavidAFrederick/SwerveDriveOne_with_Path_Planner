@@ -30,12 +30,18 @@ class TurnHeadingSwerveCommand(Command):
 
         """
         self.pid_controller.reset()
+        self.current_gyro_heading = 0.0
+        self.current_gyro_heading = self.drivetrain.get_robot_heading()
+        print (f">> Gyro Heading in command {self.current_gyro_heading:5.2f}")
+        # print (f"Current Gyro value: {self.current_gyro_heading:5.1f}")
 
-        # Get current Heading ( On the real robot, we should get the heading from the Gyro)
-        if utils.is_simulation():
-            self.current_gyro_heading = self.drivetrain.get_state().pose.rotation().degrees()
-        else:
-            self.current_gyro_heading = self._gyro.getAngle()
+
+
+        # # Get current Heading ( On the real robot, we should get the heading from the Gyro)
+        # if utils.is_simulation():
+        #     self.current_gyro_heading = self.drivetrain.get_state().pose.rotation().degrees()
+        # else:
+        #     self.current_gyro_heading = self._gyro.getAngle()
 
         # Calculate target heading  (Positive is Counter-Clockwise)
         self.target_heading = self.current_gyro_heading + self.heading_change_degrees
@@ -48,11 +54,16 @@ class TurnHeadingSwerveCommand(Command):
         3) Drive robot rotation
         """
 
+        self.current_gyro_heading = self.drivetrain.get_robot_heading()
+
+        print (f"  Requested Heading Change  {self.heading_change_degrees:5.2f} Error {(self.current_gyro_heading -self.target_heading):5.2f}")
+
+
         # Get current Heading ( On the real robot, we should get the heading from the Gyro)
-        if utils.is_simulation():
-            self.current_gyro_heading = self.drivetrain.get_state().pose.rotation().degrees()
-        else:
-            self.current_gyro_heading = self._gyro.getAngle()
+        # if utils.is_simulation():
+        #     self.current_gyro_heading = self.drivetrain.get_state().pose.rotation().degrees()
+        # else:
+        #     self.current_gyro_heading = self._gyro.getAngle()
 
         self.turn_speed = self.pid_controller.calculate(self.current_gyro_heading, self.target_heading)
 
@@ -68,10 +79,10 @@ class TurnHeadingSwerveCommand(Command):
         self.drivetrain.stop_driving()
         print (f"Complete Turn !!!!!!!!!!!!")
 
-        if utils.is_simulation():
-            self.current_gyro_heading = self.drivetrain.get_state().pose.rotation().degrees()
-        else:
-            self.current_gyro_heading = self._gyro.getAngle()
+        # if utils.is_simulation():
+        #     self.current_gyro_heading = self.drivetrain.get_state().pose.rotation().degrees()
+        # else:
+        #     self.current_gyro_heading = self._gyro.getAngle()
 
-        print(f"self.current_gyro_heading:: {self.current_gyro_heading:5.1f}")
+        # print(f"self.current_gyro_heading:: {self.current_gyro_heading:5.1f}")
 

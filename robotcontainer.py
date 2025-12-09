@@ -3,6 +3,7 @@
 # Open Source Software; you can modify and/or share it under the terms of
 # the WPILib BSD license file in the root directory of this project.
 #
+from commands2 import SequentialCommandGroup, PrintCommand
 
 import commands2
 import commands2.cmd
@@ -113,8 +114,8 @@ class RobotContainer:
                         -self.apply_deadzone_and_curve( self._joystick.getLeftX(), dead_zone, exp_scaling ) * self._max_speed  * move_speed_reduction
                     )  # Drive left with negative X (left)
                     .with_rotational_rate(
-                        # -self._joystick.getRightX() * self._max_angular_rate    #### DF:  Original
-                        -self._joystick.getRightX() * self._max_angular_rate * rotate_speed_reduction
+                        -self._joystick.getRightX() * self._max_angular_rate    #### DF:  Original
+                        # -self._joystick.getRightX() * self._max_angular_rate * rotate_speed_reduction
                             #### DF:  Updated:  Negated
                     )  # Drive counterclockwise with negative X (left)
                 ) # End of Lambda
@@ -146,10 +147,13 @@ class RobotContainer:
         #                                                   self._ledsubsystem,
         #                                                   self._apriltag_alignment_data))
 
-        self._joystick.a().onTrue(AprilTagAligmentMode(self.drivetrain,
+        self._joystick.y().onTrue(AprilTagAligmentMode(self.drivetrain,
                                                           self._visionsubsystem,
                                                           self._ledsubsystem,
                                                           self._apriltag_alignment_data))
+
+        self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain, 10))
+        self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -10))
 
         # self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 0.0))  # forward, cross position Robot-centric in meters
         # self._joystick.b().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, -2.0))  # forward, cross position Robot-centric in meters
@@ -167,8 +171,15 @@ class RobotContainer:
         # Pass in the robot and the desired movement in the  form of a translation (x,y object)
 
 
+        # PrintCommand("AAAAAAAAA")
+        # self._joystick.a().onTrue(PrintCommand("AAAAAAAAA"))
+        # self._joystick.b().onTrue(PrintCommand("BBBBBBBB"))
+        # self._joystick.x().onTrue(PrintCommand("XXXXX"))
+        # self._joystick.y().onTrue(PrintCommand("YYYY"))
+
         # self.heading_change_degrees = 30   # Degrees with positive is Counter-Clockwise
-        # self._joystick.y().onTrue(TurnHeadingSwerveCommand(self.drivetrain, self.heading_change_degrees))
+        # self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -self.heading_change_degrees))
+        # self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, self.heading_change_degrees))
 
         # Define the target pose (x, y, and heading)
         # target_pose = Pose2d(Translation2d(1.0, 2.0), Rotation2d.fromDegrees(90.0))

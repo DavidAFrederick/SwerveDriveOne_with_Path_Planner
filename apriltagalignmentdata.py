@@ -22,6 +22,11 @@ class AprilTagAlignmentData:
         self.apriltag_present = True
         self.apriltag_yaw = yaw
 
+
+    def get_apriltag_alignment_data_Target_present(self) -> bool: 
+        return self.apriltag_present
+        
+
     def get_apriltag_alignment_data_yaw(self) -> float: 
         return self.apriltag_yaw
 

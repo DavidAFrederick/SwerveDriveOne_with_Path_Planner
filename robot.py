@@ -7,7 +7,7 @@
 
 # March 19, 2025
 #   WHEN YOU GET AN FATAL ERROR RUN: 
-#   py -3 -m robotpy installer niweb disabley
+#   py -3 -m robotpy installer niweb disable
 
 ## DF Nov 23, 2025
 

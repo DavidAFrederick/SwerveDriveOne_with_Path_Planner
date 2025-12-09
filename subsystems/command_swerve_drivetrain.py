@@ -58,8 +58,6 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         # Assuming you have a navX device created
         # self.navx = AHRS(4) # This will be intercepted in sim
         self._gyro: navx.AHRS = navx.AHRS.create_spi()
-        self.current_gyro_heading = self._gyro.getAngle()
-        print (f"Initial Gyro value: {self.current_gyro_heading:5.1f}")
 
 
 
@@ -85,7 +83,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
 
     def periodic(self):
         
-        
+        self.get_robot_heading()
         # print(f"Heading {self.get_state().pose.rotation().degrees()}")
 
         # Periodically try to apply the operator perspective.
@@ -104,12 +102,6 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
                 self._has_applied_operator_perspective = True
 
 
-        if utils.is_simulation():
-            self.current_gyro_heading = self.get_state().pose.rotation().degrees()
-        else:
-            self.current_gyro_heading = self._gyro.getAngle()
-
-        # print (f"Current Gyro value: {self.current_gyro_heading:5.1f}")
 
 
     def _start_sim_thread(self):
@@ -155,3 +147,14 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
             .with_drive_request_type(swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE)
         )
         self.set_control(self.swerve_drive_request)
+
+    def get_robot_heading(self) -> float:
+
+        if utils.is_simulation():
+            self.current_gyro_heading = self.get_state().pose.rotation().degrees()
+        else:
+            self.current_gyro_heading = -self._gyro.getAngle()
+            # print (f"Current Gyro value: {self.current_gyro_heading:5.1f}")
+        return self.current_gyro_heading    
+
+

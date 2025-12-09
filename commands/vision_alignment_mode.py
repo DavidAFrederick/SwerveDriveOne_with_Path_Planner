@@ -29,7 +29,7 @@ class AprilTagAligmentMode(Command):
         self.kF = 0.0  # Feedforward constant (optional, but often useful)
         self.pid_controller = PIDController(self.kP, self.kI, self.kD)
         self.pid_controller.enableContinuousInput(-180.0, 180.0)
-        self.pid_controller.setTolerance(1.0)  
+        self.pid_controller.setTolerance(3.0)  
 
         self.addRequirements(drivetrain, vision, led)
 
@@ -44,11 +44,13 @@ class AprilTagAligmentMode(Command):
         self.pid_controller.reset()
         self.target_heading = 0.0
 
-        # Get current Heading ( On the real robot, we should get the heading from the Gyro)
-        if utils.is_simulation():
-            self.current_gyro_heading = self.drivetrain.get_state().pose.rotation().degrees()
-        else:
-            self.current_gyro_heading = self._gyro.getAngle()
+        self.current_gyro_heading = self.drivetrain.get_robot_heading()
+
+        # # Get current Heading ( On the real robot, we should get the heading from the Gyro)
+        # if utils.is_simulation():
+        #     self.current_gyro_heading = self.drivetrain.get_state().pose.rotation().degrees()
+        # else:
+        #     self.current_gyro_heading = self._gyro.getAngle()
 
         self.led.red()
 
@@ -64,21 +66,35 @@ class AprilTagAligmentMode(Command):
         self.vision.get_tag_data()                  #  Basic - Yaw to AprilTag
         
         # Get current Heading ( On the real robot, we should get the heading from the Gyro)
-        if utils.is_simulation():
-            self.current_gyro_heading = self.drivetrain.get_state().pose.rotation().degrees()
-        else:
-            self.current_gyro_heading = self._gyro.getAngle()
+        # if utils.is_simulation():
+        #     self.current_gyro_heading = self.drivetrain.get_state().pose.rotation().degrees()
+        # else:
+        #     self.current_gyro_heading = self._gyro.getAngle()
 
-        self.yaw = self.apriltag_alignment_data.get_apriltag_alignment_data_yaw()
-        self.turn_speed = self.pid_controller.calculate(self.current_gyro_heading, self.yaw)
-        self.drivetrain.driving_change_heading(self.turn_speed)
+
+        if (self.apriltag_alignment_data.get_apriltag_alignment_data_Target_present()):
+            self.current_gyro_heading = self.drivetrain.get_robot_heading()
+            self.yaw = self.apriltag_alignment_data.get_apriltag_alignment_data_yaw()
+            self.turn_speed = self.pid_controller.calculate(self.current_gyro_heading, self.yaw)
+            print (f" DELTA:  {(self.current_gyro_heading - self.yaw):5.2f}")
+            
+            ## Clamp Heading Change Speed
+            self.turn_clamped_max_speed = 0.5
+            if (self.turn_speed >  self.turn_clamped_max_speed): self.turn_speed =  self.turn_clamped_max_speed
+            if (self.turn_speed < -self.turn_clamped_max_speed): self.turn_speed = -self.turn_clamped_max_speed
+
+            self.drivetrain.driving_change_heading(self.turn_speed)
+        else:
+            self.drivetrain.driving_change_heading(0.0)  # Stop turning
+            print  ("Target not present  !!!!!!!!!!!!!!!!!!!!")
+            self.yaw = 0.0
+
 
         print(f"self.current_gyro_heading:: {self.current_gyro_heading:5.2f}   ", end='')
         print(f"self.target_heading::  {self.yaw:5.2f}")
 
 
     def isFinished(self) -> bool:       
-        return False
         return self.pid_controller.atSetpoint()        
 
 
