@@ -4,16 +4,6 @@
       "visible": false
     }
   },
-  "Joysticks": {
-    "window": {
-      "visible": false
-    }
-  },
-  "System Joysticks": {
-    "window": {
-      "visible": false
-    }
-  },
   "keyboardJoysticks": [
     {
       "axisConfig": [
@@ -72,10 +62,10 @@
           "incKey": 75
         }
       ],
-      "axisCount": 2,
+      "axisCount": 4,
       "buttonCount": 4,
       "buttonKeys": [
-        -1,
+        39,
         44,
         46,
         47
@@ -116,7 +106,10 @@
       "guid": "Keyboard0"
     },
     {
-      "useGamepad": true
+      "guid": "Keyboard1"
+    },
+    {
+      "guid": "Keyboard2"
     }
   ]
 }

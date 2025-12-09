@@ -4,6 +4,7 @@
 # the WPILib BSD license file in the root directory of this project.
 #
 from commands2 import SequentialCommandGroup, PrintCommand
+import wpilib
 from wpilib import LiveWindow
 import commands2
 import commands2.cmd
@@ -42,6 +43,10 @@ class RobotContainer:
 
     def __init__(self) -> None:
 
+        ##  TRYING TO SILENCE A NUMBER OF ERRORS IN THE CONSOLE LOG
+
+        wpilib.DriverStation.silenceJoystickConnectionWarning(True)
+
 
         ##   >>>  This command 
         # The function FRC LiveWindow.disableAllTelemetry() is a static method 
@@ -50,7 +55,6 @@ class RobotContainer:
         # or Shuffleboard LiveWindow display.  
 
         LiveWindow.disableAllTelemetry()
-
         
         # https://robotpy.readthedocs.io/projects/robotpy/en/latest/wpilib/LiveWindow.html        
 
@@ -162,13 +166,13 @@ class RobotContainer:
         #                                                   self._ledsubsystem,
         #                                                   self._apriltag_alignment_data))
 
-        self._joystick.y().onTrue(AprilTagAligmentMode(self.drivetrain,
-                                                          self._visionsubsystem,
-                                                          self._ledsubsystem,
-                                                          self._apriltag_alignment_data))
+        # self._joystick.y().onTrue(AprilTagAligmentMode(self.drivetrain,
+        #                                                   self._visionsubsystem,
+        #                                                   self._ledsubsystem,
+        #                                                   self._apriltag_alignment_data))
 
-        self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain, 10))
-        self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -10))
+        # self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain, 10))
+        # self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -10))
 
         # self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 0.0))  # forward, cross position Robot-centric in meters
         # self._joystick.b().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, -2.0))  # forward, cross position Robot-centric in meters
@@ -187,14 +191,43 @@ class RobotContainer:
 
         # ERROR HERE:    Buttons not mapping correctly.
 
-        # self._joystick.a().onTrue(PrintCommand("AAAAAAAAAAAAAAAAAA"))  # Triggered with A button
-        # self._joystick.b().onTrue(PrintCommand("BBBBBBBBBBBBBBBBBB"))  # Triggered with X button
-        # self._joystick.x().onTrue(PrintCommand("XXXXXXXXXXXXXXXXXX"))  # Triggered with B button
-        # self._joystick.y().onTrue(PrintCommand("YYYYYYYYYYYYYYYYYY"))  # Triggered with Y button
+        self._joystick.a().onTrue(PrintCommand("AAAAAAAAAAAAAAAAAA"))  # Triggered with A button
+        self._joystick.b().onTrue(PrintCommand("BBBBBBBBBBBBBBBBBB"))  # Triggered with X button
+        self._joystick.x().onTrue(PrintCommand("XXXXXXXXXXXXXXXXXX"))  # Triggered with B button
+        self._joystick.y().onTrue(PrintCommand("YYYYYYYYYYYYYYYYYY"))  # Triggered with Y button
+
+        # Plugging Cheap Gamepad (www.izdtech.com ZD-V108 into laptop)
+        # Starting Real DriverStation Application
+        # 
+                # Pressing the A button lights the top button on the DriverStation USB Test page
+        # Pressing the B Button lights the Second from top
+        # Pressing the X Button lights the Third from top
+        # Pressing the Y Button lights the Fourth from top
+        #
+        # This looks correct.
+        #
+        # Running the simulator with the real gamepad.  Identifies it as a XBox Controller
+        # Pressing button corectly identifies the buttons A = A, ...
+        #
+        # We should use X Input mode according to FRC
+        #
+        # To switch your ZD-V108 gamepad between XInput (Xbox) and 
+        # DirectInput (older standard), usually hold the "V" button 
+        # (or sometimes the Home/Mode button) for about 5 seconds, which changes 
+        # the light color (blue for XInput, red for DirectInput)
+
+# You can use the D-pad or Left-stick to play the game according to your 
+# heart using this amazing function. By pressing the BACK + LSB (push the Left Stick vertically) 
+# key combinations, you can switch the function between the D-pad and Left Stick in PC Windows and Xinput mode.
+
+
+        #
+
 
         # self.heading_change_degrees = 30   # Degrees with positive is Counter-Clockwise
         # self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -self.heading_change_degrees))
         # self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, self.heading_change_degrees))
+
 
 
         self.drivetrain.register_telemetry(
