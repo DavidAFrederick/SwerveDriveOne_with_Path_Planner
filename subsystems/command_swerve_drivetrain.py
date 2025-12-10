@@ -158,6 +158,17 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         )
         self.set_control(self.swerve_drive_request)
 
+
+    def driving_forward_and_update_heading(self, drive_forward_speed : float, drive_turn_speed : float):
+        self.swerve_drive_request = (
+            RobotCentric()
+            .with_velocity_x( drive_forward_speed )
+            .with_velocity_y( 0.0 )
+            .with_rotational_rate(drive_turn_speed)
+            .with_drive_request_type(swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE)
+        )
+        self.set_control(self.swerve_drive_request)
+
     def stop_driving(self):
         self.swerve_drive_request = (
             RobotCentric()

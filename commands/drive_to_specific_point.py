@@ -165,24 +165,20 @@ class DriveToSpecificPointSwerveCommand(Command):
         if (self.turn_speed < -self.turn_clamped_max_speed): self.turn_speed = -self.turn_clamped_max_speed
 
 
-        # We can only drive the robot in forward motion or heading change. Do heading first, then distance from target
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if (self.pid_heading_controller.atSetpoint()):
-            self.drivetrain.driving_forward(self.distance_speed)
-            print (f"^^^ Forward Speed:  {self.distance_speed:5.2f} ", end='')
-            print(f"Forward: current:  {self.current_translation.x:5.2f} {self.current_translation.y:5.2f} Heading: {self.current_heading_degrees:5.2f}  ", end='')
-            print (f"Remaining {self.remaining_delta_x_field_movement:5.2f}  {self.remaining_delta_x_field_movement:5.2f} Distance {self.current_distance:5.2f} " , end='')
-            print(f"Final: {self.target_x_field_position:5.2f} {self.target_y_field_position:5.2f}  ")
+        self.drivetrain.driving_forward_and_update_heading(self.distance_speed, self.turn_speed)
+        print(f"Current Position: X: {self.current_translation.x:5.2f} Y: {self.current_translation.y:5.2f} Heading: {self.current_heading_degrees:5.2f}  ", end='')
+        print (f"|| Speeds: Forward: {self.distance_speed:5.2f} Turn: {self.turn_speed:5.2} ", end='')
+        print (f"||  Remaining dist: {self.current_distance:4.2f} Heading Error: {57.296 * (self.target_heading_radians - self.current_heading_radians):5.2f} ")
 
-        else:
-            self.drivetrain.driving_change_heading(self.turn_speed)
-            print (f">>>>> Turn Speed {self.turn_speed:5.1f}  ", end='')
-        print (f"Current distance: {self.current_distance:5.2f}   Heading: {self.current_heading_degrees:5.1f}  ", end='')
-        print (f"Heading Error: {57.296 * (self.target_heading_radians - self.current_heading_radians):5.2f} (Target-current) ")
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
     def isFinished(self) -> bool:
-       return self.pid_distance_controller.atSetpoint()        
+    #    self.complete = self.pid_distance_controller.atSetpoint() and self.pid_heading_controller.atSetpoint()
+       self.complete = self.pid_distance_controller.atSetpoint() 
+       return self.complete       
 
     def end(self, interrupted: bool) -> None:
         self.drivetrain.stop_driving()

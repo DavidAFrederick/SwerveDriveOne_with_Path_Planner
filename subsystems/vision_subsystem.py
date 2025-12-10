@@ -32,6 +32,8 @@ class VisionSystem(Subsystem):
 
         #### self.apriltag_alignment_data.set_apriltag_alignment_data_yaw(5.0)  # Temp for test
 
+        self.counter_for_periodic_printing = 0
+
 
     def periodic(self) -> None:             ## Runs 50 times per second
         # if RobotBase.isSimulation():      ## Disabling to allow hardware in the loop simulation testing
@@ -51,11 +53,9 @@ class VisionSystem(Subsystem):
             self.fiducialId = target.getFiducialId()
 
             # Get the Transform3d from the camera to the target
-            self.bestCameraToTarget: Transform3d = target.getBestCameraToTarget()
+            self.bestCameraToTarget : Transform3d = target.getBestCameraToTarget()
 
-            # Print or use the transform data
-            # print(f"Target ID: {self.fiducialId}   ", end='')
-            # print(f"Best Camera to Target Transform: {self.bestCameraToTarget}")
+            self.print_apriltag_position_and_pose(self.bestCameraToTarget)
 
 
         # if len(target_list) > 0:   #  No targets present
@@ -103,8 +103,29 @@ class VisionSystem(Subsystem):
             print ("====================================")
 
 
+    def print_apriltag_position_and_pose (self, position_and_pose : Transform3d):
+            self.counter_for_periodic_printing = self.counter_for_periodic_printing + 1
+            if (self.counter_for_periodic_printing % 25 == 0):
+                self.counter_for_periodic_printing = 0
+    
+                # Get the Transform3d from the camera to the target
+                self.distance_to_AprilTag_X_meters = position_and_pose.translation().X()
+                self.distance_to_AprilTag_Y_meters = position_and_pose.translation().Y()
+                self.distance_to_AprilTag_Z_meters = position_and_pose.translation().Z()
 
+                self.pose_of_AprilTag_roll_degrees  = position_and_pose.rotation().X()
+                self.pose_of_AprilTag_pitch_degrees = position_and_pose.rotation().Y()
+                self.pose_of_AprilTag_yaw_degrees   = position_and_pose.rotation().Z()
 
+                print(f"BestCamera-Transform3d: X: {self.distance_to_AprilTag_X_meters:5.1f} ", end='')
+                print(f"Y: {self.distance_to_AprilTag_Y_meters:5.1f} ", end='')
+                print(f"Z: {self.distance_to_AprilTag_Z_meters:5.1f} ||  ", end='')
+
+                print(f"AprilTag: Roll: {self.pose_of_AprilTag_roll_degrees:5.1f} ", end='')
+                print(f"AprilTag: Pitch: {self.pose_of_AprilTag_pitch_degrees:5.1f} ", end='')
+                print(f"AprilTag: Yaw: {self.pose_of_AprilTag_way_degrees:5.1f} ")
+
+            #   Transform3d(Translation3d(x=0.691508, y=0.219795, z=0.141702), Rotation3d(x=0.008310, y=-0.060773, z=-2.588145))
 
 #===(Example results)==========================================
 #  self._latest_result.getTargets()   
@@ -217,6 +238,19 @@ class VisionSystem(Subsystem):
 # 1 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # .89717076241791, y=124.82519409161733)], detectedCorners=[TargetCorner(x=22.264122009277347, y=121.83138275146484), TargetCorner(x=90.9001693725586, y=123.30415344238281), TargetCorner(x=90.95113372802733, y=55.148963928222635), TargetCorner(x=26.2767448425293, y=50.32369232177735)], poseAmbiguity=0.0, objDetectId=-1, objDetectConf=-1.0)]
 # 1 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+# bestCameraToTarget=
+#   Transform3d(Translation3d(x=0.691508, y=0.219795, z=0.141702), Rotation3d(x=0.008310, y=-0.060773, z=-2.588145))
+
+#  Tranalation3d represents the distance between the camra and the AprilTag 
+#  Rotation3D represents Roll, Pitch and Yaw of target of the AprilTag (??? Need to confirm with testing)  WHAT ARE THE UNITS??
+
+#
+# Angles are measured counterclockwise with the rotation axis pointing “out of the page”. If you point your right thumb 
+# along the positive axis direction, your fingers curl in the direction of positive rotation
+#
+# https://robotpy.readthedocs.io/projects/robotpy/en/stable/wpimath.geometry/Rotation3d.html
 
 
 
