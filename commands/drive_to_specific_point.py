@@ -187,7 +187,8 @@ class DriveToSpecificPointSwerveCommand(Command):
         self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,
                             self.drivetrain.get_state().pose.y, 
                             self.drivetrain.get_state().pose.rotation().radians())
-        print(f"self.current_pose:: {self.current_pose}")
+        print(f"self.current_pose:: {self.current_pose}   ", end='')
+        print (f"Heading: {self.current_heading_degrees:5.1f}  ")
 
 
     def code_reminders_not_being_used(self):

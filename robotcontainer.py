@@ -206,7 +206,7 @@ class RobotContainer:
         # self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 0.0))  # forward, cross position Robot-centric in meters
         # self._joystick.b().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, -2.0))  # forward, cross position Robot-centric in meters
         # self._joystick.x().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 2.0))  # forward, cross position Robot-centric in meters
-        # self._joystick.y().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 3.0, 4.0))  # forward, cross position Robot-centric in meters
+        self._joystick.y().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 3.0, 4.0))  # forward, cross position Robot-centric in meters
 
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
