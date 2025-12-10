@@ -154,6 +154,18 @@ class RobotContainer:
             self.drivetrain.apply_request(lambda: idle).ignoringDisable(True)
         )
 
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        #   Current Commands Implemented and status:  (as of 12/9/2015)
+        # - - - - - - - - - - - - - - - - - - - - - - - - 
+        # drive_in_square_command_group.py      - Working - (This is a group of commands)
+        # drive_specific_distance.py            - Working
+        # drive_to_specific_point.py            - Has problems with different quadrants (+1,+1 works)
+        # ledcommand.py                         - Working
+        # pause_command.py                      - Working
+        # turn_specific_heading.py              - Working
+        # vision_alignment_mode.py              - Updated - Ready to be tested
+        # - - - - - - - - - - - - - - - - - - - - - - - - 
+
 
         self._joystick.leftBumper().whileTrue(
         # >>>>>> DRIVE ROBOT-CENTRIC  When Left Bumper is held  <<<<<<<<<<<<<<<<  getPOV()
@@ -168,42 +180,35 @@ class RobotContainer:
                 )
         )
 
-        # self._joystick.b().whileTrue(
-        #     self.drivetrain.apply_request(
-        #         lambda: (
-        #             self
-        #             ._robot_centric_drive
-        #             .with_velocity_x(2.0)
-        #             .with_velocity_y(2.0)
-        #             .with_rotational_rate(0)
-        #         ) 
-        #     ) 
-        # )
-
-
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # self._joystick.y().onTrue(AprilTagAligmentMode(self.drivetrain,
         #                                                   self._visionsubsystem,
         #                                                   self._ledsubsystem,
         #                                                   self._apriltag_alignment_data))
 
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain, 10))
         # self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -10))
 
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 0.0))  # forward, cross position Robot-centric in meters
         # self._joystick.b().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, -2.0))  # forward, cross position Robot-centric in meters
         # self._joystick.x().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 2.0))  # forward, cross position Robot-centric in meters
         # self._joystick.y().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 3.0, 4.0))  # forward, cross position Robot-centric in meters
 
 
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # self._joystick.x().onTrue(DriveInSquareDemo(self.drivetrain,
         #                                             self._visionsubsystem,
         #                                             self._ledsubsystem,
         #                                             2.0))  # size in meters
 
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # self.movement_translation = Translation2d(2.0, 1.0)
         # self._joystick.y().onTrue(DriveDistanceSwerveCommand(self.drivetrain, self.movement_translation))
         # Pass in the robot and the desired movement in the  form of a translation (x,y object)
 
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # ERROR HERE:    Buttons not mapping correctly.
 
         self._joystick.leftTrigger().onTrue(PrintCommand("LT - LT - LT - LT - LT - LT - LT - LT - "))  # Triggered with A button
@@ -232,12 +237,12 @@ class RobotContainer:
         # (or sometimes the Home/Mode button) for about 5 seconds, which changes 
         # the light color (blue for XInput, red for DirectInput)
 
-# You can use the D-pad or Left-stick to play the game according to your 
-# heart using this amazing function. By pressing the BACK + LSB (push the Left Stick vertically) 
-# key combinations, you can switch the function between the D-pad and Left Stick in PC Windows and Xinput mode.
-
+        # You can use the D-pad or Left-stick to play the game according to your 
+        # heart using this amazing function. By pressing the BACK + LSB (push the Left Stick vertically) 
+        # key combinations, you can switch the function between the D-pad and Left Stick in PC Windows and Xinput mode.
 
         #
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
         ## DF:  These command seem to be working.  No excess printing to console
         # self.heading_change_degrees = 10   # Degrees with positive is Counter-Clockwise
@@ -245,6 +250,8 @@ class RobotContainer:
         # self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, self.heading_change_degrees))
 
 
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)
