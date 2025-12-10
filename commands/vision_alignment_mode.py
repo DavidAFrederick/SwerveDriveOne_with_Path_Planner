@@ -59,7 +59,7 @@ class AprilTagAligmentMode(Command):
         if (self.apriltag_alignment_data.get_apriltag_alignment_data_Target_present()):
             self.yaw = self.apriltag_alignment_data.get_apriltag_alignment_data_yaw()
             self.turn_speed = self.pid_controller.calculate( self.yaw, 0)
-            print (f" Turning to Target:  {(self.yaw):5.2f}")
+            # print (f" Turning to Target:  {(self.yaw):5.2f}")
             
             ## Clamp Heading Change Speed
             self.turn_clamped_max_speed = 0.8

@@ -55,6 +55,9 @@ class VisionSystem(Subsystem):
             # Get the Transform3d from the camera to the target
             self.bestCameraToTarget : Transform3d = target.getBestCameraToTarget()
 
+            # Get the transform that maps camera space (X = forward, Y = left, Z = up) 
+            # to object/fiducial tag space (X forward, Y left, Z up) with the lowest reprojection error.
+
             self.print_apriltag_position_and_pose(self.bestCameraToTarget)
 
 
@@ -105,7 +108,7 @@ class VisionSystem(Subsystem):
 
     def print_apriltag_position_and_pose (self, position_and_pose : Transform3d):
             self.counter_for_periodic_printing = self.counter_for_periodic_printing + 1
-            if (self.counter_for_periodic_printing % 25 == 0):
+            if (self.counter_for_periodic_printing % 25 == 0): ##  Print twice a second
                 self.counter_for_periodic_printing = 0
     
                 # Get the Transform3d from the camera to the target
@@ -113,17 +116,31 @@ class VisionSystem(Subsystem):
                 self.distance_to_AprilTag_Y_meters = position_and_pose.translation().Y()
                 self.distance_to_AprilTag_Z_meters = position_and_pose.translation().Z()
 
-                self.pose_of_AprilTag_roll_degrees  = position_and_pose.rotation().X()
-                self.pose_of_AprilTag_pitch_degrees = position_and_pose.rotation().Y()
-                self.pose_of_AprilTag_yaw_degrees   = position_and_pose.rotation().Z()
+                self.distance_to_AprilTag_X_feet = 3.28 * self.distance_to_AprilTag_X_meters
+                self.distance_to_AprilTag_Y_feet = 3.28 * self.distance_to_AprilTag_Y_meters
+                self.distance_to_AprilTag_Z_feet = 3.28 * self.distance_to_AprilTag_Z_meters
 
-                print(f"BestCamera-Transform3d: X: {self.distance_to_AprilTag_X_meters:5.1f} ", end='')
-                print(f"Y: {self.distance_to_AprilTag_Y_meters:5.1f} ", end='')
-                print(f"Z: {self.distance_to_AprilTag_Z_meters:5.1f} ||  ", end='')
+                self.pose_of_AprilTag_roll_degrees    = position_and_pose.rotation().x_degrees
+                self.pose_of_AprilTag_pitch_degrees   = position_and_pose.rotation().y_degrees
+                self.pose_of_AprilTag_yaw_degrees_raw = position_and_pose.rotation().z_degrees
+                if (self.pose_of_AprilTag_yaw_degrees_raw > 0):
+                    self.pose_of_AprilTag_yaw_degrees = 180 - self.pose_of_AprilTag_yaw_degrees_raw
+                elif (self.pose_of_AprilTag_yaw_degrees_raw < 0): 
+                    self.pose_of_AprilTag_yaw_degrees = 0  - (self.pose_of_AprilTag_yaw_degrees_raw + 180)
 
-                print(f"AprilTag: Roll: {self.pose_of_AprilTag_roll_degrees:5.1f} ", end='')
-                print(f"AprilTag: Pitch: {self.pose_of_AprilTag_pitch_degrees:5.1f} ", end='')
-                print(f"AprilTag: Yaw: {self.pose_of_AprilTag_way_degrees:5.1f} ")
+                print(f"BestCamera-Transform3d [Ft]: ", end='')
+                print(f"X:{self.distance_to_AprilTag_X_feet:4.1f} ", end='')
+                print(f"  Y:{self.distance_to_AprilTag_Y_feet:4.1f} ", end='')
+                print(f"  Z:{self.distance_to_AprilTag_Z_feet:4.1f} || ", end='')
+
+                print(f"AprilTag: [Degrees] Roll: {self.pose_of_AprilTag_roll_degrees:4.1f} ", end='')
+                print(f"Pitch: {self.pose_of_AprilTag_pitch_degrees:4.1f} ", end='')
+                print(f"Yaw: {self.pose_of_AprilTag_yaw_degrees:4.1f}")
+
+                #     Position of the AprilTag from the Robots point of View
+                # Roll  = Clockwise is Negative
+                # Pitch = Top of target leaning away from robot is negative
+                # Yaw   = Left side of target moving away from robot is positive, zero on perpendicular
 
             #   Transform3d(Translation3d(x=0.691508, y=0.219795, z=0.141702), Rotation3d(x=0.008310, y=-0.060773, z=-2.588145))
 

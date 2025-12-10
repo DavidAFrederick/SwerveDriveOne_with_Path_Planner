@@ -189,10 +189,10 @@ class RobotContainer:
         )
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        # self._joystick.y().onTrue(AprilTagAligmentMode(self.drivetrain,
-        #                                                   self._visionsubsystem,
-        #                                                   self._ledsubsystem,
-        #                                                   self._apriltag_alignment_data))
+        self._joystick.a().onTrue(AprilTagAligmentMode(self.drivetrain,
+                                                          self._visionsubsystem,
+                                                          self._ledsubsystem,
+                                                          self._apriltag_alignment_data))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain, 10))
