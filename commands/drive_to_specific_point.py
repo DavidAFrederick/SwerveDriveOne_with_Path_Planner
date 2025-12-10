@@ -42,7 +42,9 @@ class DriveToSpecificPointSwerveCommand(Command):
         self.heading_kD = 0.0
         self.heading_kF = 0.0  
         self.pid_heading_controller = PIDController(self.heading_kP, self.heading_kI, self.heading_kD)
-        self.pid_heading_controller.setTolerance(0.5) 
+        self.tolerance_in_degrees = 3.0
+        self.tolerance_in_radians = self.tolerance_in_degrees / (180/math.pi)
+        self.pid_heading_controller.setTolerance( self.tolerance_in_radians )   ### <<<  NEED TO Shrink this number since it is radians
 
         self.addRequirements(drivetrain)
 
@@ -108,6 +110,7 @@ class DriveToSpecificPointSwerveCommand(Command):
         print (f"Distance:  {self.distance_to_final_final_target_point:5.2f}   ", end='')
         print (f"Position:  X: {self.final_final_target_point_x} Y: {self.final_final_target_point_y} ", end='')
         print (f"Angle:  {57.296 *  self.angle_to_final_final_target_point_radians:4.2f} ")
+        print (f"Heading Tolerance: {self.tolerance_in_degrees:5.2f} Degrees    = {self.tolerance_in_radians:5.2f} Radians")
         
         
     def execute(self) -> None:
