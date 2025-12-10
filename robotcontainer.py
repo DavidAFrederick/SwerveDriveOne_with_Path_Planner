@@ -154,6 +154,20 @@ class RobotContainer:
             self.drivetrain.apply_request(lambda: idle).ignoringDisable(True)
         )
 
+
+        self._joystick.leftBumper().whileTrue(
+        # >>>>>> DRIVE ROBOT-CENTRIC  When Left Bumper is held  <<<<<<<<<<<<<<<<  getPOV()
+                self.drivetrain.apply_request(
+                    lambda: (
+                        self
+                        ._robot_centric_drive
+                        .with_velocity_x(-self._joystick.getLeftY() *  self._max_speed)
+                        .with_velocity_y(-self._joystick.getLeftX() *  self._max_speed)
+                        .with_rotational_rate(self._joystick.getRightX() * self._max_angular_rate)
+                    ) # End of Lambda
+                )
+        )
+
         # self._joystick.b().whileTrue(
         #     self.drivetrain.apply_request(
         #         lambda: (
@@ -192,6 +206,7 @@ class RobotContainer:
 
         # ERROR HERE:    Buttons not mapping correctly.
 
+        self._joystick.leftTrigger().onTrue(PrintCommand("LT - LT - LT - LT - LT - LT - LT - LT - "))  # Triggered with A button
         self._joystick.a().onTrue(PrintCommand("AAAAAAAAAAAAAAAAAA"))  # Triggered with A button
         self._joystick.b().onTrue(PrintCommand("BBBBBBBBBBBBBBBBBB"))  # Triggered with X button
         self._joystick.x().onTrue(PrintCommand("XXXXXXXXXXXXXXXXXX"))  # Triggered with B button
@@ -244,7 +259,7 @@ class RobotContainer:
         curved = normalized ** exponent
         # Reapply sign
         final = curved * (1 if axis_value > 0 else -1)
-        print(f"Axis value: {axis_value}, Normalized: {normalized}, Curved: {curved}, final: {final}")
+        # print(f"Axis value: {axis_value}, Normalized: {normalized}, Curved: {curved}, final: {final}")
         return final
 
     def getAutonomousCommand(self) -> commands2.Command:
