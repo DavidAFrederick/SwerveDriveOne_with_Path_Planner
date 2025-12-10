@@ -10,19 +10,16 @@ from commands.drive_specific_distance import DriveDistanceSwerveCommand
 
 from subsystems.ledsubsystem import LEDSubsystem
 from subsystems.command_swerve_drivetrain import CommandSwerveDrivetrain
-from subsystems.vision_subsystem import VisionSystem
 
 class DriveInSquareDemo(SequentialCommandGroup):
 
 
     def __init__(self, drivetrain : CommandSwerveDrivetrain, 
-                 vision : VisionSystem, 
                  led : LEDSubsystem,
                  size_of_square : float) -> None:
 
         super().__init__()
         self.drivetrain = drivetrain
-        self.vision = vision
         self.led = led
         self.size_of_square = size_of_square
 

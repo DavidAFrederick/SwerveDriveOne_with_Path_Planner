@@ -23,6 +23,7 @@ from wpimath.units import rotationsToRadians
 from subsystems.ledsubsystem import LEDSubsystem
 from commands.ledcommand import LEDCommand
 from subsystems.vision_subsystem import VisionSystem 
+from subsystems.vision_subsystem_dummy import VisionSystemDUMMY
 
 from apriltagalignmentdata import AprilTagAlignmentData
 
@@ -97,7 +98,9 @@ class RobotContainer:
 
         self._apriltag_alignment_data = AprilTagAlignmentData()
         self._ledsubsystem = LEDSubsystem()
-        self._visionsubsystem = VisionSystem(self._apriltag_alignment_data)
+        # self._visionsubsystem = VisionSystem(self._apriltag_alignment_data)   #  Commented out 
+        self._visionsubsystem = VisionSystemDUMMY()
+        
 
         self._ledsubsystem.setDefaultCommand(LEDCommand( self._ledsubsystem, 100))
 
@@ -157,13 +160,13 @@ class RobotContainer:
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         #   Current Commands Implemented and status:  (as of 12/9/2015)
         # - - - - - - - - - - - - - - - - - - - - - - - - 
-        # drive_in_square_command_group.py      - Working - (This is a group of commands)
-        # drive_specific_distance.py            - Working
-        # drive_to_specific_point.py            - Has problems with different quadrants (+1,+1 works)
-        # ledcommand.py                         - Working
-        # pause_command.py                      - Working
-        # turn_specific_heading.py              - Working
-        # vision_alignment_mode.py              - Updated - Ready to be tested
+        # drive_in_square_command_group.py      - DriveInSquareDemo                 - Working - (This is a group of commands)
+        # drive_specific_distance.py            - DriveDistanceSwerveCommand        - Working
+        # drive_to_specific_point.py            - DriveToSpecificPointSwerveCommand - Has problems with different quadrants (+1,+1 works)
+        # ledcommand.py                         - LEDCommand                        - Working
+        # pause_command.py                      - PauseCommand                      - Working
+        # turn_specific_heading.py              - TurnHeadingSwerveCommand          - Working
+        # vision_alignment_mode.py              - AprilTagAligmentMode              - Updated - Ready to be tested
         # - - - - - - - - - - - - - - - - - - - - - - - - 
 
 
@@ -189,6 +192,10 @@ class RobotContainer:
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain, 10))
         # self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -10))
+
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+        self._joystick.x().onTrue(DriveInSquareDemo(self.drivetrain, self._ledsubsystem, 1.0))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 0.0))  # forward, cross position Robot-centric in meters

@@ -68,7 +68,7 @@ class DriveDistanceSwerveCommand(Command):
         self.target_x_field_position = self.initial_translation.x + self.delta_x_field_movement
         self.target_y_field_position = self.initial_translation.y + self.delta_y_field_movement
 
-        print (f"Start Drive ------")
+        print (f"Start Drive Specific Distance")
         print(f"Init:  {self.initial_translation.x:4.1f} {self.initial_translation.y:4.1f}  Heading: {self.initial_heading_degrees:4.1f}  ", end="")
         print(f"Delta: {self.delta_x_field_movement:4.1f} {self.delta_y_field_movement:4.1f} ", end="")
         print(f"Final: {self.target_x_field_position:4.1f} {self.target_y_field_position:4.1f}  ")
@@ -98,9 +98,9 @@ class DriveDistanceSwerveCommand(Command):
         self.current_distance = math.sqrt( math.pow (self.remaining_delta_x_field_movement,  2 ) +  
                                           math.pow(self.remaining_delta_y_field_movement, 2) )
 
-        print(f"current:  {self.current_translation.x:4.1f} {self.current_translation.y:4.1f} Heading: {self.current_heading_degrees:4.1f}  ", end='')
-        print (f"Remaining {self.remaining_delta_x_field_movement:4.1f}  {self.remaining_delta_x_field_movement:4.1f} Distance {self.current_distance:4.1f} " , end='')
-        print(f"Final: {self.target_x_field_position:4.1f} {self.target_y_field_position:4.1f}  ")
+        # print(f"current:  {self.current_translation.x:4.1f} {self.current_translation.y:4.1f} Heading: {self.current_heading_degrees:4.1f}  ", end='')
+        # print (f"Remaining {self.remaining_delta_x_field_movement:4.1f}  {self.remaining_delta_x_field_movement:4.1f} Distance {self.current_distance:4.1f} " , end='')
+        # print(f"Final: {self.target_x_field_position:4.1f} {self.target_y_field_position:4.1f}  ")
 
         self.speed = - self.pid_controller.calculate(self.current_distance, 0)
 
