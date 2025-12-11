@@ -8,9 +8,11 @@ from wpimath.geometry import Pose2d, Translation2d, Rotation2d
 from wpimath import units
 import math
 
-# This code has errors in some quadrants.  Need to test and localize
-# Lots of trig so likely has some errors.
-
+## Question in Mind.  This algorithm is using robot poses to know when we have reached the target point.
+## If the robot is bumped during the action, the pose will not be acurrate.
+## Should the calculation be using the measured wheel rotation progress to the target OR are these the same thing?
+## Does the swervedrive pose calculation use the wheel encoders?
+##
 
 class DriveToSpecificPointSwerveCommand(Command):
     """
@@ -18,7 +20,6 @@ class DriveToSpecificPointSwerveCommand(Command):
     Robot Centric movement using PID loops for both forward movement and heading change movemment.
 
     """
-
 
     def __init__(self, drivetrain : CommandSwerveDrivetrain, forward_movement_meters : float, lateral_position_meters : float) -> None:
         self.drivetrain = drivetrain
@@ -37,7 +38,7 @@ class DriveToSpecificPointSwerveCommand(Command):
         self.turn_speed = 0.0
         self.turn_clamped_max_speed = 2.0
         self.lateral_position_meters = lateral_position_meters
-        self.heading_kP = 3.0
+        self.heading_kP = 15.0   # was 3.0
         self.heading_kI = 0.5
         self.heading_kD = 0.0
         self.heading_kF = 0.0  
@@ -51,14 +52,18 @@ class DriveToSpecificPointSwerveCommand(Command):
         """
                Algorithm:
         Initialization (Runs each time the command is triggered)
+        The goal is to get the Field Oriented Position (X,Y) the robot is travelling to so that we can 
+        use a PID control loop to control the speed approaching the target position.
 
-        1) Get current Translation2d (x,y position on field) [Field-centric]
-        2) Get the current pose.rotation (Heading in field centric)
-        3) Get input parameters (forward and lateral). This is the distance to travel [Robot-centric]
-        4) Calculate the distance the robot needs to travel from the current position to the final position (Robot-Centric)
-        4) Calculate the delta-x and delta-y distance of the move [Field-centric]
-        5) Calculate target position (x,y on field-centric) by adding the current position to the delta-X and Y
+        [1] Get current Translation2d (x,y position on field) [Field-centric]
+        [2] Get the current pose.rotation (Heading in field centric)
 
+        [3] Get input parameters (forward and lateral) and calculate the distance the robot will travel [Robot-centric]
+        [4] Calculate the angle theta the robot will travel (Robot-Centric)
+
+        [5] Calculate the field-oriented angle which the robot will travel (current heading + Theta)
+        [6] Calculate the delta-x and delta-y distance of the move [Field-centric]
+        [7] Calculate the Field-oriented X and Y position of the target field location (End point)
 
         """
 
@@ -67,49 +72,45 @@ class DriveToSpecificPointSwerveCommand(Command):
         self.pid_distance_controller.reset()
         self.pid_heading_controller.reset()
 
+        # [1]
         ### Get robot's current pose (Position and heading) [Field-Centric]
         self.initial_pose = Pose2d(self.drivetrain.get_state().pose.x,
                                    self.drivetrain.get_state().pose.y, 
                                    self.drivetrain.get_state().pose.rotation().radians())
 
         # Get the X,Y position and rotation components of the current robot pose [Field-centric]
+        # [1]
         self.initial_translation     = self.initial_pose.translation()
+        # [2]
         self.initial_heading_degrees = self.initial_pose.rotation().degrees()
         self.initial_heading_radians = self.initial_pose.rotation().radians()
 
-        # Calculate the field-centric change in X position and Y position from the current position to the target position
-        # for just the forward movement of the robot (Not including the cross motion)
-
-        # Calculate field-centric position of final (distance + cross) target point
-        # This is robot-centric 
-        # First calculate the distance then calculate the heading [ ArcTan (Opposite over Adjancent)]
-        self.distance_to_final_final_target_point = math.sqrt(  math.pow(self.forward_movement_meters, 2 ) +  
+        # [3] Get input parameters (forward and lateral) and calculate the distance the robot will travel [Robot-centric]
+        self.distance_to_travel = math.sqrt(  math.pow(self.forward_movement_meters, 2 ) +  
                                           math.pow(self.lateral_position_meters, 2) )
-        
-        self.angle_to_final_final_target_point_radians = math.atan2 (self.lateral_position_meters, self.forward_movement_meters )
 
+        # [4] Calculate the angle theta the robot will travel (Robot-Centric)
+        self.angle_to_target_point_robot_centric_radians = math.atan2 (self.lateral_position_meters, self.forward_movement_meters )
+
+        # [5] Calculate the field-oriented angle which the robot will travel (current heading + Theta)
+        self.final_angle_field_centric_to_travel = self.initial_heading_radians + self.angle_to_target_point_robot_centric_radians
+
+        # [6] Calculate the delta-x and delta-y distance of the move [Field-centric]
         #  Calculate the Field-centric, X component and Y component for the total planned movement to be used for PID calculations
-        self.final_final_target_point_x = self.distance_to_final_final_target_point * math.cos(self.angle_to_final_final_target_point_radians)
-        self.final_final_target_point_y = self.distance_to_final_final_target_point * math.sin(self.angle_to_final_final_target_point_radians)
-        
-        ### >>> Does not include the robot start position
+        self.delta_target_point_x_field_centric = self.distance_to_travel * math.cos(self.final_angle_field_centric_to_travel)
+        self.delta_target_point_y_field_centric = self.distance_to_travel * math.sin(self.final_angle_field_centric_to_travel)
 
-        # Calculate  the Field-oriented X and Y position of the target field location (End point)
-        self.target_x_field_position = self.initial_translation.x + self.final_final_target_point_x
-        self.target_y_field_position = self.initial_translation.y + self.final_final_target_point_y
+        # [7] Calculate the Field-oriented X and Y position of the target field location (End point)
+        self.target_x_field_position = self.initial_translation.x + self.delta_target_point_x_field_centric
+        self.target_y_field_position = self.initial_translation.y + self.delta_target_point_y_field_centric
 
-        # self.target_x_field_position = self.final_final_target_point_x
-        # self.target_y_field_position = self.final_final_target_point_y
+        print (f"Starting point: >> ", end='')
+        print (f"Init: {self.initial_translation.x:4.1f} {self.initial_translation.y:4.1f} Heading: {self.initial_heading_degrees:4.1f}  ", end="")
+        print (f"Calculated Final Pos: X: {self.target_x_field_position:4.1f} Y: {self.target_y_field_position:4.1f} ", end='')
+        print (f"Drive Angle: {(57.296 * self.final_angle_field_centric_to_travel):5.2f}")
 
-        print (f"Start Drive ------")
-        print(f"Init: {self.initial_translation.x:4.1f} {self.initial_translation.y:4.1f} Heading: {self.initial_heading_degrees:4.1f}  ", end="")
-        print(f"Delta: X: {self.final_final_target_point_x:4.1f} Y: {self.final_final_target_point_y:4.1f} ", end="")
-        print(f"Final Pos: X: {self.target_x_field_position:4.1f}  Y: {self.target_y_field_position:4.1f}  ")
-
-        print (f"Cross Point positions ------")
-        print (f"Distance:  {self.distance_to_final_final_target_point:5.2f}   ", end='')
-        print (f"Position:  X: {self.final_final_target_point_x} Y: {self.final_final_target_point_y} ", end='')
-        print (f"Angle:  {57.296 *  self.angle_to_final_final_target_point_radians:4.2f} ")
+        print (f"Intermediate data: ", end='')
+        print (f"Distance:  {self.distance_to_travel:5.2f}   ", end='')
         print (f"Heading Tolerance: {self.tolerance_in_degrees:5.2f} Degrees    = {self.tolerance_in_radians:5.2f} Radians")
         
         
@@ -132,6 +133,7 @@ class DriveToSpecificPointSwerveCommand(Command):
                                    self.drivetrain.get_state().pose.y, 
                                    self.drivetrain.get_state().pose.rotation().radians())
 
+        #  TODO  May need to update this to use the real robot heading from the Pigeon2 IMU
         self.current_translation     = self.current_pose.translation()
         self.current_heading_degrees = self.current_pose.rotation().degrees()
         self.current_heading_radians = self.current_pose.rotation().radians()
@@ -168,15 +170,14 @@ class DriveToSpecificPointSwerveCommand(Command):
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         self.drivetrain.driving_forward_and_update_heading(self.distance_speed, self.turn_speed)
-        print(f"Current Position: X: {self.current_translation.x:5.2f} Y: {self.current_translation.y:5.2f} Heading: {self.current_heading_degrees:5.2f}  ", end='')
-        print (f"|| Speeds: Forward: {self.distance_speed:5.2f} Turn: {self.turn_speed:5.2} ", end='')
+        print(f"Current Position: X: {self.current_translation.x:5.2f} Y: {self.current_translation.y:5.2f} Heading: {self.current_heading_degrees:6.2f}  ", end='')
+        print (f"|| Speeds: Forward: {self.distance_speed:5.2f} Turn: {self.turn_speed:5.2f} ", end='')
         print (f"||  Remaining dist: {self.current_distance:4.2f} Heading Error: {57.296 * (self.target_heading_radians - self.current_heading_radians):5.2f} ")
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
     def isFinished(self) -> bool:
-    #    self.complete = self.pid_distance_controller.atSetpoint() and self.pid_heading_controller.atSetpoint()
        self.complete = self.pid_distance_controller.atSetpoint() 
        return self.complete       
 
@@ -191,6 +192,8 @@ class DriveToSpecificPointSwerveCommand(Command):
 
 
     def code_reminders_not_being_used(self):
+        ### THIS CODE IS NOT BEING USED,  NOTES TO BETTER UNDERSTAND POSES AND TRANSLATIONS
+
         #####(How to move a pose position)#############
         #   Example output:
         # self.drivetrain.get_state().pose Pose2d(Translation2d(x=3.304821, y=3.145566), Rotation2d(0.005561))

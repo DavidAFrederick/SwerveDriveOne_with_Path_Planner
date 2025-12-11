@@ -189,14 +189,14 @@ class RobotContainer:
         )
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        self._joystick.a().onTrue(AprilTagAligmentMode(self.drivetrain,
-                                                          self._visionsubsystem,
-                                                          self._ledsubsystem,
-                                                          self._apriltag_alignment_data))
+        # self._joystick.a().onTrue(AprilTagAligmentMode(self.drivetrain,
+        #                                                   self._visionsubsystem,
+        #                                                   self._ledsubsystem,
+        #                                                   self._apriltag_alignment_data))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        # self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain, 10))
-        # self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -10))
+        self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain, 10))
+        self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -10))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -206,7 +206,7 @@ class RobotContainer:
         # self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 0.0))  # forward, cross position Robot-centric in meters
         # self._joystick.b().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, -2.0))  # forward, cross position Robot-centric in meters
         # self._joystick.x().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 2.0))  # forward, cross position Robot-centric in meters
-        self._joystick.y().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 3.0, 4.0))  # forward, cross position Robot-centric in meters
+        self._joystick.y().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 4.0, -2.0))  # forward, cross position Robot-centric in meters
 
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -230,7 +230,7 @@ class RobotContainer:
         self._joystick.y().onTrue(PrintCommand("YYYYYYYYYYYYYYYYYY"))  # Triggered with Y button
 
 
-        ## COMMENTS ON THE BUTTON MISMAPPING OBSERVED
+        ## COMMENTS ON THE BUTTON MISMAPPING 
         # Plugging Cheap Gamepad (www.izdtech.com ZD-V108 into laptop)
         # Starting Real DriverStation Application
         # 
