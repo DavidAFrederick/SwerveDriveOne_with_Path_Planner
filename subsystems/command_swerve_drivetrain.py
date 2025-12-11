@@ -9,10 +9,9 @@ import wpilib
 from wpilib import DriverStation, Notifier, RobotController
 from wpilib.sysid import SysIdRoutineLog
 from wpimath.geometry import Pose2d, Rotation2d
-from phoenix6.swerve.requests import RobotCentric
-
+from phoenix6.swerve.requests import RobotCentric 
+#  TODO   import phoenix6.hardware
 import navx # Or your navX interface
-# from navx import AHRS # Or your navX interface
 
 
 class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
@@ -28,6 +27,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
     _RED_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.fromDegrees(180)
     """Red alliance sees forward as 180 degrees (toward blue alliance wall)"""
 
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     def __init__(
         self,
         drive_motor_type: type,
@@ -57,8 +57,16 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         # Instantiate the Gyro on the NAVX board on the ROBOTRIO
         self._gyro: navx.AHRS = navx.AHRS.create_spi()
 
+        ## TODO   Initialize the Pigeon
+        # self.pigeon2 = phoenix6.hardware.Pigeon2(1,"canivore1" )
+        # self.pigeon2.configFactoryDefault() # Good practice to reset
+        # self.pigeon2.enterCalibration() # Start calibration if needed
+
         if utils.is_simulation():
             self._start_sim_thread()
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+#  This is used by the Path Planner Tool
 
         self._configure_auto_builder()
 
@@ -87,6 +95,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
             self # Subsystem for requirements
         )
 
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     def apply_request(
         self, request: Callable[[], swerve.requests.SwerveRequest]
     ) -> Command:
@@ -98,9 +107,9 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         :returns: Command to run
         :rtype: Command
         """
-        # print (f"Call Request  {request}")
         return self.run(lambda: self.set_control(request()))
 
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     def periodic(self):
         
         self.get_robot_heading()
@@ -121,9 +130,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
                 )
                 self._has_applied_operator_perspective = True
 
-
-
-
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     def _start_sim_thread(self):
         def _sim_periodic():
             current_time = utils.get_current_time_seconds()
@@ -137,6 +144,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         self._sim_notifier = Notifier(_sim_periodic)
         self._sim_notifier.startPeriodic(self._SIM_LOOP_PERIOD)
 
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     def driving_change_heading(self, drive_turn_speed : float):
         self.swerve_drive_request = (
             RobotCentric()
@@ -179,6 +187,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         )
         self.set_control(self.swerve_drive_request)
 
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     def get_robot_heading(self) -> float:
 
         if utils.is_simulation():
@@ -187,5 +196,20 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
             self.current_gyro_heading = -self._gyro.getAngle()
             # print (f"Current Gyro value: {self.current_gyro_heading:5.1f}")
         return self.current_gyro_heading    
+    
+    ## TODO We need to learn how to read the CTRE pigeon 2.0
+    # This code needs to be run in the periodic
+    # # Get the continuous fused heading (0-360 degrees)
+    #     fused_heading = self.pigeon2.getFusedHeading()
+    #     SmartDashboard.putNumber("FusedHeading", fused_heading)
+
+    #     # Get raw yaw (can wrap around 360)
+    #     yaw = self.pigeon2.getYaw()
+    #     SmartDashboard.putNumber("RawYaw", yaw)
+
+    #     # For swerve/drive, get as Rotation2d (counter-clockwise)
+    #     heading2d = self.pigeon2.getRotation2d()
+    #     SmartDashboard.putNumber("Heading2D_Degrees", heading2d.degrees())
+
 
 

@@ -61,10 +61,3 @@ class TurnHeadingSwerveCommand(Command):
         print(f"self.current_gyro_heading:: {self.current_gyro_heading:5.1f}   ", end='')
         print(f"self.target_heading::  {self.target_heading:5.1f}")
 
-        # if utils.is_simulation():
-        #     self.current_gyro_heading = self.drivetrain.get_state().pose.rotation().degrees()
-        # else:
-        #     self.current_gyro_heading = self._gyro.getAngle()
-
-        # print(f"self.current_gyro_heading:: {self.current_gyro_heading:5.1f}")
-

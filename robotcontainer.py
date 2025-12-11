@@ -229,6 +229,8 @@ class RobotContainer:
         self._joystick.x().onTrue(PrintCommand("XXXXXXXXXXXXXXXXXX"))  # Triggered with B button
         self._joystick.y().onTrue(PrintCommand("YYYYYYYYYYYYYYYYYY"))  # Triggered with Y button
 
+
+        ## COMMENTS ON THE BUTTON MISMAPPING OBSERVED
         # Plugging Cheap Gamepad (www.izdtech.com ZD-V108 into laptop)
         # Starting Real DriverStation Application
         # 

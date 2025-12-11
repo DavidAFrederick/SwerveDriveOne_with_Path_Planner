@@ -123,15 +123,17 @@ class VisionSystem(Subsystem):
                 self.pose_of_AprilTag_roll_degrees    = position_and_pose.rotation().x_degrees
                 self.pose_of_AprilTag_pitch_degrees   = position_and_pose.rotation().y_degrees
                 self.pose_of_AprilTag_yaw_degrees_raw = position_and_pose.rotation().z_degrees
+
+                # Change the Yaw to be an offset from being perpendicular to the axis to the robot
                 if (self.pose_of_AprilTag_yaw_degrees_raw > 0):
                     self.pose_of_AprilTag_yaw_degrees = 180 - self.pose_of_AprilTag_yaw_degrees_raw
                 elif (self.pose_of_AprilTag_yaw_degrees_raw < 0): 
                     self.pose_of_AprilTag_yaw_degrees = 0  - (self.pose_of_AprilTag_yaw_degrees_raw + 180)
 
-                print(f"BestCamera-Transform3d [Ft]: ", end='')
-                print(f"X:{self.distance_to_AprilTag_X_feet:4.1f} ", end='')
-                print(f"  Y:{self.distance_to_AprilTag_Y_feet:4.1f} ", end='')
-                print(f"  Z:{self.distance_to_AprilTag_Z_feet:4.1f} || ", end='')
+                print(f"AprilTag position [Feet]: ", end='')
+                print(f"X:{self.distance_to_AprilTag_X_feet:4.1f}  ", end='')
+                print(f"Y:{self.distance_to_AprilTag_Y_feet:4.1f}  ", end='')
+                print(f"Z:{self.distance_to_AprilTag_Z_feet:4.1f} || ", end='')
 
                 print(f"AprilTag: [Degrees] Roll: {self.pose_of_AprilTag_roll_degrees:4.1f} ", end='')
                 print(f"Pitch: {self.pose_of_AprilTag_pitch_degrees:4.1f} ", end='')
