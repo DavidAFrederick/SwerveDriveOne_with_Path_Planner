@@ -10,7 +10,7 @@ from wpilib import DriverStation, Notifier, RobotController
 from wpilib.sysid import SysIdRoutineLog
 from wpimath.geometry import Pose2d, Rotation2d
 from phoenix6.swerve.requests import RobotCentric 
-#  TODO   import phoenix6.hardware
+from phoenix6 import hardware, configs
 import navx # Or your navX interface
 
 
@@ -51,16 +51,27 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         self._has_applied_operator_perspective = False
         """Keep track if we've ever applied the operator perspective before or not"""
 
-                # Swerve request to apply during path following
+        # Swerve request to apply during path following
         self._apply_robot_speeds = swerve.requests.ApplyRobotSpeeds()
 
         # Instantiate the Gyro on the NAVX board on the ROBOTRIO
         self._gyro: navx.AHRS = navx.AHRS.create_spi()
 
         ## TODO   Initialize the Pigeon
-        # self.pigeon2 = phoenix6.hardware.Pigeon2(1,"canivore1" )
-        # self.pigeon2.configFactoryDefault() # Good practice to reset
-        # self.pigeon2.enterCalibration() # Start calibration if needed
+        self.pigeon = hardware.Pigeon2(0, "canivore1")
+    
+        # Optional: Configure the Pigeon2 (e.g., Mount Pose)
+        cfg = configs.Pigeon2Configuration()
+        # Example: Pigeon is mounted flat (Yaw=0, Pitch=0, Roll=0)
+        cfg.mount_pose.mount_pose_yaw = 0
+        cfg.mount_pose.mount_pose_pitch = 0
+        cfg.mount_pose.mount_pose_roll = 0
+        self.pigeon.configurator.apply(cfg)
+
+        # Retrieve StatusSignal objects for Yaw, Pitch, and Roll
+        self.yaw_signal = self.pigeon.get_yaw()
+        self.pitch_signal = self.pigeon.get_pitch()
+        self.roll_signal = self.pigeon.get_roll()
 
         if utils.is_simulation():
             self._start_sim_thread()
@@ -190,26 +201,17 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     def get_robot_heading(self) -> float:
 
+
+
         if utils.is_simulation():
-            self.current_gyro_heading = self.get_state().pose.rotation().degrees()
+            self.current_gyro_heading = self.get_state().pose.rotation().degrees()  # Simulation
         else:
+            self.yaw_signal.refresh()
+            self.pigeon_yaw = self.yaw_signal.value
+            print (f"Pigeon Yaw: {self.pigeon_yaw:5.2f}")
+
             self.current_gyro_heading = -self._gyro.getAngle()
             # print (f"Current Gyro value: {self.current_gyro_heading:5.1f}")
         return self.current_gyro_heading    
     
-    ## TODO We need to learn how to read the CTRE pigeon 2.0
-    # This code needs to be run in the periodic
-    # # Get the continuous fused heading (0-360 degrees)
-    #     fused_heading = self.pigeon2.getFusedHeading()
-    #     SmartDashboard.putNumber("FusedHeading", fused_heading)
-
-    #     # Get raw yaw (can wrap around 360)
-    #     yaw = self.pigeon2.getYaw()
-    #     SmartDashboard.putNumber("RawYaw", yaw)
-
-    #     # For swerve/drive, get as Rotation2d (counter-clockwise)
-    #     heading2d = self.pigeon2.getRotation2d()
-    #     SmartDashboard.putNumber("Heading2D_Degrees", heading2d.degrees())
-
-
 
