@@ -23,13 +23,14 @@ class AprilTagAligmentMode(Command):
       
         self.speed = 0.0
         self.heading_change_degrees = 0.0
+        self.turn_clamped_max_speed = 0.8
         self.kP = 0.1
         self.kI = 0.05
         self.kD = 0.0
         self.kF = 0.0  # Feedforward constant (optional, but often useful)
-        self.pid_controller = PIDController(self.kP, self.kI, self.kD)
-        self.pid_controller.enableContinuousInput(-180.0, 180.0)
-        self.pid_controller.setTolerance(3.0)  
+        self.pid_heading_controller = PIDController(self.kP, self.kI, self.kD)
+        self.pid_heading_controller.enableContinuousInput(-180.0, 180.0)
+        self.pid_heading_controller.setTolerance(3.0)  
 
         self.addRequirements(drivetrain, vision, led)
 
@@ -41,10 +42,9 @@ class AprilTagAligmentMode(Command):
         """
         print(">>>>>  AprilTagAligmentMode <<<<<<<<<<<")
 
-        self.pid_controller.reset()
+        self.pid_heading_controller.reset()
         self.target_heading = 0.0
         self.led.red()
-
 
     def execute(self) -> None:
         """
@@ -58,11 +58,10 @@ class AprilTagAligmentMode(Command):
         
         if (self.apriltag_alignment_data.get_apriltag_alignment_data_Target_present()):
             self.yaw = self.apriltag_alignment_data.get_apriltag_alignment_data_yaw()
-            self.turn_speed = self.pid_controller.calculate( self.yaw, 0)
+            self.turn_speed = self.pid_heading_controller.calculate( self.yaw, 0)
             # print (f" Turning to Target:  {(self.yaw):5.2f}")
             
             ## Clamp Heading Change Speed
-            self.turn_clamped_max_speed = 0.8
             if (self.turn_speed >  self.turn_clamped_max_speed): self.turn_speed =  self.turn_clamped_max_speed
             if (self.turn_speed < -self.turn_clamped_max_speed): self.turn_speed = -self.turn_clamped_max_speed
 
@@ -74,7 +73,7 @@ class AprilTagAligmentMode(Command):
 
 
     def isFinished(self) -> bool:       
-        return self.pid_controller.atSetpoint()        
+        return self.pid_heading_controller.atSetpoint()        
 
     def end(self, interrupted: bool) -> None:
         self.led.green()

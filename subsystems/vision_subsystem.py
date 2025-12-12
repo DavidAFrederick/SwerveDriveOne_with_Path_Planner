@@ -77,7 +77,7 @@ class VisionSystem(Subsystem):
 
         # self.apriltag_alignment_data.print_all_apriltag_alignment_data()
 
-    def get_tag_data_Transform_to_Tag(self) -> float:   # Requires AprilTag 3D Mode on PhotonVision
+    def get_tag_data_Transform_to_Tag(self) -> Transform3d:   # Requires AprilTag 3D Mode on PhotonVision
 
         if self._latest_result.hasTargets():
             print (f"Getting Transform of 3D AprilTag position")
@@ -98,15 +98,18 @@ class VisionSystem(Subsystem):
             self.translation: Translation3d = camera_to_target_pose.translation()
             self.rotation: Rotation3d = camera_to_target_pose.rotation()
 
+            # print ("====================================")
+            # print (f"self.translation {self.translation}")
+            # print ("- - - - - - - - - - - - - - - - - - ")
+            # print (f"self.rotation {self.rotation}")
+            # print ("====================================")
 
-            print ("====================================")
-            print (f"self.translation {self.translation}")
-            print ("- - - - - - - - - - - - - - - - - - ")
-            print (f"self.rotation {self.rotation}")
-            print ("====================================")
+            return camera_to_target_pose
 
 
     def print_apriltag_position_and_pose (self, position_and_pose : Transform3d):
+            
+            # This code causes the output to be printed twice a second
             self.counter_for_periodic_printing = self.counter_for_periodic_printing + 1
             if (self.counter_for_periodic_printing % 25 == 0): ##  Print twice a second
                 self.counter_for_periodic_printing = 0

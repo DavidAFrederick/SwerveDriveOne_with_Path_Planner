@@ -1,3 +1,6 @@
+from wpimath.geometry import Transform3d, Translation3d, Rotation3d
+
+
 class AprilTagAlignmentData:
     def __init__(self) -> None:
             # Initialize the return variables
@@ -5,6 +8,8 @@ class AprilTagAlignmentData:
         self.apriltag_yaw = 0
         self.apriltag_skew = 0
         self.apriltag_distance = 0
+        self.apriltag_bestCameraToTarget = Transform3d(Translation3d(0.0, 0.0, 0.0), Rotation3d(0, 0, 0))
+                    # This data structure is the offset to the AprilTag and the rotation of the Apriltag relative to the robot
 
     def set_all_apriltag_alignment_data(self, all_data_list : list) -> None:
         self.apriltag_present = all_data_list[0]
@@ -22,6 +27,10 @@ class AprilTagAlignmentData:
         self.apriltag_present = True
         self.apriltag_yaw = yaw
 
+    def set_apriltag_bestCameraToTarget(self, Transform3dData : Transform3d): 
+        self.apriltag_bestCameraToTarget = Transform3dData
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
     def get_apriltag_alignment_data_Target_present(self) -> bool: 
         return self.apriltag_present
@@ -41,5 +50,9 @@ class AprilTagAlignmentData:
     
     def print_all_apriltag_alignment_data(self) -> None:
             print (f"Tag Present: {self.apriltag_present:6.2f} Yaw: {self.apriltag_yaw:6.2f}  Skew: {self.apriltag_skew:6.2f} Distance:{self.apriltag_distance:6.2f}")
+
+    def get_apriltag_bestCameraToTarget(self) -> Transform3d: 
+        return self.apriltag_bestCameraToTarget
+
 
 

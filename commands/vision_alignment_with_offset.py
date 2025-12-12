@@ -1,0 +1,217 @@
+import wpilib
+from wpimath.controller import PIDController
+from wpimath.geometry import Pose2d
+from commands2 import Command
+from subsystems.ledsubsystem import LEDSubsystem
+from subsystems.vision_subsystem import VisionSystem 
+from subsystems.command_swerve_drivetrain import CommandSwerveDrivetrain
+from apriltagalignmentdata import AprilTagAlignmentData
+from phoenix6 import swerve, utils
+from phoenix6.swerve.requests import RobotCentric
+import math
+
+class AprilTagWithOffsetAligmentMode(Command):
+    """
+    This command drives the robot toward an Apriltag but stops in front of
+    it then rotates to be perpendicular to the Apriltag.
+    
+    """
+    def __init__(self, drivetrain : CommandSwerveDrivetrain, 
+                 vision : VisionSystem, 
+                 led: LEDSubsystem,
+                 apriltag_alignment_data : AprilTagAlignmentData) -> None:
+        super().__init__()
+
+        self.drivetrain = drivetrain
+        self.vision = vision
+        self.led = led
+        self.apriltag_alignment_data = apriltag_alignment_data
+      
+        self.speed = 0.0
+        self.heading_change_degrees = 0.0
+        self.turn_clamped_max_speed = 0.8
+        self.kP = 0.1
+        self.kI = 0.05
+        self.kD = 0.0
+        self.kF = 0.0  # Feedforward constant (optional, but often useful)
+        self.pid_heading_controller = PIDController(self.kP, self.kI, self.kD)
+        self.pid_heading_controller.enableContinuousInput(-180.0, 180.0)
+        self.pid_heading_controller.setTolerance(3.0)  
+
+        self.addRequirements(drivetrain, vision, led)
+
+    def initialize(self) -> None:
+        """
+        See details within init.
+        """
+        self.pid_heading_controller.reset()
+        self.led.red()
+
+
+        """
+        The goal of this algorithm is to place the robot directly in front of an AprilTag
+        then rotate the robot to be perpendictular to the AprilTag a specific distance from the 
+        Apriltag.
+
+        When this command is activated, the initialization route gets the current robots pose 
+        (field-oriented X,Y position and rotation) plus the AprilTag position (X,Y) and AprilTag
+        rotation (relative to the robot).
+
+        The turn-point should be about 1.4 times the width of the robot.
+
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -        
+
+        Algorithm to calculate the turnPoint.
+        [1] Get the current robot position and heading from the current robot pose (Field-Centric)
+        [2] Get the AprilTag Transform3d from the vision subsystem. X and Y position plus AprilTag Rotation (Robot-Centric)
+        [3] Calculate the direct distance from the robot to the center of the AprilTag [Pythagorean theorem]
+
+        [4]] Calculate the side lengths and angles within an obtuse triange formed by the following 3 points [Field-Oriented]
+           (P) Current position of the robot  (provided by pose) 
+           (Q) Center of the AprilTag  
+           (G) turn-point for robot to stop movement
+
+        The length of the sides are determined as follows:
+           Distance between (P) and (Q) - (side a) - Robot to AprilTag - Provided by PhotonVision [Pythagorean theorem]
+           Distance between (Q) and (G) - (side b) - 140% * length of side of robot - 42"  = 1.08 meters
+           Distance between (G) and (P) - (side c) - To be Calculated using Law of Cosines as follows:
+
+           Side c = SQRT[ (side a)^2 + (side b)^2 - 2 * (side a) * (side b) *  COS (Angle C) ]
+ 
+        The angles within this obtuse triange are determined as follows:
+           Angle A (Opposite side a) - ArcSin((side a)/(side c) * Sin (Angle C))
+           Angle B (Opposite side b) - ArcSin((side a)/(side b) * Sin (Angle B))
+           Angle C (Opposite side c) - Angle Yaw + Angle Target (rotation) (OR (not sure)) Angle Yaw - Angle Target (rotation) 
+
+        Calculate the turn-point position in robot centric terms (delta-x, delta-y)
+
+        Drive to that point
+
+
+# bestCameraToTarget=
+#   Transform3d(Translation3d(x=0.691508, y=0.219795, z=0.141702), 
+#   Rotation3d(x=0.008310, y=-0.060773, z=-2.588145))
+
+        """
+        print(">>>>>  AprilTag Aligment Mode with Offset (AprilTagWithOffsetAligmentMode) <<<<<<<<<<<")
+
+        # [1] Get the current robot position and heading from the current robot pose (Field-Centric)
+
+        ### Get robot's current pose (Position and heading) [Field-Centric]
+        self.initial_pose = Pose2d(self.drivetrain.get_state().pose.x,
+                                   self.drivetrain.get_state().pose.y, 
+                                   self.drivetrain.get_state().pose.rotation().radians())
+
+        # Get the X,Y position and rotation components of the current robot pose [Field-centric]
+        self.initial_translation     = self.initial_pose.translation()
+        self.initial_heading_degrees = self.initial_pose.rotation().degrees()
+        self.initial_heading_radians = self.initial_pose.rotation().radians()
+
+
+        # [2] Get the AprilTag Transform3d from the vision subsystem. X and Y position plus AprilTag Rotation (Robot-Centric)
+        # Get Yaw to Target (Robot-Centric)
+        self.vision.get_tag_data()                  #  Basic - Yaw to AprilTag
+        
+        if (self.apriltag_alignment_data.get_apriltag_alignment_data_Target_present()):     # Get the position and yaw of the AprilTag
+            self.aprilTag_position_and_pose = self.apriltag_alignment_data.get_apriltag_bestCameraToTarget()
+
+                            # Get the Transform3d from the camera to the target  [Robot-Centric]
+            self.distance_to_AprilTag_X_meters = self.aprilTag_position_and_pose.translation().X()
+            self.distance_to_AprilTag_Y_meters = self.aprilTag_position_and_pose.translation().Y()
+            self.distance_to_AprilTag_Z_meters = self.aprilTag_position_and_pose.translation().Z()
+
+            self.distance_to_AprilTag_X_feet = 3.28 * self.distance_to_AprilTag_X_meters
+            self.distance_to_AprilTag_Y_feet = 3.28 * self.distance_to_AprilTag_Y_meters
+            self.distance_to_AprilTag_Z_feet = 3.28 * self.distance_to_AprilTag_Z_meters
+
+            self.pose_of_AprilTag_roll_degrees    = self.aprilTag_position_and_pose.rotation().x_degrees
+            self.pose_of_AprilTag_pitch_degrees   = self.aprilTag_position_and_pose.rotation().y_degrees
+            self.pose_of_AprilTag_yaw_degrees_raw = self.aprilTag_position_and_pose.rotation().z_degrees
+
+            # Change the Yaw to be an offset from being perpendicular to the axis to the robot
+            if (self.pose_of_AprilTag_yaw_degrees_raw > 0):
+                self.pose_of_AprilTag_yaw_degrees = 180 - self.pose_of_AprilTag_yaw_degrees_raw
+            elif (self.pose_of_AprilTag_yaw_degrees_raw < 0): 
+                self.pose_of_AprilTag_yaw_degrees = 0  - (self.pose_of_AprilTag_yaw_degrees_raw + 180)
+
+        # [3] Calculate the direct distance from the robot to the center of the AprilTag [Pythagorean theorem]
+
+            self.distance_to_AprilTag_meters = math.sqrt(  math.pow(self.distance_to_AprilTag_X_meters, 2 ) +  
+                                                         math.pow(self.distance_to_AprilTag_Y_meters, 2) )
+
+
+        # [4]] Calculate the side lengths and angles within an obtuse triange formed by the following 3 points [Field-Oriented]
+        #    (P) Current position of the robot  (provided by pose) 
+        #    (Q) Center of the AprilTag  
+        #    (G) turn-point for robot to stop movement
+
+            self.alignmentTriangle_Angle_A_radians = 0.0 
+            self.alignmentTriangle_Angle_B_radians = 0.0 
+            self.alignmentTriangle_Angle_C_radians = 0.0 
+
+            self.alignmentTriangle_side_a_meters = self.distance_to_AprilTag_meters
+            self.alignmentTriangle_side_b_meters = 1.08
+            self.alignmentTriangle_side_c_meters = math.sqrt(  math.pow(self.alignmentTriangle_side_a_meters, 2 ) + 
+                                                             math.pow(self.alignmentTriangle_side_b_meters, 2 ) - 
+                                                             1 * self.alignmentTriangle_side_a_meters * self.alignmentTriangle_side_b_meters *
+                                                             math.cos(self.alignmentTriangle_Angle_C_radians))
+
+
+        # The length of the sides are determined as follows:
+        #    Distance between (P) and (Q) - (side a) - Robot to AprilTag - Provided by PhotonVision [Pythagorean theorem]
+        #    Distance between (Q) and (G) - (side b) - 140% * length of side of robot - 42"  = 1.08 meters
+        #    Distance between (G) and (P) - (side c) - To be Calculated using Law of Cosines as follows:
+
+        #    Side c = SQRT[ (side a)^2 + (side b)^2 - 2 * (side a) * (side b) *  COS (Angle C) ]
+
+
+
+
+        # The angles within this obtuse triange are determined as follows:
+        #    Angle A (Opposite side a) - ArcSin((side a)/(side c) * Sin (Angle C))
+        #    Angle B (Opposite side b) - ArcSin((side a)/(side b) * Sin (Angle B))
+        #    Angle C (Opposite side c) - Angle Yaw + Angle Target (rotation) (OR (not sure)) Angle Yaw - Angle Target (rotation) 
+
+
+        # Calculate the turn-point position in robot centric terms (delta-x, delta-y)
+
+
+
+        print("Done: >>>>>  AprilTag Aligment Mode with Offset (AprilTagWithOffsetAligmentMode) <<<<<<<<<<<")
+
+    def execute(self) -> None:
+        """
+        1) Get the current Yaw to the AprilTag from PhotonVision
+        2) Perform PID Calculation
+        3) Drive robot rotation
+        """
+
+        # Get Yaw to Target (Robot-Centric)
+        # self.vision.get_tag_data()                  #  Basic - Yaw to AprilTag
+        
+        # if (self.apriltag_alignment_data.get_apriltag_alignment_data_Target_present()):
+        #     self.yaw = self.apriltag_alignment_data.get_apriltag_alignment_data_yaw()
+        #     self.turn_speed = self.pid_heading_controller.calculate( self.yaw, 0)
+        #     # print (f" Turning to Target:  {(self.yaw):5.2f}")
+            
+        #     ## Clamp Heading Change Speed
+        #     if (self.turn_speed >  self.turn_clamped_max_speed): self.turn_speed =  self.turn_clamped_max_speed
+        #     if (self.turn_speed < -self.turn_clamped_max_speed): self.turn_speed = -self.turn_clamped_max_speed
+
+        #     self.drivetrain.driving_change_heading(self.turn_speed)
+        # else:
+        #     self.drivetrain.driving_change_heading(0.0)  # Stop turning
+        #     print  ("Target not present  !!!!!!!!!!!!!!!!!!!!")
+        #     self.yaw = 0.0
+
+
+    def isFinished(self) -> bool:       
+        return True        
+        # return self.pid_heading_controller.atSetpoint()        
+
+    def end(self, interrupted: bool) -> None:
+        self.led.green()
+
+        self.drivetrain.stop_driving()
+        print (f"Complete Turn !!!!!!!!!!!!")
+
