@@ -46,7 +46,7 @@ class AprilTagWithOffsetAligmentCalculation(Command):
         [2] Get the AprilTag Transform3d from the vision subsystem. X and Y position plus AprilTag Rotation (Robot-Centric)
         [3] Calculate the direct distance from the robot to the center of the AprilTag [Pythagorean theorem]
 
-        [4]] Calculate the side lengths and angles within an obtuse triange formed by the following 3 points [Field-Oriented]
+        [4]] Calculate the side lengths and angles within an obtuse triangle formed by the following 3 points [Field-Oriented]
            (P) Current position of the robot  (provided by pose) 
            (Q) Center of the AprilTag  
            (G) turn-point for robot to stop movement
@@ -58,7 +58,7 @@ class AprilTagWithOffsetAligmentCalculation(Command):
 
            Side c = SQRT[ (side a)^2 + (side b)^2 - 2 * (side a) * (side b) *  COS (Angle C) ]
  
-        The angles within this obtuse triange are determined as follows:
+        The angles within this obtuse triangle are determined as follows:
            Angle A (Opposite side a) - ArcSin((side a)/(side c) * Sin (Angle C))
            Angle B (Opposite side b) - ArcSin((side a)/(side b) * Sin (Angle B))
            Angle C (Opposite side c) - Angle Yaw + Angle Target (rotation) (OR (not sure)) Angle Yaw - Angle Target (rotation) 
@@ -128,12 +128,12 @@ class AprilTagWithOffsetAligmentCalculation(Command):
                                                            math.pow(self.distance_to_AprilTag_Y_meters, 2) )
 
 
-        # [4]] Calculate the side lengths and angles within an obtuse triange formed by the following 3 points [Field-Oriented]
+        # [4]] Calculate the side lengths and angles within an obtuse triangle formed by the following 3 points [Field-Oriented]
         #    (P) Current position of the robot  (provided by pose) 
         #    (Q) Center of the AprilTag  
         #    (G) turn-point for robot to stop movement
 
-        # The angles within this obtuse triange are determined as follows:
+        # The angles within this obtuse triangle are determined as follows:
         #    Angle A (Opposite side a) - ArcSin((side a)/(side c) * Sin (Angle C))
         #    Angle B (Opposite side b) - ArcSin((side a)/(side b) * Sin (Angle B))
         #    Angle C (Opposite side c) - Angle Yaw + Angle Target (rotation) (OR (not sure)) Angle Yaw - Angle Target (rotation) 
@@ -182,10 +182,10 @@ class AprilTagWithOffsetAligmentCalculation(Command):
                 print(f"Raw AprilTag Pose {self.aprilTag_position_and_pose}")
                 print(f"AprilTag Position: X: {self.distance_to_AprilTag_X_meters:4.1f} Y: {self.distance_to_AprilTag_Y_meters:4.1f} ", end='')
                 print(f"AprilTag Yaw {self.pose_of_AprilTag_yaw_degrees:4.2f}  Distance: {self.distance_to_AprilTag_meters:4.1f}")
-                print(f"Obtuse Triange Angles: A {(57.3 * self.alignmentTriangle_Angle_A_radians):5.1f} ", end='')
+                print(f"Obtuse Triangle Angles: A {(57.3 * self.alignmentTriangle_Angle_A_radians):5.1f} ", end='')
                 print(f" B {(57.3 * self.alignmentTriangle_Angle_B_radians):5.1f} ", end='')
                 print(f" C {(57.3 * self.alignmentTriangle_Angle_C_radians):5.1f} ")
-                print(f"Obtuse Triange sides: a: {self.alignmentTriangle_side_a_meters:4.1f}   ", end='')
+                print(f"Obtuse Triangle sides: a: {self.alignmentTriangle_side_a_meters:4.1f}   ", end='')
                 print(f" b: {self.alignmentTriangle_side_b_meters:4.1f}   ", end='')
                 print(f" c: {self.alignmentTriangle_side_c_meters:4.1f}   ")
                 print(f"Turn-Point:  Drive Angle: {( 180 / math.pi * self.drive_to_turnpoint_angle_radians):4.1f} ", end='')
@@ -197,7 +197,9 @@ class AprilTagWithOffsetAligmentCalculation(Command):
             self.apriltag_alignment_data.set_apriltag_turnpoint_position (self.drive_to_turnpoint_X_component_meters, 
                                                                          self.drive_to_turnpoint_Y_component_meters)
             self.apriltag_alignment_data.print_apriltag_alignment_turn_point_data()
-            self.set_apriltag_turnpoint_angle_degrees(self.pose_of_AprilTag_yaw_degrees)
+            self.apriltag_alignment_data.set_apriltag_turnpoint_angle_degrees(self.pose_of_AprilTag_yaw_degrees)
+            print ("End of Calculate")
+            self.apriltag_alignment_data.print_apriltag_alignment_turn_point_data()
 
 
         print("Done: >>>>>  AprilTag Aligment Mode with Offset (AprilTagWithOffsetAligmentCalculation) <<<<<<<<<<<")

@@ -7,6 +7,8 @@ from wpimath.controller import PIDController
 from wpimath.geometry import Pose2d, Translation2d, Rotation2d
 from wpimath import units
 import math
+from apriltagalignmentdata import AprilTagAlignmentData
+
 
 ## Question in Mind.  This algorithm is using robot poses to know when we have reached the target point.
 ## If the robot is bumped during the action, the pose will not be acurrate.
@@ -21,13 +23,19 @@ class DriveToSpecificPointSwerveCommand(Command):
 
     """
 
-    def __init__(self, drivetrain : CommandSwerveDrivetrain, forward_movement_meters : float, lateral_position_meters : float) -> None:
+    # def __init__(self, drivetrain : CommandSwerveDrivetrain, forward_movement_meters : float, lateral_position_meters : float) -> None:
+    # def __init__(self, drivetrain : CommandSwerveDrivetrain, target_position_robot_centric : Translation2d) -> None:
+    def __init__(self, drivetrain : CommandSwerveDrivetrain, apriltag_alignment_data : AprilTagAlignmentData) -> None:
         self.drivetrain = drivetrain
+        self.apriltag_alignment_data = apriltag_alignment_data
+        # self.forward_movement_meters = target_position_robot_centric.X()
+        # self.lateral_position_meters = target_position_robot_centric.Y()
+        # print (f"Target position (Robot-centric)::::: {self.forward_movement_meters:5.1f} {self.lateral_position_meters:5.1f} ")
+
 
         # Create the two PID controllers,  One for forward movement and one for heading change
         self.speed = 0.0
         self.distance_clamped_max_speed = 2.0
-        self.forward_movement_meters = forward_movement_meters
         self.distance_kP = 1.0
         self.distance_kI = 0.5
         self.distance_kD = 0.0
@@ -37,7 +45,6 @@ class DriveToSpecificPointSwerveCommand(Command):
 
         self.turn_speed = 0.0
         self.turn_clamped_max_speed = 2.0
-        self.lateral_position_meters = lateral_position_meters
         self.heading_kP = 15.0   # was 3.0
         self.heading_kI = 0.5
         self.heading_kD = 0.0
@@ -48,6 +55,8 @@ class DriveToSpecificPointSwerveCommand(Command):
         self.pid_heading_controller.setTolerance( self.tolerance_in_radians )   ### <<<  NEED TO Shrink this number since it is radians
 
         self.addRequirements(drivetrain)
+
+        self.counter_for_periodic_printing = 0
 
         """
                Algorithm:
@@ -68,6 +77,12 @@ class DriveToSpecificPointSwerveCommand(Command):
         """
 
     def initialize(self) -> None:
+
+        ### TEMPORARY FOR TEST
+        self.forward_movement_meters = self.apriltag_alignment_data.get_apriltag_turnpoint_X_position_meters() 
+        self.lateral_position_meters = self.apriltag_alignment_data.get_apriltag_turnpoint_Y_position_meters() 
+
+        print (f"Target position (Robot-centric)::: {self.forward_movement_meters:5.1f} {self.lateral_position_meters:5.1f} ")
 
         self.pid_distance_controller.reset()
         self.pid_heading_controller.reset()
@@ -170,9 +185,14 @@ class DriveToSpecificPointSwerveCommand(Command):
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         self.drivetrain.driving_forward_and_update_heading(self.distance_speed, self.turn_speed)
-        print(f"Current Position: X: {self.current_translation.x:5.2f} Y: {self.current_translation.y:5.2f} Heading: {self.current_heading_degrees:6.2f}  ", end='')
-        print (f"|| Speeds: Forward: {self.distance_speed:5.2f} Turn: {self.turn_speed:5.2f} ", end='')
-        print (f"||  Remaining dist: {self.current_distance:4.2f} Heading Error: {57.296 * (self.target_heading_radians - self.current_heading_radians):5.2f} ")
+
+                    # This code causes the output to be printed twice a second
+        self.counter_for_periodic_printing = self.counter_for_periodic_printing + 1
+        if (self.counter_for_periodic_printing % 25 == 0): ##  Print twice a second
+            self.counter_for_periodic_printing = 0
+            print(f"Current Position: X: {self.current_translation.x:5.2f} Y: {self.current_translation.y:5.2f} Heading: {self.current_heading_degrees:6.2f}  ", end='')
+            print (f"|| Speeds: Forward: {self.distance_speed:5.2f} Turn: {self.turn_speed:5.2f} ", end='')
+            print (f"||  Remaining dist: {self.current_distance:4.2f} Heading Error: {57.296 * (self.target_heading_radians - self.current_heading_radians):5.2f} ")
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

@@ -1,4 +1,4 @@
-from wpimath.geometry import Transform2d, Transform3d, Translation3d, Rotation3d
+from wpimath.geometry import Translation2d, Transform2d, Transform3d, Translation3d, Rotation3d
 import math
 
 
@@ -15,7 +15,7 @@ class AprilTagAlignmentData:
                     # This data structure is the offset to the AprilTag and the rotation of the Apriltag relative to the robot
                     # Angles in Rotation3d are provided in Radians
 
-        self.apriltag_turnpoint_position : Transform2d = (0.0, 0.0)  #  forward distance, cross distance in meters
+        self.apriltag_turnpoint_position : Translation2d = Translation2d(0.0, 0.0)  #  forward distance, cross distance in meters
         self.apriltag_turnpoint_angle_degrees : float = 0.0
 
     def set_all_apriltag_alignment_data(self, all_data_list : list) -> None:
@@ -43,7 +43,7 @@ class AprilTagAlignmentData:
         self.apriltag_yaw = 5.0          # Degrees
 
     def set_apriltag_turnpoint_position (self, forward_position_meters : float, cross_position_meters : float):
-        self.apriltag_turnpoint_position : Transform2d = (forward_position_meters, cross_position_meters) 
+        self.apriltag_turnpoint_position = Translation2d(forward_position_meters, cross_position_meters) 
 
     def set_apriltag_turnpoint_angle_degrees (self, apriltag_turnpoint_angle_degrees : float):
         self.apriltag_turnpoint_angle_degrees = apriltag_turnpoint_angle_degrees
@@ -67,8 +67,16 @@ class AprilTagAlignmentData:
     def get_apriltag_bestCameraToTarget(self) -> Transform3d: 
         return self.apriltag_bestCameraToTarget
 
-    def get_apriltag_turnpoint_position_meters_Transform2d (self) -> Transform2d:
-        return self.apriltag_turnpoint_position 
+    def get_apriltag_turnpoint_position_meters(self) -> Translation2d:
+        print (f"Getting: self.apriltag_turnpoint_position {self.apriltag_turnpoint_position}")
+        return self.apriltag_turnpoint_position
+
+
+    def get_apriltag_turnpoint_X_position_meters(self) -> float:
+        return self.apriltag_turnpoint_position.X()
+
+    def get_apriltag_turnpoint_Y_position_meters(self) -> float:
+        return self.apriltag_turnpoint_position.Y()
 
     def get_apriltag_turnpoint_angle_degrees(self) -> float:
         return self.apriltag_turnpoint_angle_degrees 
@@ -82,4 +90,5 @@ class AprilTagAlignmentData:
             print (f"Skew: {self.apriltag_skew:6.2f} Distance:{self.apriltag_distance:6.2f}")
 
     def print_apriltag_alignment_turn_point_data(self) -> None:
-            print (f"Turn Point (Robot-Centric): {self.apriltag_turnpoint_position:5.2f}  ") 
+            print (f"Turn Point (Robot-Centric): X: {self.apriltag_turnpoint_position[0]:5.2f}  ", end='') 
+            print (f"  Y: {self.apriltag_turnpoint_position[1]:5.2f}  ") 

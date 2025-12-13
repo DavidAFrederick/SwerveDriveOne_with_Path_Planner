@@ -12,7 +12,7 @@ from subsystems.command_swerve_drivetrain import CommandSwerveDrivetrain
 from subsystems.vision_subsystem import VisionSystem 
 
 
-class DriveToAprilTagTurnPoint(SequentialCommandGroup):
+class DriveToAprilTagTurnPointCmdGroup(SequentialCommandGroup):
 
     def __init__(self, drivetrain : CommandSwerveDrivetrain, 
                  vision : VisionSystem, 
@@ -32,9 +32,17 @@ class DriveToAprilTagTurnPoint(SequentialCommandGroup):
         PauseCommand(2.0),
 
         PrintCommand("Drive to Specific point"),
-        DriveToSpecificPointSwerveCommand(self.drivetrain, 
-                                          self.apriltag_alignment_data.apriltag_turnpoint_position.X(), 
-                                          self.apriltag_alignment_data.apriltag_turnpoint_position.Y()),
+
+        DriveToSpecificPointSwerveCommand(self.drivetrain, self.apriltag_alignment_data),
+
+
+        # DriveToSpecificPointSwerveCommand(self.drivetrain,   # Passing in Translation2d contain X,Y
+        #                                   self.apriltag_alignment_data.get_apriltag_turnpoint_position_meters()),
+
+        # DriveToSpecificPointSwerveCommand(self.drivetrain, 
+        #                                   self.apriltag_alignment_data.get_apriltag_turnpoint_X_position_meters(), 
+        #                                   self.apriltag_alignment_data.get_apriltag_turnpoint_Y_position_meters()),
+
 
         PrintCommand("Pausing"),
         PauseCommand(2.0),

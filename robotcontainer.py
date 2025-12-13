@@ -33,6 +33,7 @@ from commands.turn_specific_heading import TurnHeadingSwerveCommand
 from commands.drive_specific_distance import DriveDistanceSwerveCommand
 from commands.drive_in_square_command_group import DriveInSquareDemo
 from commands.drive_to_specific_point import DriveToSpecificPointSwerveCommand
+from commands.drive_to_apriltag_turnpoint_group import  DriveToAprilTagTurnPointCmdGroup
 
 
 class RobotContainer:
@@ -190,9 +191,8 @@ class RobotContainer:
         )
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        self._joystick.y().onTrue(AprilTagWithOffsetAligmentCalculation(self.drivetrain,
+        self._joystick.y().onTrue(DriveToAprilTagTurnPointCmdGroup(self.drivetrain,
                                                           self._visionsubsystem,
-                                                          self._ledsubsystem,
                                                           self._apriltag_alignment_data))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -204,6 +204,9 @@ class RobotContainer:
         # self._joystick.x().onTrue(DriveInSquareDemo(self.drivetrain, self._ledsubsystem, 1.0))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        self._apriltag_alignment_data.set_apriltag_turnpoint_position(2.0, 2.0)
+        self._joystick.x().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, self._apriltag_alignment_data))  # forward, cross position Robot-centric in meters
+        
         # self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 0.0))  # forward, cross position Robot-centric in meters
         # self._joystick.b().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, -2.0))  # forward, cross position Robot-centric in meters
         # self._joystick.x().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 2.0))  # forward, cross position Robot-centric in meters
@@ -224,11 +227,11 @@ class RobotContainer:
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # ERROR HERE:    Buttons not mapping correctly.
 
-        self._joystick.leftTrigger().onTrue(PrintCommand("LT - LT - LT - LT - LT - LT - LT - LT - "))  # Triggered with A button
-        self._joystick.a().onTrue(PrintCommand("AAAAAAAAAAAAAAAAAA"))  # Triggered with A button
-        self._joystick.b().onTrue(PrintCommand("BBBBBBBBBBBBBBBBBB"))  # Triggered with X button
-        self._joystick.x().onTrue(PrintCommand("XXXXXXXXXXXXXXXXXX"))  # Triggered with B button
-        self._joystick.y().onTrue(PrintCommand("YYYYYYYYYYYYYYYYYY"))  # Triggered with Y button
+        # self._joystick.leftTrigger().onTrue(PrintCommand("LT - LT - LT - LT - LT - LT - LT - LT - "))  # Triggered with A button
+        # self._joystick.a().onTrue(PrintCommand("AAAAAAAAAAAAAAAAAA"))  # Triggered with A button
+        # self._joystick.b().onTrue(PrintCommand("BBBBBBBBBBBBBBBBBB"))  # Triggered with X button
+        # self._joystick.x().onTrue(PrintCommand("XXXXXXXXXXXXXXXXXX"))  # Triggered with B button
+        # self._joystick.y().onTrue(PrintCommand("YYYYYYYYYYYYYYYYYY"))  # Triggered with Y button
 
 
         ## COMMENTS ON THE BUTTON MISMAPPING 
