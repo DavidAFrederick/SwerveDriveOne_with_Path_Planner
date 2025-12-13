@@ -28,6 +28,7 @@ from subsystems.vision_subsystem_dummy import VisionSystemDUMMY
 from apriltagalignmentdata import AprilTagAlignmentData
 
 from commands.vision_alignment_mode import AprilTagAligmentMode
+from commands.vision_alignment_with_offset import AprilTagWithOffsetAligmentMode
 from commands.turn_specific_heading import TurnHeadingSwerveCommand
 from commands.drive_specific_distance import DriveDistanceSwerveCommand
 from commands.drive_in_square_command_group import DriveInSquareDemo
@@ -189,10 +190,10 @@ class RobotContainer:
         )
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        # self._joystick.a().onTrue(AprilTagAligmentMode(self.drivetrain,
-        #                                                   self._visionsubsystem,
-        #                                                   self._ledsubsystem,
-        #                                                   self._apriltag_alignment_data))
+        self._joystick.y().onTrue(AprilTagWithOffsetAligmentMode(self.drivetrain,
+                                                          self._visionsubsystem,
+                                                          self._ledsubsystem,
+                                                          self._apriltag_alignment_data))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain, 10))
@@ -200,13 +201,13 @@ class RobotContainer:
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-        self._joystick.x().onTrue(DriveInSquareDemo(self.drivetrain, self._ledsubsystem, 1.0))
+        # self._joystick.x().onTrue(DriveInSquareDemo(self.drivetrain, self._ledsubsystem, 1.0))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 0.0))  # forward, cross position Robot-centric in meters
         # self._joystick.b().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, -2.0))  # forward, cross position Robot-centric in meters
         # self._joystick.x().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 2.0))  # forward, cross position Robot-centric in meters
-        self._joystick.y().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 4.0, -2.0))  # forward, cross position Robot-centric in meters
+        # self._joystick.y().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 4.0, -2.0))  # forward, cross position Robot-centric in meters
 
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 

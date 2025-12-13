@@ -21,6 +21,7 @@ class VisionSystemDUMMY(Subsystem):
     def __init__(self) -> None:
         # Run the constructor for the subsystem class
         super().__init__()
+        print (">>>>>  USING DUMMY VISION SUBSYTEM FOR TESTING <<<<<<")
 
 
     def periodic(self) -> None:    

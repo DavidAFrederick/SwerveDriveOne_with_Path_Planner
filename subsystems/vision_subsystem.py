@@ -31,6 +31,8 @@ class VisionSystem(Subsystem):
         self._latest_result = self._camera.getLatestResult()
 
         #### self.apriltag_alignment_data.set_apriltag_alignment_data_yaw(5.0)  # Temp for test
+        ## >> Yaw is returned from PhotonVision in degrees
+        ## >> The Transform3d object returned by PhotonTrackedTarget.getBestCameraToTarget() uses radians for its rotational components. 
 
         self.counter_for_periodic_printing = 0
 
@@ -46,36 +48,46 @@ class VisionSystem(Subsystem):
             self._latest_result = self._camera.getLatestResult()
 
     def get_tag_data(self) -> list:
-        target_list = self._latest_result.getTargets()
+        target_list = self._latest_result.getTargets()    # Get current data from PhotonVision
         # print (f"get_tag_data - Length:  {len(target_list)}")
 
-        for target in target_list:
-            self.fiducialId = target.getFiducialId()
+        for target in target_list:                    ## Expecting only a single target for closeup alignment
+            self.fiducialId = target.getFiducialId()  ## Not really used
 
             # Get the Transform3d from the camera to the target
             self.bestCameraToTarget : Transform3d = target.getBestCameraToTarget()
 
-            # Get the transform that maps camera space (X = forward, Y = left, Z = up) 
-            # to object/fiducial tag space (X forward, Y left, Z up) with the lowest reprojection error.
+            # ## Put data into the "apriltag alignment data" data object 
+            # self.apriltag_alignment_data.set_apriltag_bestCameraToTarget(target.getBestCameraToTarget())
 
-            self.print_apriltag_position_and_pose(self.bestCameraToTarget)
+            # # Get the transform that maps camera space (X = forward, Y = left, Z = up) Angles in Radians
+            # # to object/fiducial tag space (X forward, Y left, Z up) with the lowest reprojection error.
+
+            # self.print_apriltag_position_and_pose(self.bestCameraToTarget)
 
 
-        # if len(target_list) > 0:   #  No targets present
+        #  targets are present
         if (self._latest_result.hasTargets()):
-            # print (f"vvvvvvvvvvvvvvvvvvvvvvvvvvv")
-            # print (f" Target_list {target_list}")
-            # print (f"{len(target_list)} ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ")
 
-            for target in target_list:
+            for target in target_list:      # Assumes a single AprilTag Target
+
                 # print (f"target.getYaw()  {target.getYaw():5.2f}")
                 self.apriltag_alignment_data.set_apriltag_alignment_data_yaw(target.getYaw())
+
+                ## Put data into the "apriltag alignment data" data object 
+                self.apriltag_alignment_data.set_apriltag_bestCameraToTarget(target.getBestCameraToTarget())
+
+                # Get the transform that maps camera space (X = forward, Y = left, Z = up) Angles in Radians
+                # to object/fiducial tag space (X forward, Y left, Z up) with the lowest reprojection error.
+
+                self.print_apriltag_position_and_pose(self.bestCameraToTarget)
+                # self.apriltag_alignment_data.print_all_apriltag_alignment_data()
+
         else:
             self.apriltag_alignment_data.set_apriltag_alignment_data_not_available()
 
         SmartDashboard.putBoolean("See Tag", self._latest_result.hasTargets())
 
-        # self.apriltag_alignment_data.print_all_apriltag_alignment_data()
 
     def get_tag_data_Transform_to_Tag(self) -> Transform3d:   # Requires AprilTag 3D Mode on PhotonVision
 
@@ -95,8 +107,8 @@ class VisionSystem(Subsystem):
             camera_to_target_pose: Transform3d = best_target.getBestCameraToTarget()
 
             # You can then extract translation and rotation components
-            self.translation: Translation3d = camera_to_target_pose.translation()
-            self.rotation: Rotation3d = camera_to_target_pose.rotation()
+            self.translation: Translation3d = camera_to_target_pose.translation()  # Distance in meters
+            self.rotation: Rotation3d = camera_to_target_pose.rotation()           # Angles in radians
 
             # print ("====================================")
             # print (f"self.translation {self.translation}")
