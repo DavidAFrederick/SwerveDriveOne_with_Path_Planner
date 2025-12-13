@@ -12,41 +12,21 @@ import math
 
 class AprilTagWithOffsetAligmentMode(Command):
     """
-    This command drives the robot toward an Apriltag but stops in front of
-    it then rotates to be perpendicular to the Apriltag.
+    This command only does calculations to determine where to place the robot to
+    be directly in front of the Apriltag.  The result is stored in the "AprilTagAlignmentData" data object
     
     """
     def __init__(self, drivetrain : CommandSwerveDrivetrain, 
                  vision : VisionSystem, 
-                 led: LEDSubsystem,
                  apriltag_alignment_data : AprilTagAlignmentData) -> None:
         super().__init__()
 
         self.drivetrain = drivetrain
         self.vision = vision
-        self.led = led
         self.apriltag_alignment_data = apriltag_alignment_data
-      
-        self.speed = 0.0
-        self.heading_change_degrees = 0.0
-        self.turn_clamped_max_speed = 0.8
-        self.kP = 0.1
-        self.kI = 0.05
-        self.kD = 0.0
-        self.kF = 0.0  # Feedforward constant (optional, but often useful)
-        self.pid_heading_controller = PIDController(self.kP, self.kI, self.kD)
-        self.pid_heading_controller.enableContinuousInput(-180.0, 180.0)
-        self.pid_heading_controller.setTolerance(3.0)  
-
-        self.addRequirements(drivetrain, vision, led)
+        self.addRequirements(drivetrain, vision)
 
     def initialize(self) -> None:
-        """
-        See details within init.
-        """
-        self.pid_heading_controller.reset()
-        self.led.red()
-
 
         """
         The goal of this algorithm is to place the robot directly in front of an AprilTag
@@ -85,12 +65,12 @@ class AprilTagWithOffsetAligmentMode(Command):
 
         [5] Calculate the turn-point position in robot centric terms (delta-x, delta-y)
 
-        [6] Drive to that point
+        [6] Place the data into the AprilTagAlignmentData data object
 
 
-# bestCameraToTarget=
-#   Transform3d(Translation3d(x=0.691508, y=0.219795, z=0.141702), 
-#   Rotation3d(x=0.008310, y=-0.060773, z=-2.588145))
+        # bestCameraToTarget=
+        #   Transform3d(Translation3d(x=0.691508, y=0.219795, z=0.141702), 
+        #   Rotation3d(x=0.008310, y=-0.060773, z=-2.588145))
 
         """
         print(">>>>>  AprilTag Aligment Mode with Offset (AprilTagWithOffsetAligmentMode) <<<<<<<<<<<")
@@ -106,7 +86,6 @@ class AprilTagWithOffsetAligmentMode(Command):
         self.initial_translation     = self.initial_pose.translation()
         self.initial_heading_degrees = self.initial_pose.rotation().degrees()
         self.initial_heading_radians = self.initial_pose.rotation().radians()
-
 
         # [2] Get the AprilTag Transform3d from the vision subsystem. X and Y position plus AprilTag Rotation (Robot-Centric)
         # Get Yaw to Target (Robot-Centric)
@@ -193,64 +172,40 @@ class AprilTagWithOffsetAligmentMode(Command):
                                                       * math.sin(self.alignmentTriangle_Angle_A_radians)))
 
         # [5] Calculate the turn-point position in robot centric terms (delta-x, delta-y)
-            # ERROR Radians and degrees mixing
             self.drive_to_turnpoint_angle_radians = (self.apriltag_alignment_data.apriltag_yaw * math.pi / 180 )+ self.alignmentTriangle_Angle_B_radians
             self.drive_to_turnpoint_X_component_meters = math.cos(self.drive_to_turnpoint_angle_radians)
             self.drive_to_turnpoint_Y_component_meters = math.sin(self.drive_to_turnpoint_angle_radians)
 
-            print(f"Robot initial Pose: X: {self.initial_translation.x:4.1f} Y: {self.initial_translation.y:4.1f} ", end='')
-            print(f" heading: {self.initial_heading_degrees} Degrees")
-            print(f"Raw AprilTag Pose {self.aprilTag_position_and_pose}")
-            print(f"AprilTag Position: X: {self.distance_to_AprilTag_X_meters:4.1f} Y: {self.distance_to_AprilTag_Y_meters:4.1f} ", end='')
-            print(f"AprilTag Yaw {self.pose_of_AprilTag_yaw_degrees:4.2f}  Distance: {self.distance_to_AprilTag_meters:4.1f}")
-            print(f"Obtuse Triange Angles: A {(57.3 * self.alignmentTriangle_Angle_A_radians):5.1f} ", end='')
-            print(f" B {(57.3 * self.alignmentTriangle_Angle_B_radians):5.1f} ", end='')
-            print(f" C {(57.3 * self.alignmentTriangle_Angle_C_radians):5.1f} ")
-            print(f"Obtuse Triange sides: a: {self.alignmentTriangle_side_a_meters:4.1f}   ", end='')
-            print(f" b: {self.alignmentTriangle_side_b_meters:4.1f}   ", end='')
-            print(f" c: {self.alignmentTriangle_side_c_meters:4.1f}   ")
-            print(f"Turn-Point:  Drive Angle: {( 180 / math.pi * self.drive_to_turnpoint_angle_radians):4.1f} ", end='')
-            print(f"  X-distance: {self.drive_to_turnpoint_X_component_meters:4.1f}", end='')
-            print(f"  Y-distance: {self.drive_to_turnpoint_Y_component_meters:4.1f}")
+            if (True):
+                print(f"Robot initial Pose: X: {self.initial_translation.x:4.1f} Y: {self.initial_translation.y:4.1f} ", end='')
+                print(f" heading: {self.initial_heading_degrees} Degrees")
+                print(f"Raw AprilTag Pose {self.aprilTag_position_and_pose}")
+                print(f"AprilTag Position: X: {self.distance_to_AprilTag_X_meters:4.1f} Y: {self.distance_to_AprilTag_Y_meters:4.1f} ", end='')
+                print(f"AprilTag Yaw {self.pose_of_AprilTag_yaw_degrees:4.2f}  Distance: {self.distance_to_AprilTag_meters:4.1f}")
+                print(f"Obtuse Triange Angles: A {(57.3 * self.alignmentTriangle_Angle_A_radians):5.1f} ", end='')
+                print(f" B {(57.3 * self.alignmentTriangle_Angle_B_radians):5.1f} ", end='')
+                print(f" C {(57.3 * self.alignmentTriangle_Angle_C_radians):5.1f} ")
+                print(f"Obtuse Triange sides: a: {self.alignmentTriangle_side_a_meters:4.1f}   ", end='')
+                print(f" b: {self.alignmentTriangle_side_b_meters:4.1f}   ", end='')
+                print(f" c: {self.alignmentTriangle_side_c_meters:4.1f}   ")
+                print(f"Turn-Point:  Drive Angle: {( 180 / math.pi * self.drive_to_turnpoint_angle_radians):4.1f} ", end='')
+                print(f"  X-distance: {self.drive_to_turnpoint_X_component_meters:4.1f}", end='')
+                print(f"  Y-distance: {self.drive_to_turnpoint_Y_component_meters:4.1f}")
+
+        # [6] Place the data into the AprilTagAlignmentData data object
+
+            self.apriltag_alignment_dataset_apriltag_turnpoint_position (self.drive_to_turnpoint_X_component_meters, 
+                                                                         self.drive_to_turnpoint_Y_component_meters)
 
 
         print("Done: >>>>>  AprilTag Aligment Mode with Offset (AprilTagWithOffsetAligmentMode) <<<<<<<<<<<")
 
     def execute(self) -> None:
-        print ("Execute")
         pass
-        """
-        1) Get the current Yaw to the AprilTag from PhotonVision
-        2) Perform PID Calculation
-        3) Drive robot rotation
-        """
-
-        # Get Yaw to Target (Robot-Centric)
-        # self.vision.get_tag_data()                  #  Basic - Yaw to AprilTag
-        
-        # if (self.apriltag_alignment_data.get_apriltag_alignment_data_Target_present()):
-        #     self.yaw = self.apriltag_alignment_data.get_apriltag_alignment_data_yaw()
-        #     self.turn_speed = self.pid_heading_controller.calculate( self.yaw, 0)
-        #     # print (f" Turning to Target:  {(self.yaw):5.2f}")
-            
-        #     ## Clamp Heading Change Speed
-        #     if (self.turn_speed >  self.turn_clamped_max_speed): self.turn_speed =  self.turn_clamped_max_speed
-        #     if (self.turn_speed < -self.turn_clamped_max_speed): self.turn_speed = -self.turn_clamped_max_speed
-
-        #     self.drivetrain.driving_change_heading(self.turn_speed)
-        # else:
-        #     self.drivetrain.driving_change_heading(0.0)  # Stop turning
-        #     print  ("Target not present  !!!!!!!!!!!!!!!!!!!!")
-        #     self.yaw = 0.0
-
-
+ 
     def isFinished(self) -> bool:       
         return True        
-        # return self.pid_heading_controller.atSetpoint()        
-
+ 
     def end(self, interrupted: bool) -> None:
-        self.led.green()
-
-        self.drivetrain.stop_driving()
-        print (f"Complete Turn !!!!!!!!!!!!")
-
+        pass
+ 

@@ -1,4 +1,4 @@
-from wpimath.geometry import Transform3d, Translation3d, Rotation3d
+from wpimath.geometry import Transform2d, Transform3d, Translation3d, Rotation3d
 import math
 
 
@@ -11,9 +11,11 @@ class AprilTagAlignmentData:
         self.apriltag_yaw = 0
         self.apriltag_skew = 0
         self.apriltag_distance = 0
-        self.apriltag_bestCameraToTarget = Transform3d(Translation3d(0.0, 0.0, 0.0), Rotation3d(0, 0, 0))
+        self.apriltag_bestCameraToTarget : Transform3d = Transform3d(Translation3d(0.0, 0.0, 0.0), Rotation3d(0, 0, 0))
                     # This data structure is the offset to the AprilTag and the rotation of the Apriltag relative to the robot
                     # Angles in Rotation3d are provided in Radians
+
+        self.apriltag_turnpoint_position : Transform2d = (0.0, 0.0)  #  forward distance, cross distance in meters
 
     def set_all_apriltag_alignment_data(self, all_data_list : list) -> None:
         self.apriltag_present = all_data_list[0]
@@ -34,11 +36,14 @@ class AprilTagAlignmentData:
     def set_apriltag_bestCameraToTarget(self, Transform3dData : Transform3d): 
         self.apriltag_bestCameraToTarget = Transform3dData
 
-
     def set_apriltag_bestCameraToTarget_TEST(self):              # Meters  (x,y,z)    Radians (roll, pitch, yaw)  (9 degrees)
         self.apriltag_bestCameraToTarget = Transform3d(Translation3d(2.0, 0.6, 0.0), Rotation3d(0, 0, (math.pi - 0.165)))
         self.apriltag_present = True
         self.apriltag_yaw = 5.0          # Degrees
+
+    def set_apriltag_turnpoint_position (self, forward_position_meters : float, cross_position_meters : float):
+        self.apriltag_turnpoint_position : Transform2d = (forward_position_meters, cross_position_meters) 
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -63,5 +68,6 @@ class AprilTagAlignmentData:
     def get_apriltag_bestCameraToTarget(self) -> Transform3d: 
         return self.apriltag_bestCameraToTarget
 
-
+    def get_apriltag_turnpoint_position_meters_Transform2d (self) -> Transform2d:
+        return self.apriltag_turnpoint_position 
 
