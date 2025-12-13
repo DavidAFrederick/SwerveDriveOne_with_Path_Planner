@@ -28,7 +28,7 @@ from subsystems.vision_subsystem_dummy import VisionSystemDUMMY
 from apriltagalignmentdata import AprilTagAlignmentData
 
 from commands.vision_alignment_mode import AprilTagAligmentMode
-from commands.vision_alignment_with_offset import AprilTagWithOffsetAligmentMode
+from commands.vision_alignment_with_offset import AprilTagWithOffsetAligmentCalculation
 from commands.turn_specific_heading import TurnHeadingSwerveCommand
 from commands.drive_specific_distance import DriveDistanceSwerveCommand
 from commands.drive_in_square_command_group import DriveInSquareDemo
@@ -190,7 +190,7 @@ class RobotContainer:
         )
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        self._joystick.y().onTrue(AprilTagWithOffsetAligmentMode(self.drivetrain,
+        self._joystick.y().onTrue(AprilTagWithOffsetAligmentCalculation(self.drivetrain,
                                                           self._visionsubsystem,
                                                           self._ledsubsystem,
                                                           self._apriltag_alignment_data))

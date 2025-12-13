@@ -10,7 +10,7 @@ from phoenix6 import swerve, utils
 from phoenix6.swerve.requests import RobotCentric
 import math
 
-class AprilTagWithOffsetAligmentMode(Command):
+class AprilTagWithOffsetAligmentCalculation(Command):
     """
     This command only does calculations to determine where to place the robot to
     be directly in front of the Apriltag.  The result is stored in the "AprilTagAlignmentData" data object
@@ -73,7 +73,7 @@ class AprilTagWithOffsetAligmentMode(Command):
         #   Rotation3d(x=0.008310, y=-0.060773, z=-2.588145))
 
         """
-        print(">>>>>  AprilTag Aligment Mode with Offset (AprilTagWithOffsetAligmentMode) <<<<<<<<<<<")
+        print(">>>>>  AprilTag Aligment Mode with Offset (AprilTagWithOffsetAligmentCalculation) <<<<<<<<<<<")
 
         # [1] Get the current robot position and heading from the current robot pose (Field-Centric)
 
@@ -194,11 +194,13 @@ class AprilTagWithOffsetAligmentMode(Command):
 
         # [6] Place the data into the AprilTagAlignmentData data object
 
-            self.apriltag_alignment_dataset_apriltag_turnpoint_position (self.drive_to_turnpoint_X_component_meters, 
+            self.apriltag_alignment_data.set_apriltag_turnpoint_position (self.drive_to_turnpoint_X_component_meters, 
                                                                          self.drive_to_turnpoint_Y_component_meters)
+            self.apriltag_alignment_data.print_apriltag_alignment_turn_point_data()
+            self.set_apriltag_turnpoint_angle_degrees(self.pose_of_AprilTag_yaw_degrees)
 
 
-        print("Done: >>>>>  AprilTag Aligment Mode with Offset (AprilTagWithOffsetAligmentMode) <<<<<<<<<<<")
+        print("Done: >>>>>  AprilTag Aligment Mode with Offset (AprilTagWithOffsetAligmentCalculation) <<<<<<<<<<<")
 
     def execute(self) -> None:
         pass
