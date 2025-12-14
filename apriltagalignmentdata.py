@@ -30,17 +30,29 @@ class AprilTagAlignmentData:
         self.apriltag_skew = 0
         self.apriltag_distance = 0
 
-    def set_apriltag_alignment_data_yaw(self, yaw : float): 
+    def set_apriltag_alignment_data_yaw(self, yaw : float):    ## Degrees
         self.apriltag_present = True
         self.apriltag_yaw = yaw
 
     def set_apriltag_bestCameraToTarget(self, Transform3dData : Transform3d): 
+        self.apriltag_present = True
         self.apriltag_bestCameraToTarget = Transform3dData
+        forward_distance = self.apriltag_bestCameraToTarget.translation().X()
+        cross_distance   = self.apriltag_bestCameraToTarget.translation().Y()
+        if (forward_distance != 0):     ## TODO ERROR - Need to figure out how to set positive or negatve
+            self.apriltag_yaw = - 180/math.pi *  math.atan(cross_distance/forward_distance)
+        else:
+            self.apriltag_yaw = 0.0   ## Degrees
 
     def set_apriltag_bestCameraToTarget_TEST(self):              # Meters  (x,y,z)    Radians (roll, pitch, yaw)  (9 degrees)
-        self.apriltag_bestCameraToTarget = Transform3d(Translation3d(2.0, 0.6, 0.0), Rotation3d(0, 0, (math.pi - 0.165)))
+        self.apriltag_bestCameraToTarget = Transform3d(Translation3d(2.59, 0.96, 0.0), Rotation3d(0, 0, (32 * math.pi/180)))
         self.apriltag_present = True
-        self.apriltag_yaw = 5.0          # Degrees
+        forward_distance = self.apriltag_bestCameraToTarget.translation().X()
+        cross_distance   = self.apriltag_bestCameraToTarget.translation().Y()
+        if (forward_distance != 0):   ## TODO - ERROR - See above
+            self.apriltag_yaw = - 180/math.pi *  math.atan(cross_distance/forward_distance)
+        else:
+            self.apriltag_yaw = 0.0   ## Degrees
 
     def set_apriltag_turnpoint_position (self, forward_position_meters : float, cross_position_meters : float):
         self.apriltag_turnpoint_position = Translation2d(forward_position_meters, cross_position_meters) 

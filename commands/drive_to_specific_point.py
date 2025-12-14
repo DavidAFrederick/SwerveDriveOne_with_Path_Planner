@@ -23,15 +23,9 @@ class DriveToSpecificPointSwerveCommand(Command):
 
     """
 
-    # def __init__(self, drivetrain : CommandSwerveDrivetrain, forward_movement_meters : float, lateral_position_meters : float) -> None:
-    # def __init__(self, drivetrain : CommandSwerveDrivetrain, target_position_robot_centric : Translation2d) -> None:
     def __init__(self, drivetrain : CommandSwerveDrivetrain, apriltag_alignment_data : AprilTagAlignmentData) -> None:
         self.drivetrain = drivetrain
         self.apriltag_alignment_data = apriltag_alignment_data
-        # self.forward_movement_meters = target_position_robot_centric.X()
-        # self.lateral_position_meters = target_position_robot_centric.Y()
-        # print (f"Target position (Robot-centric)::::: {self.forward_movement_meters:5.1f} {self.lateral_position_meters:5.1f} ")
-
 
         # Create the two PID controllers,  One for forward movement and one for heading change
         self.speed = 0.0
@@ -78,11 +72,10 @@ class DriveToSpecificPointSwerveCommand(Command):
 
     def initialize(self) -> None:
 
-        ### TEMPORARY FOR TEST
+        # Get the current position from the "AprilTagAlignmentData" data Object
         self.forward_movement_meters = self.apriltag_alignment_data.get_apriltag_turnpoint_X_position_meters() 
         self.lateral_position_meters = self.apriltag_alignment_data.get_apriltag_turnpoint_Y_position_meters() 
 
-        print (f"Target position (Robot-centric)::: {self.forward_movement_meters:5.1f} {self.lateral_position_meters:5.1f} ")
 
         self.pid_distance_controller.reset()
         self.pid_heading_controller.reset()
@@ -121,13 +114,13 @@ class DriveToSpecificPointSwerveCommand(Command):
 
         print (f"Starting point: >> ", end='')
         print (f"Init: {self.initial_translation.x:4.1f} {self.initial_translation.y:4.1f} Heading: {self.initial_heading_degrees:4.1f}  ", end="")
+        print (f"Target position (Robot-centric)::: {self.forward_movement_meters:5.1f} {self.lateral_position_meters:5.1f} ")
         print (f"Calculated Final Pos: X: {self.target_x_field_position:4.1f} Y: {self.target_y_field_position:4.1f} ", end='')
         print (f"Drive Angle: {(57.296 * self.final_angle_field_centric_to_travel):5.2f}")
 
         print (f"Intermediate data: ", end='')
         print (f"Distance:  {self.distance_to_travel:5.2f}   ", end='')
         print (f"Heading Tolerance: {self.tolerance_in_degrees:5.2f} Degrees    = {self.tolerance_in_radians:5.2f} Radians")
-        
         
     def execute(self) -> None:
         """

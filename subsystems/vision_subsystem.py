@@ -158,6 +158,7 @@ class VisionSystem(Subsystem):
                 # Roll  = Clockwise is Negative
                 # Pitch = Top of target leaning away from robot is negative
                 # Yaw   = Left side of target moving away from robot is positive, zero on perpendicular
+                # TODO = Need to verify AprilTag Yaw direction, Seems Opposite to the other coordinate systems
 
             #   Transform3d(Translation3d(x=0.691508, y=0.219795, z=0.141702), Rotation3d(x=0.008310, y=-0.060773, z=-2.588145))
 
