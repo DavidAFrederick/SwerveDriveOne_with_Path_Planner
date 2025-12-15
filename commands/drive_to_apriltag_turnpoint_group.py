@@ -25,7 +25,7 @@ class DriveToAprilTagTurnPointCmdGroup(SequentialCommandGroup):
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         self.addCommands(
         PrintCommand("---------------------------------------"),
-        
+
         PrintCommand("Calculate turn point"),
         AprilTagWithOffsetAligmentCalculation(self.drivetrain, self.vision, self.apriltag_alignment_data),
         PrintCommand("Done - Calculate turn point"),
@@ -44,8 +44,7 @@ class DriveToAprilTagTurnPointCmdGroup(SequentialCommandGroup):
         PauseCommand(2.0),
 
         PrintCommand("---------------------------------------"),
-        TurnHeadingSwerveCommand(self.drivetrain, 
-                                 self.apriltag_alignment_data.get_apriltag_turnpoint_angle_degrees()),
+        TurnHeadingSwerveCommand(self.drivetrain, 0.0, self.apriltag_alignment_data),
 
         PrintCommand("Group Command Complete"),
         PrintCommand("---------------------------------------"),

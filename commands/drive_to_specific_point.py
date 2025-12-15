@@ -44,9 +44,9 @@ class DriveToSpecificPointSwerveCommand(Command):
         self.heading_kD = 0.0
         self.heading_kF = 0.0  
         self.pid_heading_controller = PIDController(self.heading_kP, self.heading_kI, self.heading_kD)
-        self.tolerance_in_degrees = 3.0
+        self.tolerance_in_degrees = 2.0
         self.tolerance_in_radians = self.tolerance_in_degrees / (180/math.pi)
-        self.pid_heading_controller.setTolerance( self.tolerance_in_radians )   ### <<<  NEED TO Shrink this number since it is radians
+        self.pid_heading_controller.setTolerance( self.tolerance_in_radians )  
 
         self.addRequirements(drivetrain)
 
@@ -114,13 +114,13 @@ class DriveToSpecificPointSwerveCommand(Command):
 
         print (f"Starting point: >> ", end='')
         print (f"Init: {self.initial_translation.x:4.1f} {self.initial_translation.y:4.1f} Heading: {self.initial_heading_degrees:4.1f}  ", end="")
-        print (f"Target position (Robot-centric)::: {self.forward_movement_meters:5.1f} {self.lateral_position_meters:5.1f} ")
-        print (f"Calculated Final Pos: X: {self.target_x_field_position:4.1f} Y: {self.target_y_field_position:4.1f} ", end='')
-        print (f"Drive Angle: {(57.296 * self.final_angle_field_centric_to_travel):5.2f}")
+        print (f"Target position (Robot-centric)::: {self.forward_movement_meters:6.3f} {self.lateral_position_meters:6.3f} ")
+        print (f"Calculated Final Pos: forward (X): {self.target_x_field_position:6.3f} Cross distance (Y)[+ to the left]: {self.target_y_field_position:6.3f} ", end='')
+        print (f"Drive Angle: {(57.296 * self.final_angle_field_centric_to_travel):6.3f}")
 
         print (f"Intermediate data: ", end='')
-        print (f"Distance:  {self.distance_to_travel:5.2f}   ", end='')
-        print (f"Heading Tolerance: {self.tolerance_in_degrees:5.2f} Degrees    = {self.tolerance_in_radians:5.2f} Radians")
+        print (f"Distance:  {self.distance_to_travel:6.3f}   ", end='')
+        print (f"Heading Tolerance: {self.tolerance_in_degrees:6.3f} Degrees    = {self.tolerance_in_radians:6.3f} Radians")
         
     def execute(self) -> None:
         """
