@@ -96,8 +96,9 @@ class AprilTagWithOffsetAligmentCalculation(Command):
         # self.vision.get_tag_data()          # Calls vision subsystem and placed AprilTag target data into "apriltagalignmentdata" data object
 
         ## Temporary tool to load in test data to calculation verification
-        self.apriltag_alignment_data.set_apriltag_bestCameraToTarget_TEST()
-        print (f" >>>>>>> TEST MODE FOR DATA <<<<<<<<<<  vision_alignment_with_offset at line 121")
+        self.apriltag_alignment_data.set_apriltag_bestCameraToTarget()
+        # self.apriltag_alignment_data.set_apriltag_bestCameraToTarget_TEST()
+        # print (f" >>>>>>> TEST MODE FOR DATA <<<<<<<<<<  vision_alignment_with_offset at line 121")
         
         if (self.apriltag_alignment_data.get_apriltag_alignment_data_Target_present()):     # Get the position and yaw of the AprilTag
             self.aprilTag_position_and_pose = self.apriltag_alignment_data.get_apriltag_bestCameraToTarget()
