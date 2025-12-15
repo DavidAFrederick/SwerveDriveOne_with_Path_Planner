@@ -87,20 +87,31 @@ class AprilTagWithOffsetAligmentCalculation(Command):
         self.initial_heading_degrees = self.initial_pose.rotation().degrees()
         self.initial_heading_radians = self.initial_pose.rotation().radians()
 
+        print (f"line 90: self.initial_pose {self.initial_pose}")
+
         # [2] Get the AprilTag Transform3d from the vision subsystem. X and Y position plus AprilTag Rotation (Robot-Centric)
         # Get Yaw to Target (Robot-Centric)
+
+
+        ## To Enable testing without the photonVision Camera System:
+        #  1) Disable / Comments out:  
+        #     # self.vision.get_tag_data()
+        #  2) Enable / Add code to create test vision data: 
+        #     # self.apriltag_alignment_data.set_apriltag_bestCameraToTarget_TEST()
+        #  3) In the RobotContainer, Disable the real vision subsystem and enable the Dummy Vision subsystem
+
 
         ## TODO Need to add a check to see  if data is available
 
         #### TESTING self.vision.get_tag_data()                  #  Basic - Yaw to AprilTag
-        # self.vision.get_tag_data()          # Calls vision subsystem and placed AprilTag target data into "apriltagalignmentdata" data object
+        self.vision.get_tag_data()          # Calls vision subsystem and placed AprilTag target data into "apriltagalignmentdata" data object
 
         ## Temporary tool to load in test data to calculation verification
-        self.apriltag_alignment_data.set_apriltag_bestCameraToTarget()
         # self.apriltag_alignment_data.set_apriltag_bestCameraToTarget_TEST()
         # print (f" >>>>>>> TEST MODE FOR DATA <<<<<<<<<<  vision_alignment_with_offset at line 121")
         
         if (self.apriltag_alignment_data.get_apriltag_alignment_data_Target_present()):     # Get the position and yaw of the AprilTag
+            print ("++++++++++++++++++  Running calc ++++++++++++++++=")
             self.aprilTag_position_and_pose = self.apriltag_alignment_data.get_apriltag_bestCameraToTarget()
 
                             # Get the Transform3d from the camera to the target  [Robot-Centric]
@@ -115,17 +126,20 @@ class AprilTagWithOffsetAligmentCalculation(Command):
             self.pose_of_AprilTag_roll_degrees    = self.aprilTag_position_and_pose.rotation().x_degrees
             self.pose_of_AprilTag_pitch_degrees   = self.aprilTag_position_and_pose.rotation().y_degrees
             self.pose_of_AprilTag_yaw_degrees_raw = self.aprilTag_position_and_pose.rotation().z_degrees
-            # print (f"self.pose_of_AprilTag_yaw_degrees_raw (positive means left side of Apriltag is away from robot): {self.pose_of_AprilTag_yaw_degrees_raw:6.3f}")
+            print (f"self.pose_of_AprilTag_yaw_degrees_raw (positive means left side of Apriltag is away from robot): {self.pose_of_AprilTag_yaw_degrees_raw:6.3f}")
             self.pose_of_AprilTag_yaw_degrees = 0.0
             # Change the Yaw to be an offset from being perpendicular to the axis to the robot
-            self.pose_of_AprilTag_yaw_degrees = self.pose_of_AprilTag_yaw_degrees_raw
+            # self.pose_of_AprilTag_yaw_degrees = self.pose_of_AprilTag_yaw_degrees_raw
 
-            # if (self.pose_of_AprilTag_yaw_degrees_raw > 0):
-            #     self.pose_of_AprilTag_yaw_degrees =  self.pose_of_AprilTag_yaw_degrees_raw
-            #     # self.pose_of_AprilTag_yaw_degrees = 180 - self.pose_of_AprilTag_yaw_degrees_raw
-            # elif (self.pose_of_AprilTag_yaw_degrees_raw < 0): 
-            #     self.pose_of_AprilTag_yaw_degrees = 0  - (self.pose_of_AprilTag_yaw_degrees_raw + 180)
-            # print (f"self.pose_of_AprilTag_yaw_degrees: ((positive means left side of Apriltag is away from robot)) {self.pose_of_AprilTag_yaw_degrees:6.3f}")
+            if (self.pose_of_AprilTag_yaw_degrees_raw > 0):
+                # self.pose_of_AprilTag_yaw_degrees =  self.pose_of_AprilTag_yaw_degrees_raw
+                self.pose_of_AprilTag_yaw_degrees = 180 - self.pose_of_AprilTag_yaw_degrees_raw
+            elif (self.pose_of_AprilTag_yaw_degrees_raw < 0): 
+                self.pose_of_AprilTag_yaw_degrees = -(180 + self.pose_of_AprilTag_yaw_degrees_raw)
+            else:
+                self.pose_of_AprilTag_yaw_degrees = 0
+
+            print (f"self.pose_of_AprilTag_yaw_degrees: ((positive means left side of Apriltag is away from robot)) {self.pose_of_AprilTag_yaw_degrees:6.3f}")
 
         # [3] Calculate the direct distance from the robot to the center of the AprilTag [Pythagorean theorem]
 
@@ -174,6 +188,8 @@ class AprilTagWithOffsetAligmentCalculation(Command):
         #    Angle A (Opposite side a) - ArcSin((side a)/(side c) * Sin (Angle C))
         #    Angle B (Opposite side b) - ArcSin((side a)/(side b) * Sin (Angle B))
         #    Angle A should be greater than 90 so took complement (180 - angle)  Pi in radians
+
+        ### TODO - NEED TO PROTECT FROM DIVIDE BY ZERO IN ALL CODE
 
             self.alignmentTriangle_Angle_A_radians = math.pi - (math.asin ((self.alignmentTriangle_side_a_meters/self.alignmentTriangle_side_c_meters) 
                                                       * math.sin(self.alignmentTriangle_Angle_C_radians)))
@@ -226,6 +242,8 @@ class AprilTagWithOffsetAligmentCalculation(Command):
             self.apriltag_alignment_data.set_apriltag_turnpoint_angle_degrees(self.pose_of_AprilTag_yaw_degrees)
             self.apriltag_alignment_data.print_apriltag_alignment_turn_point_data()
 
+        else:
+            print ("---------- NOT -----  Running calc ++++++++++++++++=")
 
 
     def execute(self) -> None:

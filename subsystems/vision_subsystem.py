@@ -35,6 +35,7 @@ class VisionSystem(Subsystem):
         ## >> The Transform3d object returned by PhotonTrackedTarget.getBestCameraToTarget() uses radians for its rotational components. 
 
         self.counter_for_periodic_printing = 0
+        print ("VISION SYSTEM INITIALIZED 0))))))))))))))))))))))))))))))))")
 
 
     def periodic(self) -> None:             ## Runs 50 times per second

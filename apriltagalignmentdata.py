@@ -45,7 +45,7 @@ class AprilTagAlignmentData:
             self.apriltag_yaw = 180/math.pi *  math.atan(cross_distance/forward_distance)
         else:
             self.apriltag_yaw = 0.0   ## Degrees
-        self.apriltag_turnpoint_angle_degrees = self.apriltag_bestCameraToTarget.rotation().z_degrees() # Apriltag's yaw
+        self.apriltag_turnpoint_angle_degrees = self.apriltag_bestCameraToTarget.rotation().z_degrees # Apriltag's yaw
 
     def set_apriltag_bestCameraToTarget_TEST(self):              # Meters  (x,y,z)    Radians (roll, pitch, yaw)  (9 degrees)
         self.apriltag_bestCameraToTarget = Transform3d(Translation3d(2.59, -0.96, 0.0), Rotation3d(0, 0, (-10 * math.pi/180)))

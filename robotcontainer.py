@@ -105,8 +105,8 @@ class RobotContainer:
         #  TEMPORARY - Commented out until ready to test
         # Putting in a temporary placehold to reduce the number of error messages in Console
 
-        self._visionsubsystem = VisionSystemDUMMY()
-        # self._visionsubsystem = VisionSystem(self._apriltag_alignment_data)   
+        # self._visionsubsystem = VisionSystemDUMMY()   #  TEST
+        self._visionsubsystem = VisionSystem(self._apriltag_alignment_data)   
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
         self._ledsubsystem.setDefaultCommand(LEDCommand( self._ledsubsystem, 100))
