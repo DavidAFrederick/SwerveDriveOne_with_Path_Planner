@@ -107,6 +107,9 @@ class AprilTagWithOffsetAligmentCalculation(Command):
         self.apriltag_alignment_data.set_apriltag_bestCameraToTarget()
 
         ## Temporary tool to load in test data to calculation verification
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         # self.apriltag_alignment_data.set_apriltag_bestCameraToTarget_TEST()
         # print (f" >>>>>>> TEST MODE FOR DATA <<<<<<<<<<  vision_alignment_with_offset at line 121")
