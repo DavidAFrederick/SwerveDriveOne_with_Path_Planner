@@ -1,19 +1,14 @@
-import wpilib
-from wpimath.controller import PIDController
 from wpimath.geometry import Pose2d
 from commands2 import Command
-from subsystems.ledsubsystem import LEDSubsystem
 from subsystems.vision_subsystem import VisionSystem 
 from subsystems.command_swerve_drivetrain import CommandSwerveDrivetrain
 from apriltagalignmentdata import AprilTagAlignmentData
-from phoenix6 import swerve, utils
-from phoenix6.swerve.requests import RobotCentric
 import math
 
 class AprilTagWithOffsetAligmentCalculation(Command):
     """
-    This command only does calculations to determine where to place the robot to
-    be directly in front of the Apriltag.  The result is stored in the "AprilTagAlignmentData" data object
+    This command only does calculations to determine the location (called: turn-point) which will place the
+     robot directly in front of the Apriltag.  The result is stored in the "AprilTagAlignmentData" data object.
     
     """
     def __init__(self, drivetrain : CommandSwerveDrivetrain, 
@@ -49,7 +44,7 @@ class AprilTagWithOffsetAligmentCalculation(Command):
         [4]] Calculate the side lengths and angles within an obtuse triangle formed by the following 3 points [Field-Oriented]
            (P) Current position of the robot  (provided by pose) 
            (Q) Center of the AprilTag  
-           (G) turn-point for robot to stop movement
+           (G) turn-point for robot to stop movement  (X,Y Position we are calculating)
 
         The length of the sides are determined as follows:
            Distance between (P) and (Q) - (side a) - Robot to AprilTag - Provided by PhotonVision [Pythagorean theorem]
@@ -67,7 +62,7 @@ class AprilTagWithOffsetAligmentCalculation(Command):
 
         [6] Place the data into the AprilTagAlignmentData data object
 
-
+        Here is an example of what the PhotonVision returns when in 3D Mode(Values are Meters and Radians)
         # bestCameraToTarget=
         #   Transform3d(Translation3d(x=0.691508, y=0.219795, z=0.141702), 
         #   Rotation3d(x=0.008310, y=-0.060773, z=-2.588145))
@@ -107,6 +102,12 @@ class AprilTagWithOffsetAligmentCalculation(Command):
         self.vision.get_tag_data()          # Calls vision subsystem and placed AprilTag target data into "apriltagalignmentdata" data object
 
         ## Temporary tool to load in test data to calculation verification
+<<<<<<< Updated upstream
+=======
+        self.apriltag_alignment_data.set_apriltag_bestCameraToTarget()
+
+        ## Temporary tool to load in test data to calculation verification
+>>>>>>> Stashed changes
         # self.apriltag_alignment_data.set_apriltag_bestCameraToTarget_TEST()
         # print (f" >>>>>>> TEST MODE FOR DATA <<<<<<<<<<  vision_alignment_with_offset at line 121")
         
