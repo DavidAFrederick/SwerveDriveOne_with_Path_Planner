@@ -209,7 +209,6 @@ class RobotContainer:
         # self._joystick.x().onTrue(DriveInSquareDemo(self.drivetrain, self._ledsubsystem, 1.0))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        self._apriltag_alignment_data.set_apriltag_turnpoint_position(2.0, 2.0)
         self._joystick.x().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, self._apriltag_alignment_data))  # forward, cross position Robot-centric in meters
         
         # self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 0.0))  # forward, cross position Robot-centric in meters
