@@ -17,6 +17,7 @@ class AprilTagAlignmentData:
 
         self.apriltag_turnpoint_position : Translation2d = Translation2d(0.0, 0.0)  #  forward distance, cross distance in meters
         self.apriltag_turnpoint_angle_degrees : float = 0.0   # Rotation of the AprilTag about it's z axis
+        self.simulation_test_mode_enable = True
 
     def set_all_apriltag_alignment_data(self, all_data_list : list) -> None:
         self.apriltag_present = all_data_list[0]
@@ -48,7 +49,7 @@ class AprilTagAlignmentData:
         self.apriltag_turnpoint_angle_degrees = self.apriltag_bestCameraToTarget.rotation().z_degrees # Apriltag's yaw
 
     def set_apriltag_bestCameraToTarget_TEST(self):              # Meters  (x,y,z)    Radians (roll, pitch, yaw)  (9 degrees)
-        self.apriltag_bestCameraToTarget = Transform3d(Translation3d(2.59, -0.96, 0.0), Rotation3d(0, 0, (-10 * math.pi/180)))
+        self.apriltag_bestCameraToTarget = Transform3d(Translation3d(2.59, -0.96, 0.0), Rotation3d(0, 0, (-170 * math.pi/180)))
         # self.apriltag_bestCameraToTarget = Transform3d(Translation3d(2.59, -0.96, 0.0), Rotation3d(0, 0, (32 * math.pi/180)))
         ### TODO Determine the coordinate system for the bestCameraToTarget
         self.apriltag_present = True
@@ -65,6 +66,12 @@ class AprilTagAlignmentData:
 
     def set_apriltag_turnpoint_angle_degrees (self, apriltag_turnpoint_angle_degrees : float):
         self.apriltag_turnpoint_angle_degrees = apriltag_turnpoint_angle_degrees
+
+    def set_test_mode (self, test_mode : bool):
+            """
+            Enable test mode for vision system (True means use fixed position data and disable vision subsystem)
+            """
+            self.simulation_test_mode_enable = test_mode
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -90,7 +97,6 @@ class AprilTagAlignmentData:
         print (f"Getting: self.apriltag_turnpoint_position {self.apriltag_turnpoint_position}")
         return self.apriltag_turnpoint_position
 
-
     def get_apriltag_turnpoint_X_position_meters(self) -> float:
         return self.apriltag_turnpoint_position.X()
 
@@ -101,7 +107,8 @@ class AprilTagAlignmentData:
         # print (f"Getting AprilTag Z-axis Yaw: {self.apriltag_turnpoint_angle_degrees:6.3f}")
         return self.apriltag_turnpoint_angle_degrees 
 
-
+    def get_test_mode (self) -> bool:   #  True means in Test Mode ( Don't use the camera and get static data from this file)
+        return self.simulation_test_mode_enable
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 

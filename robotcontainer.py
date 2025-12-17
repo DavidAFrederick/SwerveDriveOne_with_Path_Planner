@@ -102,11 +102,16 @@ class RobotContainer:
         self._ledsubsystem = LEDSubsystem()
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        #  TEMPORARY - Commented out until ready to test
-        # Putting in a temporary placehold to reduce the number of error messages in Console
+        # Instantiate the Vision Subsystem if not in Test Mode (Using simulator)
 
-        # self._visionsubsystem = VisionSystemDUMMY()   #  TEST
-        self._visionsubsystem = VisionSystem(self._apriltag_alignment_data)   
+        self._apriltag_alignment_data.set_test_mode(True)
+
+        if (self._apriltag_alignment_data.get_test_mode()):   # True means use simulated data and NOT the photonvision
+            self._visionsubsystem = VisionSystemDUMMY()   #  TEST
+            print ("============== Vision Test Mode Enabled ====================")
+        else:
+            self._visionsubsystem = VisionSystem(self._apriltag_alignment_data)   
+
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
         self._ledsubsystem.setDefaultCommand(LEDCommand( self._ledsubsystem, 100))

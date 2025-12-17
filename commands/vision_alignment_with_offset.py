@@ -98,15 +98,12 @@ class AprilTagWithOffsetAligmentCalculation(Command):
 
         ## TODO Need to add a check to see  if data is available
 
-        #### TESTING self.vision.get_tag_data()                  #  Basic - Yaw to AprilTag
-        self.vision.get_tag_data()          # Calls vision subsystem and placed AprilTag target data into "apriltagalignmentdata" data object
+        if (self.apriltag_alignment_data.get_test_mode()):   # True means use simulated data and NOT the photonvision
+            ## Temporary tool to load in test data to calculation verification
+            self.apriltag_alignment_data.set_apriltag_bestCameraToTarget_TEST() ### Set fake test data 
+        else:
+            self.vision.get_tag_data()          # Calls vision subsystem and placed AprilTag target data into "apriltagalignmentdata" data object
 
-        ## Temporary tool to load in test data to calculation verification
-        self.apriltag_alignment_data.set_apriltag_bestCameraToTarget()
-
-        ## Temporary tool to load in test data to calculation verification
-        # self.apriltag_alignment_data.set_apriltag_bestCameraToTarget_TEST()
-        # print (f" >>>>>>> TEST MODE FOR DATA <<<<<<<<<<  vision_alignment_with_offset at line 121")
         
         if (self.apriltag_alignment_data.get_apriltag_alignment_data_Target_present()):     # Get the position and yaw of the AprilTag
             print ("++++++++++++++++++  Running calc ++++++++++++++++=")
@@ -124,11 +121,18 @@ class AprilTagWithOffsetAligmentCalculation(Command):
             self.pose_of_AprilTag_roll_degrees    = self.aprilTag_position_and_pose.rotation().x_degrees
             self.pose_of_AprilTag_pitch_degrees   = self.aprilTag_position_and_pose.rotation().y_degrees
             self.pose_of_AprilTag_yaw_degrees_raw = self.aprilTag_position_and_pose.rotation().z_degrees
-            print (f"self.pose_of_AprilTag_yaw_degrees_raw (positive means left side of Apriltag is away from robot): {self.pose_of_AprilTag_yaw_degrees_raw:6.3f}")
-            self.pose_of_AprilTag_yaw_degrees = 0.0
-            # Change the Yaw to be an offset from being perpendicular to the axis to the robot
-            # self.pose_of_AprilTag_yaw_degrees = self.pose_of_AprilTag_yaw_degrees_raw
 
+            self.pose_of_AprilTag_yaw_degrees = 0.0
+
+            # PhotonVision provides the Yaw of the AprilTag itself within the Rotation part of the Transform3D.
+            # If the Apriltag is perfectly perpendicular to the robot, a value of 180  is returned
+            # If the left side of the Apriltag is away from the robot by 5 degrees (CCW from top), a positive value of 175 degrees is returned
+            # If the right side of the Apriltag is away from the robot by 5 degrees (CW from top), a negative value of -175 degrees is returned
+
+            # This value is converted to O degrees is perpendicular, left  side back is +5 degrees, right side back is -5 degrees
+            # This value is used to align the robot to be perpendicular to the AprilTag at the end of motion
+
+            # Change the Yaw to be an offset from being perpendicular to the axis to the robot
             if (self.pose_of_AprilTag_yaw_degrees_raw > 0):
                 # self.pose_of_AprilTag_yaw_degrees =  self.pose_of_AprilTag_yaw_degrees_raw
                 self.pose_of_AprilTag_yaw_degrees = 180 - self.pose_of_AprilTag_yaw_degrees_raw
@@ -137,14 +141,10 @@ class AprilTagWithOffsetAligmentCalculation(Command):
             else:
                 self.pose_of_AprilTag_yaw_degrees = 0
 
-            print (f"self.pose_of_AprilTag_yaw_degrees: ((positive means left side of Apriltag is away from robot)) {self.pose_of_AprilTag_yaw_degrees:6.3f}")
-
         # [3] Calculate the direct distance from the robot to the center of the AprilTag [Pythagorean theorem]
 
             self.distance_to_AprilTag_meters = math.sqrt(  math.pow(self.distance_to_AprilTag_X_meters, 2) +  
                                                            math.pow(self.distance_to_AprilTag_Y_meters, 2) )
-
-            # print (f"Yaw degrees of Apriltag off of robot heading (Positive Tag is left of camera center): {self.apriltag_alignment_data.get_apriltag_alignment_data_yaw():6.3f}")
 
         # [4]] Calculate the side lengths and angles within an obtuse triangle formed by the following 3 points [Field-Oriented]
         #    (P) Current position of the robot  (provided by pose) 
@@ -156,7 +156,6 @@ class AprilTagWithOffsetAligmentCalculation(Command):
         #    Angle B (Opposite side b) - ArcSin((side a)/(side b) * Sin (Angle B))
         #    Angle C (Opposite side c) - Angle Yaw + Angle Target (rotation) (OR (not sure)) Angle Yaw - Angle Target (rotation) 
 
-
         # The length of the sides are determined as follows:
         #    Distance between (P) and (Q) - (side a) - Robot to AprilTag - Provided by PhotonVision [Pythagorean theorem]
         #    Distance between (Q) and (G) - (side b) - 140% * length of side of robot - 42"  = 1.08 meters
@@ -164,24 +163,21 @@ class AprilTagWithOffsetAligmentCalculation(Command):
 
         #    Side c = SQRT[ (side a)^2 + (side b)^2 - 2 * (side a) * (side b) *  COS (Angle C) ]
 
-        ##   Acquire and Calculate  the  yaw of the AprilTag relative to the robot (relative to the robot beam )
-            # Change the Yaw to be an offset from being perpendicular to the axis to the robot
+        # Calculate the sides and angles of the obtuse alignment triangle
 
-            # Calculate the sides and angles of the obtuse alignment triangle
-
-            # Yaw to AprilTag (Positive means April Tag is left of camera center)
+        # Heading Yaw: Robot Heading to AprilTag (Positive means April Tag is left of camera center)
 
             self.alignmentTriangle_Angle_C_degrees = self.apriltag_alignment_data.apriltag_yaw + self.pose_of_AprilTag_yaw_degrees
-            # print (f"self.apriltag_alignment_data.apriltag_yaw: {self.apriltag_alignment_data.apriltag_yaw:6.3}")
+        ##  TODO:  Not 100% sure this is correct
+
             self.alignmentTriangle_Angle_C_radians = self.alignmentTriangle_Angle_C_degrees * math.pi  / 180
-            # print (f"alignmentTriangle_Angle_C_degrees {self.alignmentTriangle_Angle_C_degrees} ")
 
             self.alignmentTriangle_side_a_meters = self.distance_to_AprilTag_meters
             self.alignmentTriangle_side_b_meters = 1.08  # Offset distance   # TODO Need to make a Constant
-            self.alignmentTriangle_side_c_meters = math.sqrt(  math.pow(self.alignmentTriangle_side_a_meters, 2 ) + 
-                                                             math.pow(self.alignmentTriangle_side_b_meters, 2 ) - 
-                                                             2 * self.alignmentTriangle_side_a_meters * self.alignmentTriangle_side_b_meters *
-                                                             math.cos(self.alignmentTriangle_Angle_C_radians))
+            self.alignmentTriangle_side_c_meters = math.sqrt( math.pow(self.alignmentTriangle_side_a_meters, 2 ) + 
+                                                              math.pow(self.alignmentTriangle_side_b_meters, 2 ) - 
+                                                              2 * self.alignmentTriangle_side_a_meters * self.alignmentTriangle_side_b_meters *
+                                                              math.cos(self.alignmentTriangle_Angle_C_radians))
             
         #    Angle A (Opposite side a) - ArcSin((side a)/(side c) * Sin (Angle C))
         #    Angle B (Opposite side b) - ArcSin((side a)/(side b) * Sin (Angle B))
@@ -195,48 +191,65 @@ class AprilTagWithOffsetAligmentCalculation(Command):
                                                       * math.sin(self.alignmentTriangle_Angle_A_radians)))
 
         # [5] Calculate the turn-point position in robot centric terms (delta-x, delta-y)
-                ### TODO - ERROR HERE - Need to figure out to  to calculate turnpoint angle
+                ### TODO - ERROR HERE - Need to figure out to to calculate turnpoint angle
             self.drive_to_turnpoint_angle_radians = (self.apriltag_alignment_data.apriltag_yaw * math.pi / 180 ) + self.alignmentTriangle_Angle_B_radians
             self.drive_to_turnpoint_X_component_meters = self.alignmentTriangle_side_c_meters * math.cos(self.drive_to_turnpoint_angle_radians)
             self.drive_to_turnpoint_Y_component_meters = self.alignmentTriangle_side_c_meters * math.sin(self.drive_to_turnpoint_angle_radians)
 
             if (True):
-                print(f"Robot initial Pose: X: {self.initial_translation.x:4.1f} Y: {self.initial_translation.y:4.1f} ", end='')
+                print("Robot:")
+                print(f"Robot initial Pose: X: {self.initial_translation.x:6.3f} Y: {self.initial_translation.y:6.3f} ", end='')
                 print(f" heading: {self.initial_heading_degrees:6.3} Degrees")
-                print (f"Yaw degrees of Apriltag off of robot heading (Positive Tag is left of camera center): {self.apriltag_alignment_data.get_apriltag_alignment_data_yaw():6.3f}")
-                print(f"Raw AprilTag Pose {self.aprilTag_position_and_pose}")
+                
+                print("")
+                print("Robot to AprilTag:")
                 print(f"AprilTag Position: X: {self.distance_to_AprilTag_X_meters:6.3f} Y: {self.distance_to_AprilTag_Y_meters:6.3f}   ", end='')
-                print(f"Yaw of AprilTag itself relative to Robot: (+ left side back) { self.pose_of_AprilTag_yaw_degrees:6.3f}  Distance to AprilTag (meters): {self.distance_to_AprilTag_meters:6.3f}")
-                print(f"Obtuse Triangle Angles: A {(57.3 * self.alignmentTriangle_Angle_A_radians):6.3f} ", end='')
+                print(f"Yaw degrees of Apriltag off of robot heading (Positive Tag is left of camera center): ", end='')
+                print(f"{self.apriltag_alignment_data.get_apriltag_alignment_data_yaw():6.3f}")
+
+                print("")
+                print("AprilTag (itself): pose (position and rotation)")
+                print(f"Raw AprilTag Pose {self.aprilTag_position_and_pose}")
+                print(f"AprilTag Position  (Meters): X: {self.distance_to_AprilTag_X_meters:6.3f} Y: {self.distance_to_AprilTag_Y_meters:6.3f}   ")
+                print(f"Apriltag Rotation Yaw: (positive means left side of Apriltag is away from robot):  ", end='')
+                print(f"Raw Value: {self.pose_of_AprilTag_yaw_degrees_raw:6.3f}  ", end ='')
+                print(f"Converted Value: {self.pose_of_AprilTag_yaw_degrees:6.3f}")
+
+                print("")
+                print("Alignment Triangle:")
+                print(f"Obtuse Triangle Angles (Degrees): A {(57.3 * self.alignmentTriangle_Angle_A_radians):6.3f} ", end='')
                 print(f" B {(57.3 * self.alignmentTriangle_Angle_B_radians):6.3f} ", end='')
                 print(f" C {(57.3 * self.alignmentTriangle_Angle_C_radians):6.3f} ")
-                print(f"Obtuse Triangle sides: a: {self.alignmentTriangle_side_a_meters:6.3f}   ", end='')
+                print(f"Obtuse Triangle sides (Meters): a: {self.alignmentTriangle_side_a_meters:6.3f}   ", end='')
                 print(f" b: {self.alignmentTriangle_side_b_meters:6.3f}   ", end='')
                 print(f" c: {self.alignmentTriangle_side_c_meters:6.3f}   ")
-                print(f"Turn-Point: Forward-distance: {self.drive_to_turnpoint_X_component_meters:6.3f}", end='')
-                print(f"  Cross-distance: (Positive to left)  {self.drive_to_turnpoint_Y_component_meters:6.3f}   ", end='')
-                print(f"Drive Angle: {( 180 / math.pi * self.drive_to_turnpoint_angle_radians):4.1f} ")
-                print ("======(Alignment Triangle Check)===============")
-                print (f"Sin(X)/x: {math.sin(self.alignmentTriangle_Angle_A_radians)/self.alignmentTriangle_side_a_meters:6.3f}", end='')
-                print (f" {math.sin(self.alignmentTriangle_Angle_B_radians)/self.alignmentTriangle_side_b_meters:6.3f}", end='')
-                print (f" {math.sin(self.alignmentTriangle_Angle_C_radians)/self.alignmentTriangle_side_c_meters:6.3f}  << Should be the same")
-                print (f"Angles: A: {(180/math.pi * self.alignmentTriangle_Angle_A_radians):6.3f}", end='')
-                print (f" B: {(180/math.pi * self.alignmentTriangle_Angle_B_radians):6.3f}", end='')
-                print (f" C: {(180/math.pi * self.alignmentTriangle_Angle_C_radians):6.3f}", end='')
-                print (f"  Sum of angles: {(180/math.pi * (self.alignmentTriangle_Angle_A_radians + 
+
+                print ("")
+                print(f"Turn-Point: Forward-distance: {self.drive_to_turnpoint_X_component_meters:6.3f}  ", end='')
+                print(f"Cross-distance: (Positive to left)  {self.drive_to_turnpoint_Y_component_meters:6.3f}   ", end='')
+                print(f"Drive Angle: {( 180 / math.pi * self.drive_to_turnpoint_angle_radians):6.3f} ")
+                print ("")
+                print("======(Alignment Triangle Verification)===============")
+                print(f"Sin(X)/x: {math.sin(self.alignmentTriangle_Angle_A_radians)/self.alignmentTriangle_side_a_meters:6.3f}", end='')
+                print(f" {math.sin(self.alignmentTriangle_Angle_B_radians)/self.alignmentTriangle_side_b_meters:6.3f}", end='')
+                print(f" {math.sin(self.alignmentTriangle_Angle_C_radians)/self.alignmentTriangle_side_c_meters:6.3f}  << Should be the same")
+                print(f"Angles: A: {(180/math.pi * self.alignmentTriangle_Angle_A_radians):6.3f}", end='')
+                print(f" B: {(180/math.pi * self.alignmentTriangle_Angle_B_radians):6.3f}", end='')
+                print(f" C: {(180/math.pi * self.alignmentTriangle_Angle_C_radians):6.3f}", end='')
+                print(f"  Sum of angles: {(180/math.pi * (self.alignmentTriangle_Angle_A_radians + 
                                                         self.alignmentTriangle_Angle_B_radians + 
                                                         self.alignmentTriangle_Angle_C_radians)):6.3f}  << Should total 180 degrees")
-                print ("===================================================")
+                print("===================================================")
 
-
-                #  Sin(A)/side-a = Sin(B)/side-b = sin(C)/side-c
-
+                #  Triangle Math Verification
+                #  1) Sin(A)/side-a = Sin(B)/side-b = sin(C)/side-c
+                #  2) Angle A + Angle B + Angle C = 180
 
         # [6] Place the data into the AprilTagAlignmentData data object
 
             self.apriltag_alignment_data.set_apriltag_turnpoint_position (self.drive_to_turnpoint_X_component_meters, 
                                                                          self.drive_to_turnpoint_Y_component_meters)
-            self.apriltag_alignment_data.print_apriltag_alignment_turn_point_data()
+            # self.apriltag_alignment_data.print_apriltag_alignment_turn_point_data()
             self.apriltag_alignment_data.set_apriltag_turnpoint_angle_degrees(self.pose_of_AprilTag_yaw_degrees)
             self.apriltag_alignment_data.print_apriltag_alignment_turn_point_data()
 
