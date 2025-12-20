@@ -162,7 +162,6 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
             .with_velocity_x( 0.0 )
             .with_velocity_y( 0.0 )
             .with_rotational_rate(drive_turn_speed)
-            .with_drive_request_type(swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE)
         )
         self.set_control(self.swerve_drive_request)
 
@@ -173,7 +172,6 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
             .with_velocity_x( drive_forward_speed )
             .with_velocity_y( 0.0 )
             .with_rotational_rate(0.0)
-            .with_drive_request_type(swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE)
         )
         self.set_control(self.swerve_drive_request)
 
@@ -184,7 +182,6 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
             .with_velocity_x( drive_forward_speed )
             .with_velocity_y( 0.0 )
             .with_rotational_rate(drive_turn_speed)
-            .with_drive_request_type(swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE)
         )
         self.set_control(self.swerve_drive_request)
 
@@ -194,7 +191,6 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
             .with_velocity_x( 0.0 )
             .with_velocity_y( 0.0 )
             .with_rotational_rate(0.0)
-            .with_drive_request_type(swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE)
         )
         self.set_control(self.swerve_drive_request)
 
