@@ -57,7 +57,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         # Instantiate the Gyro on the NAVX board on the ROBOTRIO
         self._gyro: navx.AHRS = navx.AHRS.create_spi()
 
-        ## TODO   Initialize the Pigeon
+        ## Initialize the Pigeon
         self.pigeon = hardware.Pigeon2(0, "canivore1")
     
         # Optional: Configure the Pigeon2 (e.g., Mount Pose)
@@ -75,6 +75,9 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
 
         if utils.is_simulation():
             self._start_sim_thread()
+
+        self.counter_for_periodic_printing = 0
+
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 #  This is used by the Path Planner Tool
@@ -107,13 +110,6 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         )
 
 
-    # def shouldFlipPath():    ##  Copied from Path Planner
-    #         # Boolean supplier that controls when the path will be mirrored for the red alliance
-    #         # This will flip the path being followed to the red side of the field.
-    #         # THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-    #         return DriverStation.getAlliance() == DriverStation.Alliance.kRed   # Original
-    #         # return DriverStation.getAlliance() == DriverStation.Alliance.kBlue
-
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     def apply_request(
         self, request: Callable[[], swerve.requests.SwerveRequest]
@@ -133,6 +129,14 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         
         self.get_robot_heading()
         # print(f"Heading {self.get_state().pose.rotation().degrees()}")
+
+
+                    # This code causes the output to be printed twice a second
+        if (False):
+            self.counter_for_periodic_printing = self.counter_for_periodic_printing + 1
+            if (self.counter_for_periodic_printing % 5 == 0): ##  Print twice a second
+                self.counter_for_periodic_printing = 0
+                print(f"Robot Pose {self.get_state().pose}")
 
         # Periodically try to apply the operator perspective.
         # If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
@@ -204,8 +208,6 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     def get_robot_heading(self) -> float:
-
-
 
         if utils.is_simulation():
             self.current_gyro_heading = self.get_state().pose.rotation().degrees()  # Simulation

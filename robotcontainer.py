@@ -120,16 +120,11 @@ class RobotContainer:
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        # Path follower
-        self._auto_chooser = AutoBuilder.buildAutoChooser("Tests")
-        SmartDashboard.putData("Auto Mode", self._auto_chooser)
-
-        # self._auto_chooser = AutoBuilder.buildAutoChooser("Tests")
-        # self._auto_chooser: wpilib.SendableChooser  = wpilib.SendableChooser()
-        self._auto_chooser.setDefaultOption("P3-Delta-Default",PathPlannerAuto("P3-Path-Delta-Default"))
-        self._auto_chooser.addOption("P1-Alpha", PathPlannerAuto("P1-Path-Alpha"))
-        self._auto_chooser.addOption("P2-Beta",  PathPlannerAuto("P2-Path-Beta"))
-        # wpilib.SmartDashboard.putData("Auto Mode Path Selector", self._auto_chooser)
+        # Path follower (These two lines provided with Swerve Drive example code)
+        self._auto_chooser = AutoBuilder.buildAutoChooser("P3-Path-Delta-Default")
+        self._auto_chooser.addOption("P1-Path-Alpha", PathPlannerAuto("P1-Path-Alpha"))
+        self._auto_chooser.addOption("P2-Path-Beta",  PathPlannerAuto("P2-Path-Beta"))
+        SmartDashboard.putData("Select Autonomous Mode Path", self._auto_chooser)
 
         # Process to add Autonomous Paths:
         # https://docs.google.com/document/d/1EGXVbdAE8ooO11D77TVcRQAntiApK8l3d3jXP6t5k4w
