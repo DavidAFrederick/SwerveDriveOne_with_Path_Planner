@@ -63,7 +63,6 @@ class RobotContainer:
         
         # https://robotpy.readthedocs.io/projects/robotpy/en/latest/wpilib/LiveWindow.html        
 
-
         ##  LiveWindow.disableAllTelemetry()
 
         self._max_speed = (
@@ -89,7 +88,7 @@ class RobotContainer:
             swerve.requests.RobotCentric()
             .with_deadband(self._max_speed * 0.1)
             .with_rotational_deadband(self._max_angular_rate * 0.1)  
-            .with_drive_request_type(swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE))
+            .with_drive_request_type(swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE))    ## Likely can drop this decorator
 
         self._brake = swerve.requests.SwerveDriveBrake()
         self._point = swerve.requests.PointWheelsAt()
@@ -100,7 +99,7 @@ class RobotContainer:
         self._joystick = CommandXboxController(0)
         self.drivetrain = TunerConstants.create_drivetrain()
 
-        self._apriltag_alignment_data = AprilTagAlignmentData()
+        self._apriltag_alignment_data = AprilTagAlignmentData()     # Data only class
         self._ledsubsystem = LEDSubsystem()
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -120,7 +119,7 @@ class RobotContainer:
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        # Path follower (These two lines provided with Swerve Drive example code)
+        # Path follower - Build Pick List for SmartDashboard
         self._auto_chooser = AutoBuilder.buildAutoChooser("P3-Path-Delta-Default")
         self._auto_chooser.addOption("P1-Path-Alpha", PathPlannerAuto("P1-Path-Alpha"))
         self._auto_chooser.addOption("P2-Path-Beta",  PathPlannerAuto("P2-Path-Beta"))
@@ -169,7 +168,7 @@ class RobotContainer:
         self.drivetrain.setDefaultCommand(
             # >>>>>> DRIVE FIELD-CENTRIC <<<<<<<<<<<<<<<<
             self.drivetrain.apply_request(
-                lambda: (
+                lambda: (            ## TODO Clean this up back to the original approach
                     self
                     ._drive
                     .with_velocity_x(
@@ -210,6 +209,9 @@ class RobotContainer:
         # vision_alignment_mode.py              - AprilTagAligmentMode              - Updated - Ready to be tested
         # - - - - - - - - - - - - - - - - - - - - - - - - 
 
+        # Most of the button bindings in this section can be removed.
+        # They were placed here to test various commands and functions
+
 
         self._joystick.leftBumper().whileTrue(
         # >>>>>> DRIVE ROBOT-CENTRIC  When Left Bumper is held  <<<<<<<<<<<<<<<<  getPOV()
@@ -224,9 +226,9 @@ class RobotContainer:
                 )
         )
 
-
-
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+
         self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain,  30))
         self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -30))
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 

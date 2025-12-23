@@ -78,6 +78,14 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
 
         self.counter_for_periodic_printing = 0
 
+        # Set the initial 
+        initial_x_position = 2.0       # Field Oriented Position  - X in Meters
+        initial_y_position = 7.0       # Field Oriented Position  - Y in Meters
+        initial_rotation_position = 0.0   # Degrees:  
+        start_pose = Pose2d(initial_x_position, initial_y_position, Rotation2d.fromDegrees(initial_rotation_position))
+        self.reset_pose(start_pose)
+
+
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 #  This is used by the Path Planner Tool
