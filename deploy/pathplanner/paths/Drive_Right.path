@@ -11,7 +11,7 @@
         "x": 3.0,
         "y": 7.0
       },
-      "isLocked": false,
+      "isLocked": true,
       "linkedName": "Start_part_1"
     },
     {
@@ -24,7 +24,7 @@
         "y": 7.0
       },
       "nextControl": null,
-      "isLocked": false,
+      "isLocked": true,
       "linkedName": "End_Part_1"
     }
   ],

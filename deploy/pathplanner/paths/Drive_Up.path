@@ -4,28 +4,28 @@
     {
       "anchor": {
         "x": 2.0,
-        "y": 7.0
+        "y": 5.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0,
-        "y": 7.0
+        "x": 2.0,
+        "y": 5.25
       },
-      "isLocked": false,
-      "linkedName": "Start_part_1"
+      "isLocked": true,
+      "linkedName": "End_DriveLeft"
     },
     {
       "anchor": {
-        "x": 4.0,
+        "x": 2.0,
         "y": 7.0
       },
       "prevControl": {
-        "x": 3.0,
-        "y": 7.0
+        "x": 2.0,
+        "y": 7.25
       },
       "nextControl": null,
-      "isLocked": false,
-      "linkedName": "End_Part_1"
+      "isLocked": true,
+      "linkedName": "Start_part_1"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -1.078056747814667
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,

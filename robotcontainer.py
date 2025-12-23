@@ -14,7 +14,9 @@ from commands2.sysid import SysIdRoutine
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
 
-from pathplannerlib.auto import AutoBuilder
+from pathplannerlib.auto import AutoBuilder 
+from pathplannerlib.auto import PathPlannerAuto
+
 from phoenix6 import swerve
 from wpilib import DriverStation, SmartDashboard
 from wpimath.geometry import Rotation2d, Pose2d, Translation2d
@@ -34,7 +36,7 @@ from commands.drive_specific_distance import DriveDistanceSwerveCommand
 from commands.drive_in_square_command_group import DriveInSquareDemo
 from commands.drive_to_specific_point import DriveToSpecificPointSwerveCommand
 from commands.drive_to_apriltag_turnpoint_group import  DriveToAprilTagTurnPointCmdGroup
-
+from commands.drive_forward_2_seconds import  Drive_Forward_X_Seconds
 
 class RobotContainer:
     """
@@ -116,11 +118,43 @@ class RobotContainer:
 
         self._ledsubsystem.setDefaultCommand(LEDCommand( self._ledsubsystem, 100))
 
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         # Path follower
         self._auto_chooser = AutoBuilder.buildAutoChooser("Tests")
         SmartDashboard.putData("Auto Mode", self._auto_chooser)
 
+        # self._auto_chooser = AutoBuilder.buildAutoChooser("Tests")
+        # self._auto_chooser: wpilib.SendableChooser  = wpilib.SendableChooser()
+        self._auto_chooser.setDefaultOption("P3-Delta-Default",PathPlannerAuto("P3-Path-Delta-Default"))
+        self._auto_chooser.addOption("P1-Alpha", PathPlannerAuto("P1-Path-Alpha"))
+        self._auto_chooser.addOption("P2-Beta",  PathPlannerAuto("P2-Path-Beta"))
+        # wpilib.SmartDashboard.putData("Auto Mode Path Selector", self._auto_chooser)
+
+        # Process to add Autonomous Paths:
+        # https://docs.google.com/document/d/1EGXVbdAE8ooO11D77TVcRQAntiApK8l3d3jXP6t5k4w
+
+
+        # Expanding Path Planner:
+        #
+        # [step 1] Titles of Paths to be displayed on Smart Dashboard:
+        #          P1-Path-Alpha
+        #          P2-Path-Beta
+        #          P3-Path-Delta-Default
+        # [step 2] Draw paths and autos using names in step 1
+        # [step 3] Identify Robot Commands to be performed using auto
+        #          LEDCommand( self._ledsubsystem, 0)  # LED Red
+        #          LEDCommand( self._ledsubsystem, 60)  # LED Green
+        #          LEDCommand( self._ledsubsystem, 120)  # LED Blue
+        # [step 4] Paths created in PathPlanner App
+        #          P1-Path-Alpha
+        #          P2-Path-Beta
+        #          P3-Path-Delta-Default
+        # [step 5] 
+        #
+        #
+
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         # Configure the button bindings
         self.configureButtonBindings()
@@ -195,14 +229,19 @@ class RobotContainer:
                 )
         )
 
+
+
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain,  30))
+        self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -30))
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+        # self._joystick.x().onTrue(Drive_Forward_X_Seconds(self.drivetrain, 2))
+
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         self._joystick.y().onTrue(DriveToAprilTagTurnPointCmdGroup(self.drivetrain,
                                                           self._visionsubsystem,
                                                           self._apriltag_alignment_data))
-
-        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain, 30))
-        self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -30))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 

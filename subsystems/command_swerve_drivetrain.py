@@ -106,6 +106,14 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
             self # Subsystem for requirements
         )
 
+
+    # def shouldFlipPath():    ##  Copied from Path Planner
+    #         # Boolean supplier that controls when the path will be mirrored for the red alliance
+    #         # This will flip the path being followed to the red side of the field.
+    #         # THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+    #         return DriverStation.getAlliance() == DriverStation.Alliance.kRed   # Original
+    #         # return DriverStation.getAlliance() == DriverStation.Alliance.kBlue
+
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     def apply_request(
         self, request: Callable[[], swerve.requests.SwerveRequest]
