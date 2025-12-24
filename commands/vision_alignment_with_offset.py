@@ -192,10 +192,17 @@ class AprilTagWithOffsetAligmentCalculation(Command):
 
         ### TODO - NEED TO PROTECT FROM DIVIDE BY ZERO IN ALL CODE
 
-            self.alignmentTriangle_Angle_A_radians = math.pi - (math.asin ((self.alignmentTriangle_side_a_meters/self.alignmentTriangle_side_c_meters) 
-                                                      * math.sin(self.alignmentTriangle_Angle_C_radians)))
-            self.alignmentTriangle_Angle_B_radians = (math.asin ((self.alignmentTriangle_side_b_meters/self.alignmentTriangle_side_a_meters) 
-                                                      * math.sin(self.alignmentTriangle_Angle_A_radians)))
+            if (self.alignmentTriangle_side_c_meters != 0):
+                self.alignmentTriangle_Angle_A_radians = math.pi - (math.asin ((self.alignmentTriangle_side_a_meters/self.alignmentTriangle_side_c_meters) 
+                                                        * math.sin(self.alignmentTriangle_Angle_C_radians)))
+            else:
+                self.alignmentTriangle_Angle_A_radians = 2 * math.pi   #  Not sure if this is correct
+            
+            if (self.alignmentTriangle_side_a_meters == 0):
+                self.alignmentTriangle_Angle_B_radians = (math.asin ((self.alignmentTriangle_side_b_meters/self.alignmentTriangle_side_a_meters) 
+                                                        * math.sin(self.alignmentTriangle_Angle_A_radians)))
+            else:
+                self.alignmentTriangle_Angle_B_radians = 0 # ??????
 
         # [5] Calculate the turn-point position in robot centric terms (delta-x, delta-y)
                 ### TODO - ERROR HERE - Need to figure out to to calculate turnpoint angle

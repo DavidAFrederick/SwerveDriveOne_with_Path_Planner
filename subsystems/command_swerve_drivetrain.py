@@ -11,6 +11,12 @@ from wpilib.sysid import SysIdRoutineLog
 from wpimath.geometry import Pose2d, Rotation2d
 from phoenix6.swerve.requests import RobotCentric 
 from phoenix6 import hardware, configs
+
+from pathplannerlib.auto import AutoBuilder, NamedCommands, PathPlannerAuto
+from subsystems.ledsubsystem import LEDSubsystem
+from commands.ledcommand import LEDCommand
+
+
 import navx # Or your navX interface
 
 
@@ -19,6 +25,11 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
     Class that extends the Phoenix 6 SwerveDrivetrain class and implements
     Subsystem so it can easily be used in command-based projects.
     """
+
+    # Set the initial Pose of the robot.  (Important for Autonomous PathPlanner)
+    INITIAL_X_POSITION = 2.0         # Field Oriented Position  - X in Meters
+    INITIAL_Y_POSITION = 7.0         # Field Oriented Position  - Y in Meters
+    INITIAL_ROTATION_POSITION = 2.0  # Degrees
 
     _SIM_LOOP_PERIOD: units.second = 0.005
 
@@ -76,16 +87,10 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         if utils.is_simulation():
             self._start_sim_thread()
 
-        self.counter_for_periodic_printing = 0
+        self.counter_for_periodic_printing = 0    # Counter just used for causing printing to occur less than once per cycle
 
-        # Set the initial 
-        initial_x_position = 2.0       # Field Oriented Position  - X in Meters
-        initial_y_position = 7.0       # Field Oriented Position  - Y in Meters
-        initial_rotation_position = 0.0   # Degrees:  
-        start_pose = Pose2d(initial_x_position, initial_y_position, Rotation2d.fromDegrees(initial_rotation_position))
+        start_pose = Pose2d(self.INITIAL_X_POSITION, self.INITIAL_Y_POSITION, Rotation2d.fromDegrees(self.INITIAL_ROTATION_POSITION))
         self.reset_pose(start_pose)
-
-
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 #  This is used by the Path Planner Tool
@@ -113,7 +118,9 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
             ),
             config,
             # Assume the path needs to be flipped for Red vs Blue, this is normally the case
-            lambda: (DriverStation.getAlliance() or DriverStation.Alliance.kBlue) == DriverStation.Alliance.kRed,
+            # lambda: (DriverStation.getAlliance() or DriverStation.Alliance.kBlue) == DriverStation.Alliance.kRed,  # Original
+            # lambda: True,   #  Starts on the right side of the field   !!  This ignores the Alliance setting on the Driver Station
+            lambda: False,   #  Starts on the right side of the field
             self # Subsystem for requirements
         )
 

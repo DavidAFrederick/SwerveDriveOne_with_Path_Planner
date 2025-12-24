@@ -14,8 +14,7 @@ from commands2.sysid import SysIdRoutine
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
 
-from pathplannerlib.auto import AutoBuilder 
-from pathplannerlib.auto import PathPlannerAuto
+from pathplannerlib.auto import AutoBuilder, NamedCommands, PathPlannerAuto
 
 from phoenix6 import swerve
 from wpilib import DriverStation, SmartDashboard
@@ -115,9 +114,14 @@ class RobotContainer:
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-        self._ledsubsystem.setDefaultCommand(LEDCommand( self._ledsubsystem, 100))
+        # self._ledsubsystem.setDefaultCommand(LEDCommand( self._ledsubsystem, 100))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        # NamedCommmand must be before creating the auto_chooser
+        NamedCommands.registerCommand('RedLEDs', LEDCommand(self._ledsubsystem,0)) 
+        NamedCommands.registerCommand('GreenLEDs', LEDCommand(self._ledsubsystem,60)) 
+        NamedCommands.registerCommand('BlueLEDs', LEDCommand(self._ledsubsystem,120)) 
 
         # Path follower - Build Pick List for SmartDashboard
         self._auto_chooser = AutoBuilder.buildAutoChooser("P3-Path-Delta-Default")

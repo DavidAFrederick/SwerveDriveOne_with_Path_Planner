@@ -5,15 +5,33 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "GreenLEDs"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Drive_Right"
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "RedLEDs"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Drive_Back"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "BlueLEDs"
           }
         }
       ]
