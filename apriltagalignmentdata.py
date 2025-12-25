@@ -73,7 +73,8 @@ class AprilTagAlignmentData:
         # self.apriltag_bestCameraToTarget = Transform3d(Translation3d(2.0, 0.6, 0.0), Rotation3d(0, 0, (165 * math.pi/180)))
         # self.apriltag_bestCameraToTarget = Transform3d(Translation3d(2.59, -0.96, 0.0), Rotation3d(0, 0, (-170 * math.pi/180)))
         # self.apriltag_bestCameraToTarget = Transform3d(Translation3d(2.59, -0.96, 0.0), Rotation3d(0, 0, (32 * math.pi/180)))
-        self.apriltag_bestCameraToTarget = Transform3d(Translation3d(4, 3, 0.0), Rotation3d(0, 0, (0 * math.pi/180)))
+        self.apriltag_bestCameraToTarget = Transform3d(Translation3d(2.31, 0.0, 0.0), Rotation3d(0, 0, (178 * math.pi/180)))
+        # >>  Rotation angle should be close to 180.  
 
         #  Calculating robot to AprilTag Yaw here so results are consistent
 
