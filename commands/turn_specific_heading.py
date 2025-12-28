@@ -18,20 +18,17 @@ class TurnHeadingSwerveCommand(Command):
         self.speed = 0.0
         self.turn_clamped_max_speed = 2.0
         self.kP = 10.0
-        self.kI = 0.05
-        self.kD = 0.0
+        self.kI = 0.0
+        self.kD = 1.0
         self.kF = 0.0  # Feedforward constant (optional, but often useful)
         self.pid_heading_controller = PIDController(self.kP, self.kI, self.kD)
         self.pid_heading_controller.enableContinuousInput(-180.0, 180.0)
         self.tolerance_in_degrees = 2.0
         self.tolerance_in_radians = self.tolerance_in_degrees / (180/math.pi)
-        self.pid_heading_controller.setTolerance( self.tolerance_in_radians )  
+        self.pid_heading_controller.setTolerance( self.tolerance_in_degrees )  
+        # self.pid_heading_controller.setTolerance( self.tolerance_in_radians )  
         self.addRequirements(drivetrain)
 
-
-        self.tolerance_in_degrees = 2.0
-        self.tolerance_in_radians = self.tolerance_in_degrees / (180/math.pi)
-        self.pid_heading_controller.setTolerance( self.tolerance_in_radians )  
 
     def initialize(self) -> None:
         """
@@ -65,7 +62,7 @@ class TurnHeadingSwerveCommand(Command):
         """
 
         self.current_gyro_heading = self.drivetrain.get_robot_heading()
-        self.turn_speed = self.pid_heading_controller.calculate(self.current_gyro_heading, self.target_heading)
+        self.turn_speed = self.pid_heading_controller.calculate(self.current_gyro_heading, self.target_heading)  # Degrees
 
         ## Clamp Heading Change Speed
         if (self.turn_speed >  self.turn_clamped_max_speed): self.turn_speed =  self.turn_clamped_max_speed

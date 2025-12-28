@@ -58,7 +58,7 @@ class RobotContainer:
         # he sending of data for all sensors and actuators to the SmartDashboard 
         # or Shuffleboard LiveWindow display.  
 
-        # LiveWindow.disableAllTelemetry()
+        LiveWindow.disableAllTelemetry()
         
         # https://robotpy.readthedocs.io/projects/robotpy/en/latest/wpilib/LiveWindow.html        
 
@@ -223,8 +223,8 @@ class RobotContainer:
                     lambda: (
                         self
                         ._robot_centric_drive
-                        .with_velocity_x(-self._joystick.getLeftY() *  self._max_speed)
-                        .with_velocity_y(-self._joystick.getLeftX() *  self._max_speed)
+                        .with_velocity_x(self._joystick.getLeftY() *  self._max_speed * 0.5)
+                        .with_velocity_y(self._joystick.getLeftX() *  self._max_speed *  0.5)
                         .with_rotational_rate(self._joystick.getRightX() * self._max_angular_rate)
                     ) # End of Lambda
                 )
@@ -233,26 +233,29 @@ class RobotContainer:
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 
-        self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain,  30))
-        self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -30))
+        # self._joystick.a().onTrue(TurnHeadingSwerveCommand(self.drivetrain,  30))
+        # self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -30))
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
         # self._joystick.x().onTrue(Drive_Forward_X_Seconds(self.drivetrain, 2))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        self._joystick.y().onTrue(DriveToAprilTagTurnPointCmdGroup(self.drivetrain,
-                                                          self._visionsubsystem,
-                                                          self._apriltag_alignment_data))
+        # self._joystick.y().onTrue(DriveToAprilTagTurnPointCmdGroup(self.drivetrain,
+        #                                                   self._visionsubsystem,
+        #                                                   self._apriltag_alignment_data))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
         # self._joystick.x().onTrue(DriveInSquareDemo(self.drivetrain, self._ledsubsystem, 1.0))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        # self._joystick.x().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, self._apriltag_alignment_data))  # forward, cross position Robot-centric in meters
         
-        # self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 0.0))  # forward, cross position Robot-centric in meters
-        # self._joystick.b().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, -2.0))  # forward, cross position Robot-centric in meters
+        
+        
+        self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, self._apriltag_alignment_data))  # forward, cross position Robot-centric in meters
+        ## TODO  - Update notes to describe how to use this command
+        # self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 3.0, 0.0))  # forward, cross position Robot-centric in meters
+        # self._joystick.b().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 3.0, 3.0))  # forward, cross position Robot-centric in meters
         # self._joystick.x().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 2.0))  # forward, cross position Robot-centric in meters
         # self._joystick.y().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 4.0, -2.0))  # forward, cross position Robot-centric in meters
 

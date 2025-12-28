@@ -52,6 +52,11 @@ class DriveToSpecificPointSwerveCommand(Command):
 
         self.counter_for_periodic_printing = 0
 
+        ### TEMP - TEMP - TEMP   
+        print (">>> TEMP _ SETTING DATA")
+        self.apriltag_alignment_data.set_apriltag_turnpoint_position (0.0, 2.0)
+
+
         """
                Algorithm:
         Initialization (Runs each time the command is triggered)
@@ -86,6 +91,8 @@ class DriveToSpecificPointSwerveCommand(Command):
                                    self.drivetrain.get_state().pose.y, 
                                    self.drivetrain.get_state().pose.rotation().radians())
 
+        print (f">>> drive_to_specific_point Initial condition {self.initial_pose}")
+
         # Get the X,Y position and rotation components of the current robot pose [Field-centric]
         # [1]
         self.initial_translation     = self.initial_pose.translation()
@@ -112,7 +119,7 @@ class DriveToSpecificPointSwerveCommand(Command):
         self.target_x_field_position = self.initial_translation.x + self.delta_target_point_x_field_centric
         self.target_y_field_position = self.initial_translation.y + self.delta_target_point_y_field_centric
 
-        print (f"Starting point: >> ", end='')
+        print (f">>> Starting point: >>> ", end='')
         print (f"Init: {self.initial_translation.x:4.1f} {self.initial_translation.y:4.1f} Heading: {self.initial_heading_degrees:4.1f}  ", end="")
         print (f"Target position (Robot-centric)::: {self.forward_movement_meters:6.3f} {self.lateral_position_meters:6.3f} ")
         print (f"Calculated Final Pos: forward (X): {self.target_x_field_position:6.3f} Cross distance (Y)[+ to the left]: {self.target_y_field_position:6.3f} ", end='')
@@ -181,9 +188,9 @@ class DriveToSpecificPointSwerveCommand(Command):
 
                     # This code causes the output to be printed twice a second
         self.counter_for_periodic_printing = self.counter_for_periodic_printing + 1
-        if (self.counter_for_periodic_printing % 25 == 0): ##  Print twice a second
+        if (self.counter_for_periodic_printing % 5 == 0): ##  Print twice a second
             self.counter_for_periodic_printing = 0
-            print(f"Current Position: X: {self.current_translation.x:5.2f} Y: {self.current_translation.y:5.2f} Heading: {self.current_heading_degrees:6.2f}  ", end='')
+            print(f">>>  Current Position: X: {self.current_translation.x:5.2f} Y: {self.current_translation.y:5.2f} Heading: {self.current_heading_degrees:6.2f}  ", end='')
             print (f"|| Speeds: Forward: {self.distance_speed:5.2f} Turn: {self.turn_speed:5.2f} ", end='')
             print (f"||  Remaining dist: {self.current_distance:4.2f} Heading Error: {57.296 * (self.target_heading_radians - self.current_heading_radians):5.2f} ")
 
@@ -196,7 +203,7 @@ class DriveToSpecificPointSwerveCommand(Command):
 
     def end(self, interrupted: bool) -> None:
         self.drivetrain.stop_driving()
-        print (f"Complete Drive   SP !!!!!!!!!!!!")
+        print (f">>> Complete Drive   SP !!!!!!!!!!!!")
         self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,
                             self.drivetrain.get_state().pose.y, 
                             self.drivetrain.get_state().pose.rotation().radians())

@@ -142,7 +142,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     def periodic(self):
         
-        self.get_robot_heading()
+        # self.get_robot_heading()
         # print(f"Heading {self.get_state().pose.rotation().degrees()}")
 
 
@@ -229,7 +229,7 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
         else:
             self.yaw_signal.refresh()
             self.pigeon_yaw = self.yaw_signal.value
-            print (f"Pigeon Yaw: {self.pigeon_yaw:5.2f}")
+            # print (f"Pigeon Yaw: {self.pigeon_yaw:5.2f}")
 
             self.current_gyro_heading = -self._gyro.getAngle()
             # print (f"Current Gyro value: {self.current_gyro_heading:5.1f}")
