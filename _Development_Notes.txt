@@ -1,0 +1,45 @@
+Notes on Code checkout and troubleshooting
+
+Test Plan:
+1) Test all of the minor movement functions first (Set them up in the robotcontainer file)
+
+Suggestions:
+1) Use the DriverStation Log Display tool to view robot logs
+2) Add ">>>" to all diagnostic print statements to allow the Log Display tool to filter Events
+
+
+Problems to Solve:
+1) RobotPeriodic() taking too long (39mSec) causing WatchDog warnings
+   Tried turning off Telemetry in RobotContainer Line 61
+2) Robot driving to specific spot has errors - Forward/reverse is backwards
+3) Robot driving to specific spot has errors - Lateral goes all over the place
+
+
+Enhancements:
+1) When the robot is powered down, the wheels go into the X-position.  Makes difficult to move.
+   Update to not place the robot into the X-Position
+2) Consider having the robot default to Robot-Oriented driving vs Field Oriented driving
+3) Determine how to get rid of the "Un-Licenced function" warnings on Motors
+
+
+
+Items to check:
+1) Review all PID control systems to make sure the tolerance is using the 
+   same units as the calculate function (Degrees vs Radians)
+2) Do we need to use the Robot Pose?
+
+Items to Document:
+1) Need to document how to set the robot field position (Initial Robot Pose)
+2) Document how to use the drive to position using the Data Class
+3) Document how to enable no-vision test mode
+4) Document how to configure drive to spot
+
+   
+Hardware Updates:
+1) Add a switch to the robot to enable vision (Netgear switch ordered (5 volt))
+
+
+What is working / almost working:
+1) Path Planner with SmartDashboard picklist is working
+2) Change heading is working.  Could use tuning.
+3) Robot-Centric Driving is working (Reduced speed is in place at this time)

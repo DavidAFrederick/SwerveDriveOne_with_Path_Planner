@@ -142,11 +142,14 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     def periodic(self):
         
-        # self.get_robot_heading()
+        # self.get_robot_heading()    ## DF: Disabled this call seemed to create CAN bus errors on Pigeon2
+                                      ## Disabled to see if this would reduce watchdog timer errors
+                                      ## It did not
+
         # print(f"Heading {self.get_state().pose.rotation().degrees()}")
 
 
-                    # This code causes the output to be printed twice a second
+                    # This code causes the output to be printed five times a second
         if (False):
             self.counter_for_periodic_printing = self.counter_for_periodic_printing + 1
             if (self.counter_for_periodic_printing % 5 == 0): ##  Print twice a second
