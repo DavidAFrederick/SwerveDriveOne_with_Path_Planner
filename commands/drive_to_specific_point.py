@@ -15,10 +15,12 @@ from apriltagalignmentdata import AprilTagAlignmentData
 ## Should the calculation be using the measured wheel rotation progress to the target OR are these the same thing?
 ## Does the swervedrive pose calculation use the wheel encoders?
 ##
+## How do we get an accurate initial pose? ( A human places the robot on the field, Likely has errors)
 
 class DriveToSpecificPointSwerveCommand(Command):
     """
     Drives the robot forward (robot-centric) to a point defined x meters forward and y meters across.  
+    Use the 'apriltag_alignment_data.set_apriltag_turnpoint_position' to set the X and Y position offset data
     Robot Centric movement using PID loops for both forward movement and heading change movemment.
 
     """
@@ -31,17 +33,17 @@ class DriveToSpecificPointSwerveCommand(Command):
         self.speed = 0.0
         self.distance_clamped_max_speed = 2.0
         self.distance_kP = 1.0
-        self.distance_kI = 0.5
-        self.distance_kD = 0.0
+        self.distance_kI = 0.0
+        self.distance_kD = 0.1
         self.distance_kF = 0.0  
         self.pid_distance_controller = PIDController(self.distance_kP, self.distance_kI, self.distance_kD)
-        self.pid_distance_controller.setTolerance(0.05) 
+        self.pid_distance_controller.setTolerance(0.05)     # Meters
 
         self.turn_speed = 0.0
         self.turn_clamped_max_speed = 2.0
-        self.heading_kP = 15.0   # was 3.0
-        self.heading_kI = 0.5
-        self.heading_kD = 0.0
+        self.heading_kP = 5.0   # was 3.0
+        self.heading_kI = 0.0
+        self.heading_kD = 0.1
         self.heading_kF = 0.0  
         self.pid_heading_controller = PIDController(self.heading_kP, self.heading_kI, self.heading_kD)
         self.tolerance_in_degrees = 2.0
@@ -53,8 +55,8 @@ class DriveToSpecificPointSwerveCommand(Command):
         self.counter_for_periodic_printing = 0
 
         ### TEMP - TEMP - TEMP   
-        print (">>> TEMP _ SETTING DATA")
-        self.apriltag_alignment_data.set_apriltag_turnpoint_position (0.0, 2.0)
+        print (">>> TEMP _ SETTING DATA in drive_to_specific_point - about line 58")
+        self.apriltag_alignment_data.set_apriltag_turnpoint_position (0.0, 2.0)   # X & Y Meters
 
 
         """

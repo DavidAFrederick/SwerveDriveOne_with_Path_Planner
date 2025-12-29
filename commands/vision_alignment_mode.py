@@ -24,9 +24,9 @@ class AprilTagAligmentMode(Command):
         self.speed = 0.0
         self.heading_change_degrees = 0.0
         self.turn_clamped_max_speed = 0.8
-        self.kP = 0.1
-        self.kI = 0.05
-        self.kD = 0.0
+        self.kP = 0.5
+        self.kI = 0.0
+        self.kD = 0.1
         self.kF = 0.0  # Feedforward constant (optional, but often useful)
         self.pid_heading_controller = PIDController(self.kP, self.kI, self.kD)
         self.pid_heading_controller.enableContinuousInput(-180.0, 180.0)

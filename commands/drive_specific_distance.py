@@ -22,8 +22,8 @@ class DriveDistanceSwerveCommand(Command):
         self.speed = 0.0
         self.forward_movement_meters = forward_movement_meters
         self.kP = 1.0
-        self.kI = 0.5
-        self.kD = 0.0
+        self.kI = 0.0
+        self.kD = 0.2
         self.kF = 0.0  # Feedforward constant (optional, but often useful)
         self.pid_controller = PIDController(self.kP, self.kI, self.kD)
         self.pid_controller.setTolerance(0.1) # Set tolerance for onTarget()

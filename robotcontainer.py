@@ -245,15 +245,10 @@ class RobotContainer:
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         
         
-        
-        self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, self._apriltag_alignment_data))  # forward, cross position Robot-centric in meters
+        self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, self._apriltag_alignment_data))  
+        # forward, cross position Robot-centric in meters
         ## TODO  - Update notes to describe how to use this command
-        # self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 3.0, 0.0))  # forward, cross position Robot-centric in meters
-        # self._joystick.b().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 3.0, 3.0))  # forward, cross position Robot-centric in meters
-        # self._joystick.x().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 2.0, 2.0))  # forward, cross position Robot-centric in meters
-        # self._joystick.y().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, 4.0, -2.0))  # forward, cross position Robot-centric in meters
-
-
+        
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # self._joystick.x().onTrue(DriveInSquareDemo(self.drivetrain,
         #                                             self._visionsubsystem,
@@ -311,7 +306,7 @@ class RobotContainer:
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
+        ## TODO:    See if this command is causing the WatchDog timer to trip
         self.drivetrain.register_telemetry(
             lambda state: self._logger.telemeterize(state)
         )

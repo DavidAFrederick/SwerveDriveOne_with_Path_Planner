@@ -15,6 +15,7 @@ Suggestions:
 Problems to Solve:
 1) RobotPeriodic() taking too long (39mSec) causing WatchDog warnings
    Tried turning off Telemetry in RobotContainer Line 61
+   >>> Look at line 301 in robot container
 2) Robot driving to specific point has errors - Forward/reverse is backwards
 3) Robot driving to specific point has errors - Lateral goes all over the place
 
@@ -24,7 +25,7 @@ Enhancements:
    Update to not place the robot into the X-Position
 2) Consider having the robot default to Robot-Oriented driving vs Field Oriented driving
 3) Determine how to get rid of the "Un-Licenced function" warnings on Motors
-
+4) Need to Tune all of the PID controllers.  Review the Video to see how CTRE does it. (They recommend not using Ki)
 
 
 Items to check:
