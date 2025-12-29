@@ -2,17 +2,21 @@ Notes on Code checkout and troubleshooting
 
 Test Plan:
 1) Test all of the minor movement functions first (Set them up in the robotcontainer file)
+    As of 12/28/2025
+    - turn_specific_heading.py = Mostly working, could use tuning to be more crisp
+    - drive_specific_distance.py = ?? Still in use?? (May be obsoleted by drive_to_specific_point)
+    - drive_to_specific_point.py = Errors
+
 
 Suggestions:
 1) Use the DriverStation Log Display tool to view robot logs
-2) Add ">>>" to all diagnostic print statements to allow the Log Display tool to filter Events
-
+2) Add ">>>" to all diagnostic print statements to allow the Log Display tool to filter Events - DONE
 
 Problems to Solve:
 1) RobotPeriodic() taking too long (39mSec) causing WatchDog warnings
    Tried turning off Telemetry in RobotContainer Line 61
-2) Robot driving to specific spot has errors - Forward/reverse is backwards
-3) Robot driving to specific spot has errors - Lateral goes all over the place
+2) Robot driving to specific point has errors - Forward/reverse is backwards
+3) Robot driving to specific point has errors - Lateral goes all over the place
 
 
 Enhancements:

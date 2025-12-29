@@ -106,7 +106,7 @@ class AprilTagWithOffsetAligmentCalculation(Command):
 
         
         if (self.apriltag_alignment_data.get_apriltag_alignment_data_Target_present()):     # Get the position and yaw of the AprilTag
-            print ("++++++++++++++++++  Running calc ++++++++++++++++=")
+            print (">>> ++++++++++++++++++  Running calc ++++++++++++++++=")
             self.aprilTag_position_and_pose = self.apriltag_alignment_data.get_apriltag_bestCameraToTarget()
 
                             # Get the Transform3d from the camera to the target  [Robot-Centric]
@@ -195,14 +195,14 @@ class AprilTagWithOffsetAligmentCalculation(Command):
                                                         * math.sin(self.alignmentTriangle_Angle_C_radians)))
             else:
                 self.alignmentTriangle_Angle_A_radians = 2 * math.pi   #  Not sure if this is correct
-                print ("Divide by zero protection (1) !!!!!!!!!!!!!!!!!!!!!!")
+                print (">>> Divide by zero protection (1) !!!!!!!!!!!!!!!!!!!!!!")
             
             if (self.alignmentTriangle_side_a_meters != 0):
                 self.alignmentTriangle_Angle_B_radians = (math.asin ((self.alignmentTriangle_side_b_meters/self.alignmentTriangle_side_a_meters) 
                                                         * math.sin(self.alignmentTriangle_Angle_A_radians)))
             else:
                 self.alignmentTriangle_Angle_B_radians = 0 # ??????
-                print ("Divide by zero protection (2) !!!!!!!!!!!!!!!!!!!!!!")
+                print (">>> Divide by zero protection (2) !!!!!!!!!!!!!!!!!!!!!!")
 
         # [5] Calculate the turn-point position in robot centric terms (delta-x, delta-y)
                 ### TODO - ERROR HERE - Need to figure out to to calculate turnpoint angle
@@ -211,40 +211,40 @@ class AprilTagWithOffsetAligmentCalculation(Command):
             self.drive_to_turnpoint_Y_component_meters = self.alignmentTriangle_side_c_meters * math.sin(self.drive_to_turnpoint_angle_radians)
 
             if (True):
-                print("Robot:    -    -    -    -    -    -    -    -    -    -    -    -    -    -    -    -    -")
-                print(f"Robot initial Pose: X: {self.initial_translation.x:6.3f} Y: {self.initial_translation.y:6.3f} ", end='')
-                print(f" heading: {self.initial_heading_degrees:6.3} Degrees")
-                print("Robot to AprilTag:  -    -    -    -    -    -    -    -    -    -    -    -    -    -    -")
-                print(f"AprilTag Position: X: {self.distance_to_AprilTag_X_meters:6.3f} Y: {self.distance_to_AprilTag_Y_meters:6.3f}   ", end='')
+                print(">>> Robot:    -    -    -    -    -    -    -    -    -    -    -    -    -    -    -    -    -")
+                print(f">>> Robot initial Pose: X: {self.initial_translation.x:6.3f} Y: {self.initial_translation.y:6.3f} ", end='')
+                print(f"heading: {self.initial_heading_degrees:6.3} Degrees")
+                print(">>> Robot to AprilTag:  -    -    -    -    -    -    -    -    -    -    -    -    -    -    -")
+                print(f">>> AprilTag Position: X: {self.distance_to_AprilTag_X_meters:6.3f} Y: {self.distance_to_AprilTag_Y_meters:6.3f}   ", end='')
                 print(f"Yaw degrees of Apriltag off of robot heading (Positive Tag is left of camera center): ", end='')
                 print(f"{self.apriltag_alignment_data.get_apriltag_alignment_data_yaw():6.3f}")
-                print("AprilTag (itself): pose (position and rotation)   -    -    -    -    -    -    -    -    -")
-                print(f"Raw AprilTag Pose {self.aprilTag_position_and_pose}")
-                print(f"AprilTag Position  (Meters): X: {self.distance_to_AprilTag_X_meters:6.3f} Y: {self.distance_to_AprilTag_Y_meters:6.3f}   ")
-                print(f"Apriltag Rotation Yaw: (positive means left side of Apriltag is away from robot):  ", end='')
+                print(">>> AprilTag (itself): pose (position and rotation)   -    -    -    -    -    -    -    -    -")
+                print(f">>> Raw AprilTag Pose {self.aprilTag_position_and_pose}")
+                print(f">>> AprilTag Position  (Meters): X: {self.distance_to_AprilTag_X_meters:6.3f} Y: {self.distance_to_AprilTag_Y_meters:6.3f}   ")
+                print(f">>> Apriltag Rotation Yaw: (positive means left side of Apriltag is away from robot):  ", end='')
                 print(f"Raw Value: {self.pose_of_AprilTag_yaw_degrees_raw:6.3f}  ", end ='')
                 print(f"Converted Value: {self.pose_of_AprilTag_yaw_degrees:6.3f}")
-                print("Alignment Triangle: -    -    -    -    -    -    -    -    -    -    -    -    -    -    -")
-                print(f"Obtuse Triangle Angles (Degrees): A {(57.3 * self.alignmentTriangle_Angle_A_radians):6.3f} ", end='')
+                print(">>> Alignment Triangle: -    -    -    -    -    -    -    -    -    -    -    -    -    -    -")
+                print(f">>> Obtuse Triangle Angles (Degrees): A {(57.3 * self.alignmentTriangle_Angle_A_radians):6.3f} ", end='')
                 print(f" B {(57.3 * self.alignmentTriangle_Angle_B_radians):6.3f} ", end='')
                 print(f" C {(57.3 * self.alignmentTriangle_Angle_C_radians):6.3f} ")
-                print(f"Obtuse Triangle sides (Meters): a: {self.alignmentTriangle_side_a_meters:6.3f}   ", end='')
+                print(f">>> Obtuse Triangle sides (Meters): a: {self.alignmentTriangle_side_a_meters:6.3f}   ", end='')
                 print(f" b: {self.alignmentTriangle_side_b_meters:6.3f} ", end='')
                 print(f" c: {self.alignmentTriangle_side_c_meters:6.3f}   ")
-                print(f"Turn-Point: Forward-distance: {self.drive_to_turnpoint_X_component_meters:6.3f}  ", end='')
+                print(f">>> Turn-Point: Forward-distance: {self.drive_to_turnpoint_X_component_meters:6.3f}  ", end='')
                 print(f"Cross-distance: (Positive to left)  {self.drive_to_turnpoint_Y_component_meters:6.3f}   ", end='')
                 print(f"Drive Angle: {( 180 / math.pi * self.drive_to_turnpoint_angle_radians):6.3f} ")
                 print("======(Alignment Triangle Verification)===============")
-                print(f"Sin(X)/x: {math.sin(self.alignmentTriangle_Angle_A_radians)/self.alignmentTriangle_side_a_meters:6.3f}", end='')
+                print(f">>> Sin(X)/x: {math.sin(self.alignmentTriangle_Angle_A_radians)/self.alignmentTriangle_side_a_meters:6.3f}", end='')
                 print(f" {math.sin(self.alignmentTriangle_Angle_B_radians)/self.alignmentTriangle_side_b_meters:6.3f}", end='')
                 print(f" {math.sin(self.alignmentTriangle_Angle_C_radians)/self.alignmentTriangle_side_c_meters:6.3f}  << Should be the same")
-                print(f"Angles: A: {(180/math.pi * self.alignmentTriangle_Angle_A_radians):6.3f}", end='')
+                print(f">>> Angles: A: {(180/math.pi * self.alignmentTriangle_Angle_A_radians):6.3f}", end='')
                 print(f" B: {(180/math.pi * self.alignmentTriangle_Angle_B_radians):6.3f}", end='')
                 print(f" C: {(180/math.pi * self.alignmentTriangle_Angle_C_radians):6.3f}", end='')
                 print(f"  Sum of angles: {(180/math.pi * (self.alignmentTriangle_Angle_A_radians + 
                                                         self.alignmentTriangle_Angle_B_radians + 
                                                         self.alignmentTriangle_Angle_C_radians)):6.3f}  << Should total 180 degrees")
-                print("===================================================")
+                print(">>> ===================================================")
 
                 #  Triangle Math Verification
                 #  1) Sin(A)/side-a = Sin(B)/side-b = sin(C)/side-c
@@ -259,7 +259,7 @@ class AprilTagWithOffsetAligmentCalculation(Command):
             self.apriltag_alignment_data.print_apriltag_alignment_turn_point_data()
 
         else:
-            print ("---------- NOT -----  Running calc ++++++++++++++++=")
+            print (">>> ---------- NOT -----  Running calc ++++++++++++++++=")
 
 
     def execute(self) -> None:

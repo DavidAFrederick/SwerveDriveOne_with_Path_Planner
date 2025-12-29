@@ -10,24 +10,18 @@ import commands2
 import commands2.cmd
 from commands2.button import CommandXboxController, Trigger
 from commands2.sysid import SysIdRoutine
-
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
-
 from pathplannerlib.auto import AutoBuilder, NamedCommands, PathPlannerAuto
-
 from phoenix6 import swerve
 from wpilib import DriverStation, SmartDashboard
 from wpimath.geometry import Rotation2d, Pose2d, Translation2d
 from wpimath.units import rotationsToRadians
-
 from subsystems.ledsubsystem import LEDSubsystem
 from commands.ledcommand import LEDCommand
 from subsystems.vision_subsystem import VisionSystem 
 from subsystems.vision_subsystem_dummy import VisionSystemDUMMY
-
 from apriltagalignmentdata import AprilTagAlignmentData
-
 from commands.vision_alignment_mode import AprilTagAligmentMode
 from commands.vision_alignment_with_offset import AprilTagWithOffsetAligmentCalculation
 from commands.turn_specific_heading import TurnHeadingSwerveCommand
@@ -108,7 +102,7 @@ class RobotContainer:
 
         if (self._apriltag_alignment_data.get_test_mode()):   # True means use simulated data and NOT the photonvision
             self._visionsubsystem = VisionSystemDUMMY()   #  TEST
-            print ("============== Vision Test Mode Enabled ====================")
+            print (">>> ============== Vision Test Mode Enabled ====================")
         else:
             self._visionsubsystem = VisionSystem(self._apriltag_alignment_data)   
 
@@ -331,7 +325,7 @@ class RobotContainer:
         curved = normalized ** exponent
         # Reapply sign
         final = curved * (1 if axis_value > 0 else -1)
-        # print(f"Axis value: {axis_value}, Normalized: {normalized}, Curved: {curved}, final: {final}")
+        # print(f">>> Axis value: {axis_value}, Normalized: {normalized}, Curved: {curved}, final: {final}")
         return final
 
     def getAutonomousCommand(self) -> commands2.Command:

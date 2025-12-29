@@ -9,7 +9,7 @@ class PauseCommand(Command):
 
     def initialize(self) -> None:
         self.counter = 0
-        print (f"Timer start")
+        print (f">>> Timer start")
 
 
     def execute(self) -> None:
@@ -22,7 +22,7 @@ class PauseCommand(Command):
             return False
 
     def end(self, interrupted: bool) -> None:
-       print (f"Timer Complete")
+       print (f">>> Timer Complete")
        pass      
 
 

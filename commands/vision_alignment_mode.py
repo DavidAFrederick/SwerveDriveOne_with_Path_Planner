@@ -59,7 +59,7 @@ class AprilTagAligmentMode(Command):
         if (self.apriltag_alignment_data.get_apriltag_alignment_data_Target_present()):
             self.yaw = self.apriltag_alignment_data.get_apriltag_alignment_data_yaw()
             self.turn_speed = self.pid_heading_controller.calculate( self.yaw, 0)
-            # print (f" Turning to Target:  {(self.yaw):5.2f}")
+            # print (f">>>  Turning to Target:  {(self.yaw):5.2f}")
             
             ## Clamp Heading Change Speed
             if (self.turn_speed >  self.turn_clamped_max_speed): self.turn_speed =  self.turn_clamped_max_speed
@@ -68,7 +68,7 @@ class AprilTagAligmentMode(Command):
             self.drivetrain.driving_change_heading(self.turn_speed)
         else:
             self.drivetrain.driving_change_heading(0.0)  # Stop turning
-            print  ("Target not present  !!!!!!!!!!!!!!!!!!!!")
+            print  (">>> Target not present  !!!!!!!!!!!!!!!!!!!!")
             self.yaw = 0.0
 
 
@@ -79,5 +79,5 @@ class AprilTagAligmentMode(Command):
         self.led.green()
 
         self.drivetrain.stop_driving()
-        print (f"Complete Turn !!!!!!!!!!!!")
+        print (f">>> Complete Turn !!!!!!!!!!!!")
 

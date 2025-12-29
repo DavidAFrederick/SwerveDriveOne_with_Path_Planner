@@ -35,7 +35,7 @@ class VisionSystem(Subsystem):
         ## >> The Transform3d object returned by PhotonTrackedTarget.getBestCameraToTarget() uses radians for its rotational components. 
 
         self.counter_for_periodic_printing = 0
-        print ("VISION SYSTEM INITIALIZED 0))))))))))))))))))))))))))))))))")
+        print (">>> VISION SYSTEM INITIALIZED 0))))))))))))))))))))))))))))))))")
 
 
     def periodic(self) -> None:             ## Runs 50 times per second
@@ -45,12 +45,12 @@ class VisionSystem(Subsystem):
         #     return
 
         if self._camera is not None:
-            # print ("CAMERA PRESENT", self._latest_result)
+            # print(">>> CAMERA PRESENT", self._latest_result)
             self._latest_result = self._camera.getLatestResult()
 
     def get_tag_data(self) -> list:
         target_list = self._latest_result.getTargets()    # Get current data from PhotonVision
-        # print (f"get_tag_data - Length:  {len(target_list)}")
+        # print(f">>> get_tag_data - Length:  {len(target_list)}")
 
         for target in target_list:                    ## Expecting only a single target for closeup alignment
             self.fiducialId = target.getFiducialId()  ## Not really used
@@ -72,7 +72,7 @@ class VisionSystem(Subsystem):
 
             for target in target_list:      # Assumes a single AprilTag Target
 
-                # print (f"target.getYaw()  {target.getYaw():5.2f}")
+                # print (f">>> target.getYaw()  {target.getYaw():5.2f}")
                 self.apriltag_alignment_data.set_apriltag_alignment_data_yaw(target.getYaw())
 
                 ## Put data into the "apriltag alignment data" data object 
@@ -93,7 +93,7 @@ class VisionSystem(Subsystem):
     def get_tag_data_Transform_to_Tag(self) -> Transform3d:   # Requires AprilTag 3D Mode on PhotonVision
 
         if self._latest_result.hasTargets():
-            print (f"Getting Transform of 3D AprilTag position")
+            print (f">>> Getting Transform of 3D AprilTag position")
             # Accessing 2D information (e.g., yaw, pitch, area of the best target)
             best_target = self._latest_result.getBestTarget()
             self.yaw_2d = best_target.getYaw()     ### Not Used
@@ -111,11 +111,11 @@ class VisionSystem(Subsystem):
             self.translation: Translation3d = camera_to_target_pose.translation()  # Distance in meters
             self.rotation: Rotation3d = camera_to_target_pose.rotation()           # Angles in radians
 
-            # print ("====================================")
-            # print (f"self.translation {self.translation}")
-            # print ("- - - - - - - - - - - - - - - - - - ")
-            # print (f"self.rotation {self.rotation}")
-            # print ("====================================")
+            # print (f">>> ====================================")
+            # print (f">>> self.translation {self.translation}")
+            # print (f">>> - - - - - - - - - - - - - - - - - - ")
+            # print (f">>> self.rotation {self.rotation}")
+            # print (f">>> ====================================")
 
             return camera_to_target_pose
 
@@ -146,7 +146,7 @@ class VisionSystem(Subsystem):
                 elif (self.pose_of_AprilTag_yaw_degrees_raw < 0): 
                     self.pose_of_AprilTag_yaw_degrees = 0  - (self.pose_of_AprilTag_yaw_degrees_raw + 180)
 
-                print(f"AprilTag position [Feet]: ", end='')
+                print(f">>> AprilTag position [Feet]: ", end='')
                 print(f"X:{self.distance_to_AprilTag_X_feet:4.1f}  ", end='')
                 print(f"Y:{self.distance_to_AprilTag_Y_feet:4.1f}  ", end='')
                 print(f"Z:{self.distance_to_AprilTag_Z_feet:4.1f} || ", end='')

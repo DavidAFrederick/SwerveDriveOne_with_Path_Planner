@@ -74,7 +74,7 @@ class LEDSubsystem(Subsystem):
        for i in range(self.kLEDBuffer):
            self.ledData[i].setHSV(int(hue), 255, 128)
        self.LED.setData(self.ledData)
-    #    print (f"LED Commmand: {hue}")
+    #    print (f">>> LED Commmand: {hue}")
 
         #  0 =  red
         #  30 = yellow-gold

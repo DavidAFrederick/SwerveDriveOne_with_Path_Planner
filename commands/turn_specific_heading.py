@@ -47,7 +47,7 @@ class TurnHeadingSwerveCommand(Command):
 
         self.pid_heading_controller.reset()
         self.current_gyro_heading = self.drivetrain.get_robot_heading()
-        print (f"Turn Heading Swerve Command:   Requested Turn: {self.heading_change_degrees:5.2f} ", end='')
+        print (f">>> Turn Heading Swerve Command:   Requested Turn: {self.heading_change_degrees:5.2f} ", end='')
         print (f"   Gyro Heading {self.current_gyro_heading:5.2f}   (degrees)")
 
         # Calculate target heading  (Positive is Counter-Clockwise)
@@ -69,14 +69,14 @@ class TurnHeadingSwerveCommand(Command):
         if (self.turn_speed < -self.turn_clamped_max_speed): self.turn_speed = -self.turn_clamped_max_speed
 
         self.drivetrain.driving_change_heading(self.turn_speed)
-        # print (f"  Requested Heading Change  {self.heading_change_degrees:5.2f} Error {(self.current_gyro_heading -self.target_heading):5.2f}")
+        # print (f">>> Requested Heading Change  {self.heading_change_degrees:5.2f} Error {(self.current_gyro_heading -self.target_heading):5.2f}")
 
     def isFinished(self) -> bool:
        return self.pid_heading_controller.atSetpoint()        
 
     def end(self, interrupted: bool) -> None:
         self.drivetrain.stop_driving()
-        print(f"Complete Turn !!!!!!!!!  ", end='')
+        print(f">>> Complete Turn !!!!!!!!!  ", end='')
         print(f"self.current_gyro_heading:: {self.current_gyro_heading:5.1f}   ", end='')
         print(f"self.target_heading::  {self.target_heading:5.1f}  (Degrees)")
 
