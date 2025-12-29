@@ -30,6 +30,8 @@ from commands.drive_in_square_command_group import DriveInSquareDemo
 from commands.drive_to_specific_point import DriveToSpecificPointSwerveCommand
 from commands.drive_to_apriltag_turnpoint_group import  DriveToAprilTagTurnPointCmdGroup
 from commands.drive_forward_2_seconds import  Drive_Forward_X_Seconds
+from commands.print_robot_pose_position import PrintRobotPose
+from commands.reset_robot_pose_to_zero import ResetRobotPose
 
 class RobotContainer:
     """
@@ -217,9 +219,9 @@ class RobotContainer:
                     lambda: (
                         self
                         ._robot_centric_drive
-                        .with_velocity_x(self._joystick.getLeftY() *  self._max_speed * 0.5)
-                        .with_velocity_y(self._joystick.getLeftX() *  self._max_speed *  0.5)
-                        .with_rotational_rate(self._joystick.getRightX() * self._max_angular_rate)
+                        .with_velocity_x(-self._joystick.getLeftY() *  self._max_speed * 0.5)
+                        .with_velocity_y(-self._joystick.getLeftX() *  self._max_speed *  0.5)
+                        .with_rotational_rate(-self._joystick.getRightX() * self._max_angular_rate)
                     ) # End of Lambda
                 )
         )
@@ -231,7 +233,7 @@ class RobotContainer:
         # self._joystick.b().onTrue(TurnHeadingSwerveCommand(self.drivetrain, -30))
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-        # self._joystick.x().onTrue(Drive_Forward_X_Seconds(self.drivetrain, 2))
+        # self._joystick.a().onTrue(Drive_Forward_X_Seconds(self.drivetrain, 2))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # self._joystick.y().onTrue(DriveToAprilTagTurnPointCmdGroup(self.drivetrain,
@@ -239,6 +241,11 @@ class RobotContainer:
         #                                                   self._apriltag_alignment_data))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+        self._joystick.x().onTrue(PrintRobotPose(self.drivetrain))
+        self._joystick.y().onTrue(ResetRobotPose(self.drivetrain))
+
+        
 
         # self._joystick.x().onTrue(DriveInSquareDemo(self.drivetrain, self._ledsubsystem, 1.0))
 
@@ -307,9 +314,12 @@ class RobotContainer:
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         ## TODO:    See if this command is causing the WatchDog timer to trip
-        self.drivetrain.register_telemetry(
-            lambda state: self._logger.telemeterize(state)
-        )
+        # self.drivetrain.register_telemetry(
+        #     lambda state: self._logger.telemeterize(state)
+        # )
+
+        #  Looks like this  resolved the Frame Overrun issues.
+        #  NOTE:  NEEDED TO CYCLE POWER ON ROBOT FOR THIS SETTING  TO TAKE EFFECT.
 
     def apply_deadzone_and_curve(self, axis_value: float, deadzone: float = 0.1, exponent: float = 2.0) -> float:
         if abs(axis_value) < deadzone:

@@ -27,9 +27,9 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
     """
 
     # Set the initial Pose of the robot.  (Important for Autonomous PathPlanner)
-    INITIAL_X_POSITION = 1.0         # Field Oriented Position  - X in Meters
-    INITIAL_Y_POSITION = 1.0         # Field Oriented Position  - Y in Meters
-    INITIAL_ROTATION_POSITION = 30  # Degrees
+    INITIAL_X_POSITION = 0.0         # Field Oriented Position  - X in Meters
+    INITIAL_Y_POSITION = 0.0         # Field Oriented Position  - Y in Meters
+    INITIAL_ROTATION_POSITION = 0  # Degrees
 
     _SIM_LOOP_PERIOD: units.second = 0.005
 

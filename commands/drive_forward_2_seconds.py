@@ -10,9 +10,12 @@ class Drive_Forward_X_Seconds(Command):
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def __init__(self, drivetrain : CommandSwerveDrivetrain, seconds : float) -> None:
         self.drivetrain = drivetrain
-        self.speed = 0.95
+        self.speed = 0.5
         self.seconds = seconds
         self.addRequirements(drivetrain)
+
+        self.counter_for_periodic_printing = 0
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def initialize(self) -> None:
@@ -22,6 +25,13 @@ class Drive_Forward_X_Seconds(Command):
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     def execute(self):
         self.drivetrain.driving_forward(self.speed)
+
+
+                    # This code causes the output to be printed twice a second
+        self.counter_for_periodic_printing = self.counter_for_periodic_printing + 1
+        if (self.counter_for_periodic_printing % 10 == 0): 
+            self.counter_for_periodic_printing = 0
+            print(f">>>  self.speed: {self.speed:5.2f}   ")
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     def isFinished(self) -> bool:

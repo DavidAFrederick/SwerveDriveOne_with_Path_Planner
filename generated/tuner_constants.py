@@ -22,7 +22,9 @@ class TunerConstants:
         .with_k_s(0.1)
         .with_k_v(1.5)
         .with_k_a(0)
-        .with_static_feedforward_sign(signals.StaticFeedforwardSignValue.USE_CLOSED_LOOP_SIGN)
+        # .with_static_feedforward_sign(signals.StaticFeedforwardSignValue.USE_CLOSED_LOOP_SIGN)
+        ##  Disabling this line to see if this causes the licensed warnings in the log.
+        ##  Did Not resolve the issue.
     )
     # When using closed-loop control, the drive motor uses the control
     # output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
@@ -38,6 +40,9 @@ class TunerConstants:
     # The closed-loop output type to use for the steer motors;
     # This affects the PID/FF gains for the steer motors
     _steer_closed_loop_output = swerve.ClosedLoopOutputType.VOLTAGE
+    ## TODO:  Review this  line of code to see if it affects the License warning.
+
+
     # The closed-loop output type to use for the drive motors;
     # This affects the PID/FF gains for the drive motors
     _drive_closed_loop_output = swerve.ClosedLoopOutputType.VOLTAGE
@@ -67,6 +72,7 @@ class TunerConstants:
     _encoder_initial_configs = configs.CANcoderConfiguration()
     # Configs for the Pigeon 2; leave this None to skip applying Pigeon 2 configs
     _pigeon_configs: configs.Pigeon2Configuration | None = None
+    ### TODO:  Look at  the above  line.
 
     # CAN bus that the devices are located on;
     # All swerve devices must share the same CAN bus

@@ -32,21 +32,21 @@ class DriveToSpecificPointSwerveCommand(Command):
         # Create the two PID controllers,  One for forward movement and one for heading change
         self.speed = 0.0
         self.distance_clamped_max_speed = 2.0
-        self.distance_kP = 1.0
+        self.distance_kP = 3.0
         self.distance_kI = 0.0
-        self.distance_kD = 0.1
+        self.distance_kD = 0.001
         self.distance_kF = 0.0  
         self.pid_distance_controller = PIDController(self.distance_kP, self.distance_kI, self.distance_kD)
-        self.pid_distance_controller.setTolerance(0.05)     # Meters
+        self.pid_distance_controller.setTolerance(0.1)     # Meters
 
         self.turn_speed = 0.0
         self.turn_clamped_max_speed = 2.0
-        self.heading_kP = 5.0   # was 3.0
+        self.heading_kP = 2.0   # was 3.0
         self.heading_kI = 0.0
-        self.heading_kD = 0.1
+        self.heading_kD = 0.001
         self.heading_kF = 0.0  
         self.pid_heading_controller = PIDController(self.heading_kP, self.heading_kI, self.heading_kD)
-        self.tolerance_in_degrees = 2.0
+        self.tolerance_in_degrees = 5.0
         self.tolerance_in_radians = self.tolerance_in_degrees / (180/math.pi)
         self.pid_heading_controller.setTolerance( self.tolerance_in_radians )  
 
@@ -56,7 +56,7 @@ class DriveToSpecificPointSwerveCommand(Command):
 
         ### TEMP - TEMP - TEMP   
         print (">>> TEMP _ SETTING DATA in drive_to_specific_point - about line 58")
-        self.apriltag_alignment_data.set_apriltag_turnpoint_position (0.0, 2.0)   # X & Y Meters
+        self.apriltag_alignment_data.set_apriltag_turnpoint_position (3.0, 3.0)   # X & Y Meters
 
 
         """

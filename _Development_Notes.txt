@@ -13,10 +13,11 @@ Suggestions:
 2) Add ">>>" to all diagnostic print statements to allow the Log Display tool to filter Events - DONE
 
 Problems to Solve:
-1) RobotPeriodic() taking too long (39mSec) causing WatchDog warnings
+1) RobotPeriodic() taking too long (39mSec) causing WatchDog warnings  [SOLVED]
    Tried turning off Telemetry in RobotContainer Line 61
-   >>> Look at line 301 in robot container
-2) Robot driving to specific point has errors - Forward/reverse is backwards
+   >>> Look at line 301 in robot container  
+   !!! This solved the problem but required a robot power cycle (Likely because the motors stored the configuration)
+2) Robot driving to specific point has errors - Forward/reverse is backwards  [SOLVED]
 3) Robot driving to specific point has errors - Lateral goes all over the place
 
 
@@ -51,6 +52,11 @@ What is working / almost working:
 3) Robot-Centric Driving is working (Reduced speed is in place at this time)
 
 
+Lessons Learned:
+1)  Looks like th power on the robot needs to be cycled to change some of the motor settings (Logging/Telemetry)
+
+
+
 ==================================================
 
 failure on 3, 9, 6, 12
@@ -59,3 +65,4 @@ These are the steering motors
 Looks like Line 25 of the Tuner_contants.py is the problem.
 "CLosed Loop" is a licensed feature.
 .with_static_feedforward_sign(signals.StaticFeedforwardSignValue.USE_CLOSED_LOOP_SIGN)
+>>>  Disableing line 25 did not remove the Licensing warning
