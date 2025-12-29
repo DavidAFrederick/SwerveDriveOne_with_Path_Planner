@@ -24,8 +24,9 @@ Enhancements:
 1) When the robot is powered down, the wheels go into the X-position.  Makes difficult to move.
    Update to not place the robot into the X-Position
 2) Consider having the robot default to Robot-Oriented driving vs Field Oriented driving
-3) Determine how to get rid of the "Un-Licenced function" warnings on Motors
-4) Need to Tune all of the PID controllers.  Review the Video to see how CTRE does it. (They recommend not using Ki)
+3) Determine how to get rid of the "Un-Licenced function" warnings on Motors.  [See below and try removing closed loop ]
+4) Need to Tune all of the PID controllers.  Review the Video to see how CTRE does it. [DONE] 
+   (They recommend not using Ki)
 
 
 Items to check:
@@ -48,3 +49,13 @@ What is working / almost working:
 1) Path Planner with SmartDashboard picklist is working
 2) Change heading is working.  Could use tuning.
 3) Robot-Centric Driving is working (Reduced speed is in place at this time)
+
+
+==================================================
+
+failure on 3, 9, 6, 12
+These are the steering motors
+
+Looks like Line 25 of the Tuner_contants.py is the problem.
+"CLosed Loop" is a licensed feature.
+.with_static_feedforward_sign(signals.StaticFeedforwardSignValue.USE_CLOSED_LOOP_SIGN)
