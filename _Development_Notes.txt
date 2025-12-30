@@ -18,14 +18,25 @@ Problems to Solve:
    >>> Look at line 301 in robot container  
    !!! This solved the problem but required a robot power cycle (Likely because the motors stored the configuration)
 2) Robot driving to specific point has errors - Forward/reverse is backwards  [SOLVED]
-3) Robot driving to specific point has errors - Lateral goes all over the place
+3) Robot driving to specific point has errors - Lateral goes all over the place  [TOP PROBLEM]
+   Looks like the robot is not turning fast enough to get to the target point.  
+   >> Increase kP
+   >> Increase distance tolerance
+   >> Slow down forward clamping speed 
+   >> Increase turning clamping speed
+   >> Looks liek the robot heading at the turn point might be off 
+   >> Consider changing the heading tolerance as we get closer to the target
+
+   >> Looks  like the robot heading when reaching the target point will be off (not at the correct value)
+
+
 
 
 Enhancements:
 1) When the robot is powered down, the wheels go into the X-position.  Makes difficult to move.
    Update to not place the robot into the X-Position
 2) Consider having the robot default to Robot-Oriented driving vs Field Oriented driving
-3) Determine how to get rid of the "Un-Licenced function" warnings on Motors.  [See below and try removing closed loop ]
+3) Determine how to get rid of the "Un-Licenced function" warnings on Motors. 
 4) Need to Tune all of the PID controllers.  Review the Video to see how CTRE does it. [DONE] 
    (They recommend not using Ki)
 
@@ -43,7 +54,7 @@ Items to Document:
 
    
 Hardware Updates:
-1) Add a switch to the robot to enable vision (Netgear switch ordered (5 volt))
+1) Add a switch to the robot to enable vision (Netgear switch ordered (5 volt))  [DONE]
 
 
 What is working / almost working:
@@ -53,7 +64,7 @@ What is working / almost working:
 
 
 Lessons Learned:
-1)  Looks like th power on the robot needs to be cycled to change some of the motor settings (Logging/Telemetry)
+1)  Looks like the power on the robot needs to be cycled to change some of the motor settings (Logging/Telemetry)
 
 
 

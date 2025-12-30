@@ -17,7 +17,7 @@ from apriltagalignmentdata import AprilTagAlignmentData
 ##
 ## How do we get an accurate initial pose? ( A human places the robot on the field, Likely has errors)
 
-class DriveToSpecificPointSwerveCommand(Command):
+class DriveToSpecificPointXYSwerveCommand(Command):
     """
     Drives the robot forward (robot-centric) to a point defined x meters forward and y meters across.  
     Use the 'apriltag_alignment_data.set_apriltag_turnpoint_position' to set the X and Y position offset data
@@ -29,7 +29,7 @@ class DriveToSpecificPointSwerveCommand(Command):
         self.drivetrain = drivetrain
         self.apriltag_alignment_data = apriltag_alignment_data
 
-        # Create the two PID controllers,  One for forward movement and one for heading change
+        # Create the three PID controllers,  One for forward movement, one for lateral movement and one for heading change
         self.speed = 0.0
         self.distance_clamped_max_speed = 2.0
         self.distance_kP = 3.0
@@ -38,6 +38,15 @@ class DriveToSpecificPointSwerveCommand(Command):
         self.distance_kF = 0.0  
         self.pid_distance_controller = PIDController(self.distance_kP, self.distance_kI, self.distance_kD)
         self.pid_distance_controller.setTolerance(0.1)     # Meters
+
+        self.lateral_speed = 0.0
+        self.lateral_clamped_max_speed = 2.0
+        self.lateral_kP = 3.0
+        self.lateral_kI = 0.0
+        self.lateral_kD = 0.001
+        self.lateral_kF = 0.0  
+        self.pid_lateral_controller = PIDController(self.lateral_kP, self.lateral_kI, self.lateral_kD)
+        self.pid_lateral_controller.setTolerance(0.1)     # Meters
 
         self.turn_speed = 0.0
         self.turn_clamped_max_speed = 2.0
@@ -85,6 +94,7 @@ class DriveToSpecificPointSwerveCommand(Command):
 
 
         self.pid_distance_controller.reset()
+        self.pid_lateral_controller.reset()
         self.pid_heading_controller.reset()
 
         # [1]
@@ -163,21 +173,28 @@ class DriveToSpecificPointSwerveCommand(Command):
                                           math.pow(self.remaining_delta_y_field_movement, 2) )
 
         # PID Loop calculation
-        self.distance_speed = - self.pid_distance_controller.calculate(self.current_distance, 0)
+        self.distance_speed = - self.pid_distance_controller.calculate(self.remaining_delta_x_field_movement, 0)
 
         ## Clamp Forward Motion Speed
         if (self.distance_speed > self.distance_clamped_max_speed): self.distance_speed = self.distance_clamped_max_speed
         if (self.distance_speed < -self.distance_clamped_max_speed): self.distance_speed = -self.distance_clamped_max_speed
           
 
+        # PID Loop calculation
+        self.lateral_speed = - self.pid_distance_controller.calculate(self.remaining_delta_y_field_movement, 0)
+
+        ## Clamp Forward Motion Speed
+        if (self.lateral_speed > self.lateral_clamped_max_speed): self.lateral_speed = self.lateral_clamped_max_speed
+        if (self.lateral_speed < -self.lateral_clamped_max_speed): self.lateral_speed = -self.lateral_clamped_max_speed
+
         #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        #  Heading Calculations
+        #  Heading Calculations - Heading Stays fixed at the original value
 
         # Calculate the actual heading needed to get to the target end point
         self.target_heading_radians = math.atan2( self.remaining_delta_y_field_movement, self.remaining_delta_x_field_movement)
 
         # PID heading calculation to get to the required heading
-        self.turn_speed = self.pid_heading_controller.calculate(self.current_heading_radians, self.target_heading_radians)
+        self.turn_speed = self.pid_heading_controller.calculate(self.current_heading_radians, self.initial_heading_radians)
 
         ## Clamp Heading Change Speed
         if (self.turn_speed >  self.turn_clamped_max_speed): self.turn_speed =  self.turn_clamped_max_speed
@@ -186,26 +203,26 @@ class DriveToSpecificPointSwerveCommand(Command):
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        self.drivetrain.driving_forward_and_update_heading(self.distance_speed, self.turn_speed)
+        self.drivetrain.driving_robot_centric(self.distance_speed, self.lateral_speed, self.turn_speed)
 
                     # This code causes the output to be printed five times a second
         self.counter_for_periodic_printing = self.counter_for_periodic_printing + 1
         if (self.counter_for_periodic_printing % 5 == 0): ##  Print five times a second
             self.counter_for_periodic_printing = 0
-            print(f">>>  Current Position: X: {self.current_translation.x:5.2f} Y: {self.current_translation.y:5.2f} Heading: {self.current_heading_degrees:6.2f}  ", end='')
-            print (f"|| Speeds: Forward: {self.distance_speed:5.2f} Turn: {self.turn_speed:5.2f} ", end='')
-            print (f"||  Remaining dist: {self.current_distance:4.2f} Heading Error: {57.296 * (self.target_heading_radians - self.current_heading_radians):5.2f} ")
+            print(f">>>  Current: X: {self.current_translation.x:5.2f} Y: {self.current_translation.y:5.2f} Heading: {self.current_heading_degrees:6.2f}  ", end='')
+            print (f"|| Speeds: Forward: {self.distance_speed:5.2f} Lateral: {self.lateral_speed:5.2f} Turn: {self.turn_speed:5.2f} ", end='')
+            print (f"||  Remaining dist: {self.current_distance:4.2f} Heading Error: {57.296 * (self.initial_heading_radians - self.current_heading_radians):5.2f} ")
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
     def isFinished(self) -> bool:
-       self.complete = self.pid_distance_controller.atSetpoint() 
+       self.complete = self.pid_distance_controller.atSetpoint() and self.pid_lateral_controller.atSetpoint()
        return self.complete       
 
     def end(self, interrupted: bool) -> None:
         self.drivetrain.stop_driving()
-        print (f">>> Complete Drive   SP !!!!!!!!!!!!")
+        print (f">>> Complete Drive Specific Point !!!!!!!!!!!!")
         self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,
                             self.drivetrain.get_state().pose.y, 
                             self.drivetrain.get_state().pose.rotation().radians())

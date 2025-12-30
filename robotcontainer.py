@@ -13,7 +13,7 @@ from commands2.sysid import SysIdRoutine
 from generated.tuner_constants import TunerConstants
 from telemetry import Telemetry
 from pathplannerlib.auto import AutoBuilder, NamedCommands, PathPlannerAuto
-from phoenix6 import swerve
+from phoenix6 import swerve, utils
 from wpilib import DriverStation, SmartDashboard
 from wpimath.geometry import Rotation2d, Pose2d, Translation2d
 from wpimath.units import rotationsToRadians
@@ -28,6 +28,7 @@ from commands.turn_specific_heading import TurnHeadingSwerveCommand
 from commands.drive_specific_distance import DriveDistanceSwerveCommand
 from commands.drive_in_square_command_group import DriveInSquareDemo
 from commands.drive_to_specific_point import DriveToSpecificPointSwerveCommand
+from commands.drive_to_specific_point_with_lateral import DriveToSpecificPointXYSwerveCommand
 from commands.drive_to_apriltag_turnpoint_group import  DriveToAprilTagTurnPointCmdGroup
 from commands.drive_forward_2_seconds import  Drive_Forward_X_Seconds
 from commands.print_robot_pose_position import PrintRobotPose
@@ -253,6 +254,7 @@ class RobotContainer:
         
         
         self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, self._apriltag_alignment_data))  
+        self._joystick.b().onTrue(DriveToSpecificPointXYSwerveCommand(self.drivetrain, self._apriltag_alignment_data))  
         # forward, cross position Robot-centric in meters
         ## TODO  - Update notes to describe how to use this command
         
@@ -313,10 +315,12 @@ class RobotContainer:
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        ## TODO:    See if this command is causing the WatchDog timer to trip
-        # self.drivetrain.register_telemetry(
-        #     lambda state: self._logger.telemeterize(state)
-        # )
+        ## TODO:    See if this command is causing the WatchDog timer to trip on Real Robot
+
+        if utils.is_simulation():
+            self.drivetrain.register_telemetry(
+                lambda state: self._logger.telemeterize(state)
+            )
 
         #  Looks like this  resolved the Frame Overrun issues.
         #  NOTE:  NEEDED TO CYCLE POWER ON ROBOT FOR THIS SETTING  TO TAKE EFFECT.
