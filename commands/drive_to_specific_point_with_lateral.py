@@ -34,19 +34,21 @@ class DriveToSpecificPointXYSwerveCommand(Command):
         self.distance_clamped_max_speed = 2.0
         self.distance_kP = 3.0
         self.distance_kI = 0.0
-        self.distance_kD = 0.001
+        self.distance_kD = 0.01
         self.distance_kF = 0.0  
         self.pid_distance_controller = PIDController(self.distance_kP, self.distance_kI, self.distance_kD)
-        self.pid_distance_controller.setTolerance(0.1)     # Meters
+        self.pid_distance_controller.setTolerance(0.2)     # Meters
+        self.reached_target_distance = False
 
         self.lateral_speed = 0.0
         self.lateral_clamped_max_speed = 2.0
         self.lateral_kP = 3.0
         self.lateral_kI = 0.0
-        self.lateral_kD = 0.001
+        self.lateral_kD = 0.01
         self.lateral_kF = 0.0  
         self.pid_lateral_controller = PIDController(self.lateral_kP, self.lateral_kI, self.lateral_kD)
-        self.pid_lateral_controller.setTolerance(0.1)     # Meters
+        self.pid_lateral_controller.setTolerance(0.2)     # Meters
+        self.reached_lateral_distance = False
 
         self.turn_speed = 0.0
         self.turn_clamped_max_speed = 2.0
@@ -65,7 +67,7 @@ class DriveToSpecificPointXYSwerveCommand(Command):
 
         ### TEMP - TEMP - TEMP   
         print (">>> TEMP _ SETTING DATA in drive_to_specific_point - about line 58")
-        self.apriltag_alignment_data.set_apriltag_turnpoint_position (3.0, 3.0)   # X & Y Meters
+        self.apriltag_alignment_data.set_apriltag_turnpoint_position (3.0, -3.0)   # X & Y Meters
 
 
         """
@@ -102,7 +104,7 @@ class DriveToSpecificPointXYSwerveCommand(Command):
                                    self.drivetrain.get_state().pose.y, 
                                    self.drivetrain.get_state().pose.rotation().radians())
 
-        print (f">>> drive_to_specific_point Initial condition {self.initial_pose}")
+        print (f">>> DriveToSpecificPointXYSwerveCommand (Lateral) Initial condition {self.initial_pose}")
 
         # Get the X,Y position and rotation components of the current robot pose [Field-centric]
         # [1]
@@ -177,14 +179,19 @@ class DriveToSpecificPointXYSwerveCommand(Command):
         ## Clamp Forward Motion Speed
         if (self.distance_speed > self.distance_clamped_max_speed): self.distance_speed = self.distance_clamped_max_speed
         if (self.distance_speed < -self.distance_clamped_max_speed): self.distance_speed = -self.distance_clamped_max_speed
-          
 
+        if (self.reached_target_distance):
+            self.distance_speed = 0.0
+          
         # PID Loop calculation
-        self.lateral_speed = - self.pid_distance_controller.calculate(self.remaining_delta_y_field_movement, 0)
+        self.lateral_speed = - self.pid_lateral_controller.calculate(self.remaining_delta_y_field_movement, 0)
 
         ## Clamp Forward Motion Speed
         if (self.lateral_speed > self.lateral_clamped_max_speed): self.lateral_speed = self.lateral_clamped_max_speed
         if (self.lateral_speed < -self.lateral_clamped_max_speed): self.lateral_speed = -self.lateral_clamped_max_speed
+
+        if (self.reached_lateral_distance):
+            self.lateral_speed = 0.0
 
         #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         #  Heading Calculations - Heading Stays fixed at the original value
@@ -199,7 +206,6 @@ class DriveToSpecificPointXYSwerveCommand(Command):
         if (self.turn_speed >  self.turn_clamped_max_speed): self.turn_speed =  self.turn_clamped_max_speed
         if (self.turn_speed < -self.turn_clamped_max_speed): self.turn_speed = -self.turn_clamped_max_speed
 
-
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         self.drivetrain.driving_robot_centric(self.distance_speed, self.lateral_speed, self.turn_speed)
@@ -208,20 +214,32 @@ class DriveToSpecificPointXYSwerveCommand(Command):
         self.counter_for_periodic_printing = self.counter_for_periodic_printing + 1
         if (self.counter_for_periodic_printing % 5 == 0): ##  Print five times a second
             self.counter_for_periodic_printing = 0
-            print(f">>>  Current: X: {self.current_translation.x:5.2f} Y: {self.current_translation.y:5.2f} Heading: {self.current_heading_degrees:6.2f}  ", end='')
-            print (f"|| Speeds: Forward: {self.distance_speed:5.2f} Lateral: {self.lateral_speed:5.2f} Turn: {self.turn_speed:5.2f} ", end='')
-            print (f"||  Remaining dist: {self.current_distance:4.2f} Heading Error: {57.296 * (self.initial_heading_radians - self.current_heading_radians):5.2f} ")
+            print(f">>> X: {self.current_translation.x:5.2f} Y: {self.current_translation.y:5.2f} Heading: {self.current_heading_degrees:6.2f}  ", end='')
+            print (f"| Speeds: Fwd: {self.distance_speed:5.2f} Lat: {self.lateral_speed:5.2f} Turn: {self.turn_speed:5.2f} ", end='')
+            print (f"| Remaining dist: {self.current_distance:4.2f} Hding Er{57.296 * (self.initial_heading_radians - self.current_heading_radians):5.2f} ", end='')
+            print (f"PID Err: Fd/Rv{(self.remaining_delta_x_field_movement - 0):6.2f} L/R{(self.remaining_delta_y_field_movement-0):6.2f}")
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-
     def isFinished(self) -> bool:
-       self.complete = self.pid_distance_controller.atSetpoint() and self.pid_lateral_controller.atSetpoint()
-       return self.complete       
+
+        if (not self.reached_target_distance and self.pid_distance_controller.atSetpoint()): 
+            self.reached_target_distance = True
+            print (f">>> Reached Distance Tolerance <<<<<<<<<<<<<<<")
+
+        if (not self.reached_lateral_distance and self.pid_lateral_controller.atSetpoint()): 
+            self.reached_lateral_distance = True
+            print (f">>> Reached Lateral Tolerance <<<<<<<<<<<<<<<")
+
+        self.complete = self.reached_target_distance and self.reached_lateral_distance
+        return self.complete       
     
     ## DF:  TODO:  Determine if this is a reasonable way to finish the command.  (Should we AND or OR the two tolerances)
 
     def end(self, interrupted: bool) -> None:
+        self.reached_target_distance = False
+        self.reached_lateral_distance = False
+
         self.drivetrain.stop_driving()
         print (f">>> Complete Drive Specific Point !!!!!!!!!!!!")
         self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,

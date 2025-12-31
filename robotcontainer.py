@@ -63,6 +63,13 @@ class RobotContainer:
         #    NOTE: It appears some CTRE settings require power cycling to update the configuration.
         #
 
+        # ### THIS IS TEMPORARY TO SILENCE LOGS
+        # self.my_watchdog = wpilib.Watchdog(0.1, self.watchdog_expired_callback)
+        # self.my_watchdog.disable()
+        # print("Watchdog disabled during disabled mode  <<<<<<<<<<<<<<<<<<<<")
+        # #  Did not appear to work........
+
+
         self._max_speed = (
             TunerConstants.speed_at_12_volts
         )  # speed_at_12_volts desired top speed
@@ -262,7 +269,7 @@ class RobotContainer:
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         
         
-        self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, self._apriltag_alignment_data))  
+        # self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, self._apriltag_alignment_data))  
         self._joystick.b().onTrue(DriveToSpecificPointXYSwerveCommand(self.drivetrain, self._apriltag_alignment_data))  
         # forward, cross position Robot-centric in meters
         ## TODO  - Update notes to describe how to use this command
@@ -281,11 +288,11 @@ class RobotContainer:
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # ERROR HERE:    Buttons not mapping correctly.
 
-        self._joystick.leftTrigger().onTrue(PrintCommand("LT - LT - LT - LT - LT - LT - LT - LT - "))  # Triggered with A button
-        self._joystick.a().onTrue(PrintCommand("AAAAAAAAAAAAAAAAAA"))  # Triggered with A button
-        self._joystick.b().onTrue(PrintCommand("BBBBBBBBBBBBBBBBBB"))  # Triggered with X button
-        self._joystick.x().onTrue(PrintCommand("XXXXXXXXXXXXXXXXXX"))  # Triggered with B button
-        self._joystick.y().onTrue(PrintCommand("YYYYYYYYYYYYYYYYYY"))  # Triggered with Y button
+        # self._joystick.leftTrigger().onTrue(PrintCommand("LT - LT - LT - LT - LT - LT - LT - LT - "))  # Triggered with A button
+        # self._joystick.a().onTrue(PrintCommand("AAAAAAAAAAAAAAAAAA"))  # Triggered with A button
+        # self._joystick.b().onTrue(PrintCommand("BBBBBBBBBBBBBBBBBB"))  # Triggered with X button
+        # self._joystick.x().onTrue(PrintCommand("XXXXXXXXXXXXXXXXXX"))  # Triggered with B button
+        # self._joystick.y().onTrue(PrintCommand("YYYYYYYYYYYYYYYYYY"))  # Triggered with Y button
 
 
         ## COMMENTS ON THE BUTTON MISMAPPING 
@@ -353,3 +360,5 @@ class RobotContainer:
         """
         return self._auto_chooser.getSelected()
 
+    # def watchdog_expired_callback(self):
+    #         print("Watchdog expired!  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
