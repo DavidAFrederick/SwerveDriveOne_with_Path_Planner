@@ -74,6 +74,21 @@ Lessons Learned:
 
 
 ==================================================
+Vision Alignment Mode Analysis
+
+Control of Vision Test Mode:
+1) Line 112 of RobotContainer.py.   (Selects which Vision System to instantiate (Real or Dummy))
+2) Line  70 of drive_to_specific_point_with_lateral.py (Sets the apriltag turn point.  WHY SET THIS??)  Disabled....
+3) Line  76 of apriltagAlignmentdata.  (Sets: self.apriltag_bestCameraToTarget and calculates YAW )
+
+Differences:
+1) In real world, the Robot to AprilTag is Negative as printed in calc dump and on PhotonVision
+ ) In simulation, the Robot to AprilTag is Positive as printed in calc dump
+Why? 
+
+LOOKS LIKE A SIGN PROBLEM WITHIN drive_to_specific_point_with_lateral NEAR LINE 220
+ 
+==================================================
 
 failure on 3, 9, 6, 12
 These are the steering motors

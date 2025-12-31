@@ -65,9 +65,9 @@ class DriveToSpecificPointXYSwerveCommand(Command):
 
         self.counter_for_periodic_printing = 0
 
-        ### TEMP - TEMP - TEMP   
-        print (">>> TEMP _ SETTING DATA in drive_to_specific_point - about line 58")
-        self.apriltag_alignment_data.set_apriltag_turnpoint_position (3.0, -3.0)   # X & Y Meters
+        # ### TEMP - TEMP - TEMP   
+        # print (">>> TEMP _ SETTING DATA in drive_to_specific_point - about line 58")
+        # self.apriltag_alignment_data.set_apriltag_turnpoint_position (3.26, 0.821)   # X & Y Meters
 
 
         """
@@ -90,11 +90,7 @@ class DriveToSpecificPointXYSwerveCommand(Command):
 
     def initialize(self) -> None:
 
-        # Get the current position from the "AprilTagAlignmentData" data Object
-        self.forward_movement_meters = self.apriltag_alignment_data.get_apriltag_turnpoint_X_position_meters() 
-        self.lateral_position_meters = self.apriltag_alignment_data.get_apriltag_turnpoint_Y_position_meters() 
-
-        self.pid_distance_controller.reset()
+        self.pid_distance_controller.reset()  # Clear the history of the PID controllers
         self.pid_lateral_controller.reset()
         self.pid_heading_controller.reset()
 
@@ -112,6 +108,11 @@ class DriveToSpecificPointXYSwerveCommand(Command):
         # [2]
         self.initial_heading_degrees = self.initial_pose.rotation().degrees()
         self.initial_heading_radians = self.initial_pose.rotation().radians()
+
+
+        # Get the current AprilTag position from the "AprilTagAlignmentData" data Object
+        self.forward_movement_meters = self.apriltag_alignment_data.get_apriltag_turnpoint_X_position_meters() 
+        self.lateral_position_meters = self.apriltag_alignment_data.get_apriltag_turnpoint_Y_position_meters() 
 
         # [3] Get input parameters (forward and lateral) and calculate the distance the robot will travel [Robot-centric]
         self.distance_to_travel = math.sqrt(  math.pow(self.forward_movement_meters, 2 ) +  

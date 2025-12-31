@@ -33,7 +33,7 @@ class DriveToAprilTagTurnPointCmdGroup(SequentialCommandGroup):
         PrintCommand(">>> ---------------------------------------"),
 
         PrintCommand(">>> Pausing"),
-        PauseCommand(10.0),
+        PauseCommand(1.0),
 
         PrintCommand(">>> ---------------------------------------"),
         PrintCommand("Drive to Specific point"),

@@ -173,12 +173,20 @@ class AprilTagWithOffsetAligmentCalculation(Command):
             # Theta C (in obtuse triangel) = Yaw + AprilTagYaw
             #       Found by saying 90 = Theta C + Theta J  - AprilTagYaw 
 
-            # This angle is uncertain
-            self.alignmentTriangle_Angle_C_degrees = abs(self.apriltag_alignment_data.apriltag_yaw) + self.pose_of_AprilTag_yaw_degrees
+            # TODO: This angle is uncertain
+            # self.alignmentTriangle_Angle_C_degrees = abs(self.apriltag_alignment_data.apriltag_yaw) + self.pose_of_AprilTag_yaw_degrees # Original
+
+            self.alignmentTriangle_Angle_C_degrees = self.apriltag_alignment_data.apriltag_yaw + self.pose_of_AprilTag_yaw_degrees
+            print(f"CHECK ANGLES:  Robot Yaw {self.apriltag_alignment_data.apriltag_yaw:6.2f}  Tag Yaw:{self.pose_of_AprilTag_yaw_degrees:6.2f} AngleC: {self.alignmentTriangle_Angle_C_degrees:6.2f}")
+
             ## ERROR - Does the code need absolute values
         ##  TODO:  Not 100% sure this is correct
 
+
             self.alignmentTriangle_Angle_C_radians = self.alignmentTriangle_Angle_C_degrees * math.pi  / 180
+
+            # TEMP TODO:  Figure this angle out
+            self.alignmentTriangle_Angle_C_radians = 0 - self.alignmentTriangle_Angle_C_radians
 
             self.alignmentTriangle_side_a_meters = self.distance_to_AprilTag_meters
             self.alignmentTriangle_side_b_meters = 1.08  # Offset distance   # TODO Need to make a Constant
@@ -207,7 +215,10 @@ class AprilTagWithOffsetAligmentCalculation(Command):
 
         # [5] Calculate the turn-point position in robot centric terms (delta-x, delta-y)
                 ### TODO - ERROR HERE - Need to figure out to to calculate turnpoint angle
-            self.drive_to_turnpoint_angle_radians = (self.apriltag_alignment_data.apriltag_yaw * math.pi / 180 ) + self.alignmentTriangle_Angle_B_radians
+            # self.drive_to_turnpoint_angle_radians = (self.apriltag_alignment_data.apriltag_yaw * math.pi / 180 ) + self.alignmentTriangle_Angle_B_radians
+            
+            ## TEMP TEMP
+            self.drive_to_turnpoint_angle_radians = 0 - (self.apriltag_alignment_data.apriltag_yaw * math.pi / 180 ) + self.alignmentTriangle_Angle_B_radians
             self.drive_to_turnpoint_X_component_meters = self.alignmentTriangle_side_c_meters * math.cos(self.drive_to_turnpoint_angle_radians)
             self.drive_to_turnpoint_Y_component_meters = self.alignmentTriangle_side_c_meters * math.sin(self.drive_to_turnpoint_angle_radians)
 
