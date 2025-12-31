@@ -25,32 +25,31 @@ class DriveToAprilTagTurnPointCmdGroup(SequentialCommandGroup):
         self.apriltag_alignment_data = apriltag_alignment_data
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         self.addCommands(
-        PrintCommand("---------------------------------------"),
+        PrintCommand(">>> ---------------------------------------"),
 
-        PrintCommand("Calculate turn point"),
+        PrintCommand(">>> Calculate turn point"),
         AprilTagWithOffsetAligmentCalculation(self.drivetrain, self.vision, self.apriltag_alignment_data),
-        PrintCommand("Done - Calculate turn point"),
-        PrintCommand("---------------------------------------"),
+        PrintCommand(">>> Done - Calculate turn point"),
+        PrintCommand(">>> ---------------------------------------"),
 
-        PrintCommand("Pausing"),
-        PauseCommand(2.0),
+        PrintCommand(">>> Pausing"),
+        PauseCommand(10.0),
 
-        PrintCommand("---------------------------------------"),
+        PrintCommand(">>> ---------------------------------------"),
         PrintCommand("Drive to Specific point"),
 
         ## TODO:  Try alternate mmethod of driving to specific point
-        # DriveToSpecificPointXYSwerveCommand(self.drivetrain, self.apriltag_alignment_data),
-        DriveToSpecificPointSwerveCommand(self.drivetrain, self.apriltag_alignment_data),
-        PrintCommand("---------------------------------------"),
+        DriveToSpecificPointXYSwerveCommand(self.drivetrain, self.apriltag_alignment_data),
+        PrintCommand(">>> ---------------------------------------"),
 
-        PrintCommand("Pausing"),
+        PrintCommand(">>> Pausing"),
         PauseCommand(2.0),
 
-        PrintCommand("---------------------------------------"),
+        PrintCommand(">>> ---------------------------------------"),
         TurnHeadingSwerveCommand(self.drivetrain, 0.0, self.apriltag_alignment_data),
 
-        PrintCommand("Group Command Complete"),
-        PrintCommand("---------------------------------------"),
+        PrintCommand(">>> Group Command Complete"),
+        PrintCommand(">>> ---------------------------------------"),
 
           )
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -149,13 +149,13 @@ class AprilTagAlignmentData:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
     def print_all_apriltag_alignment_data(self) -> None:
-            print (f">>> Test Data ==========================================================")
-            print (f">>> Tag Present: {self.apriltag_present:6.2f} Yaw: {self.apriltag_yaw:6.2f}  ", end ='') 
-            print (f">>> Skew: {self.apriltag_skew:6.2f} Distance:{self.apriltag_distance:6.2f}")
+            print(f">>> Test Data ==========================================================")
+            print(f">>> Tag Present: {self.apriltag_present:6.2f} Yaw: {self.apriltag_yaw:6.2f}  ", end ='') 
+            print(f">>> Skew: {self.apriltag_skew:6.2f} Distance:{self.apriltag_distance:6.2f}")
             print(f">>> apriltag_bestCameraToTarget Transform3d: {self.apriltag_bestCameraToTarget}")
             print(f">>> Turn-Point: X,Y: {self.apriltag_turnpoint_position}  Angle: (Deg): {self.apriltag_turnpoint_angle_degrees:6.3f}")
-            print (f">>> ====================================================================")
+            print(f">>> ====================================================================")
 
     def print_apriltag_alignment_turn_point_data(self) -> None:
-            print (f">>> Turn Point (Robot-Centric): X: {self.apriltag_turnpoint_position[0]:5.2f}  ", end='') 
-            print (f">>>   Y: {self.apriltag_turnpoint_position[1]:5.2f}  ") 
+            print(f">>> Turn Point (Robot-Centric): X: {self.apriltag_turnpoint_position[0]:5.2f}  ", end='') 
+            print(f">>>   Y: {self.apriltag_turnpoint_position[1]:5.2f}  ") 

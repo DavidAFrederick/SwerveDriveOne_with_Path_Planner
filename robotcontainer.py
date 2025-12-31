@@ -109,7 +109,7 @@ class RobotContainer:
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # Instantiate the Vision Subsystem if not in Test Mode (Using simulator)
 
-        self._apriltag_alignment_data.set_test_mode(True)  # Change this parameter to enable use of fake photonvision data
+        self._apriltag_alignment_data.set_test_mode(False)  # Change this parameter to enable use of fake photonvision data
 
         if (self._apriltag_alignment_data.get_test_mode()):   # True means use simulated data and NOT the photonvision
             self._visionsubsystem = VisionSystemDUMMY()   #  TEST
@@ -253,9 +253,9 @@ class RobotContainer:
         # self._joystick.a().onTrue(Drive_Forward_X_Seconds(self.drivetrain, 2))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        # self._joystick.y().onTrue(DriveToAprilTagTurnPointCmdGroup(self.drivetrain,
-        #                                                   self._visionsubsystem,
-        #                                                   self._apriltag_alignment_data))
+        self._joystick.a().onTrue(DriveToAprilTagTurnPointCmdGroup(self.drivetrain,
+                                                          self._visionsubsystem,
+                                                          self._apriltag_alignment_data))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -270,7 +270,7 @@ class RobotContainer:
         
         
         # self._joystick.a().onTrue(DriveToSpecificPointSwerveCommand(self.drivetrain, self._apriltag_alignment_data))  
-        self._joystick.b().onTrue(DriveToSpecificPointXYSwerveCommand(self.drivetrain, self._apriltag_alignment_data))  
+        # self._joystick.b().onTrue(DriveToSpecificPointXYSwerveCommand(self.drivetrain, self._apriltag_alignment_data))  
         # forward, cross position Robot-centric in meters
         ## TODO  - Update notes to describe how to use this command
         
