@@ -6,6 +6,7 @@ from wpimath.geometry import Translation2d
 from apriltagalignmentdata import  AprilTagAlignmentData
 from commands.turn_specific_heading import TurnHeadingSwerveCommand
 from commands.drive_to_specific_point import DriveToSpecificPointSwerveCommand
+from commands.drive_to_specific_point_with_lateral import DriveToSpecificPointXYSwerveCommand
 from commands.pause_command import PauseCommand
 from commands.vision_alignment_with_offset import AprilTagWithOffsetAligmentCalculation
 from subsystems.command_swerve_drivetrain import CommandSwerveDrivetrain
@@ -37,6 +38,8 @@ class DriveToAprilTagTurnPointCmdGroup(SequentialCommandGroup):
         PrintCommand("---------------------------------------"),
         PrintCommand("Drive to Specific point"),
 
+        ## TODO:  Try alternate mmethod of driving to specific point
+        # DriveToSpecificPointXYSwerveCommand(self.drivetrain, self.apriltag_alignment_data),
         DriveToSpecificPointSwerveCommand(self.drivetrain, self.apriltag_alignment_data),
         PrintCommand("---------------------------------------"),
 

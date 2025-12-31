@@ -8,7 +8,8 @@ import math
 class AprilTagWithOffsetAligmentCalculation(Command):
     """
     This command only does calculations to determine the location (called: turn-point) which will place the
-     robot directly in front of the Apriltag.  The result is stored in the "AprilTagAlignmentData" data object.
+    robot directly in front of the Apriltag (1.08 Meters in front of AprilTag).  
+    The result is stored in the "AprilTagAlignmentData" data object.
     
     """
     def __init__(self, drivetrain : CommandSwerveDrivetrain, 
@@ -32,7 +33,7 @@ class AprilTagWithOffsetAligmentCalculation(Command):
         (field-oriented X,Y position and rotation) plus the AprilTag position (X,Y) and AprilTag
         rotation (relative to the robot).
 
-        The turn-point should be about 1.4 times the width of the robot.
+        The turn-point should be about 1.4 times the width of the robot.  (1.08 meters)
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -        
 
@@ -254,7 +255,6 @@ class AprilTagWithOffsetAligmentCalculation(Command):
 
             self.apriltag_alignment_data.set_apriltag_turnpoint_position (self.drive_to_turnpoint_X_component_meters, 
                                                                          self.drive_to_turnpoint_Y_component_meters)
-            # self.apriltag_alignment_data.print_apriltag_alignment_turn_point_data()
             self.apriltag_alignment_data.set_apriltag_turnpoint_angle_degrees(self.pose_of_AprilTag_yaw_degrees)
             self.apriltag_alignment_data.print_apriltag_alignment_turn_point_data()
 

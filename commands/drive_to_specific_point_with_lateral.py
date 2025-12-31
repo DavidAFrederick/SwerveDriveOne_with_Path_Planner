@@ -21,7 +21,7 @@ class DriveToSpecificPointXYSwerveCommand(Command):
     """
     Drives the robot forward (robot-centric) to a point defined x meters forward and y meters across.  
     Use the 'apriltag_alignment_data.set_apriltag_turnpoint_position' to set the X and Y position offset data
-    Robot Centric movement using PID loops for both forward movement and heading change movemment.
+    Robot Centric movement using PID loops for both forward movement, lateral and heading change movemment.
 
     """
 
@@ -91,7 +91,6 @@ class DriveToSpecificPointXYSwerveCommand(Command):
         # Get the current position from the "AprilTagAlignmentData" data Object
         self.forward_movement_meters = self.apriltag_alignment_data.get_apriltag_turnpoint_X_position_meters() 
         self.lateral_position_meters = self.apriltag_alignment_data.get_apriltag_turnpoint_Y_position_meters() 
-
 
         self.pid_distance_controller.reset()
         self.pid_lateral_controller.reset()
@@ -219,6 +218,8 @@ class DriveToSpecificPointXYSwerveCommand(Command):
     def isFinished(self) -> bool:
        self.complete = self.pid_distance_controller.atSetpoint() and self.pid_lateral_controller.atSetpoint()
        return self.complete       
+    
+    ## DF:  TODO:  Determine if this is a reasonable way to finish the command.  (Should we AND or OR the two tolerances)
 
     def end(self, interrupted: bool) -> None:
         self.drivetrain.stop_driving()

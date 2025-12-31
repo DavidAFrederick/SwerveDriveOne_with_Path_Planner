@@ -7,6 +7,11 @@ Test Plan:
     - drive_specific_distance.py = ?? Still in use?? (May be obsoleted by drive_to_specific_point)
     - drive_to_specific_point.py = Errors
 
+Fake PhotonVision Test Mode:
+1) To test robot simulation driving using faked photonVision AprilTag Data, Enable test mode.
+   See line ~105 in the robotcontainer file.
+   This instantiates a DummyVision Subsystem and prevents errors from being logged
+
 
 Suggestions:
 1) Use the DriverStation Log Display tool to view robot logs
@@ -24,7 +29,7 @@ Problems to Solve:
    >> Increase distance tolerance
    >> Slow down forward clamping speed 
    >> Increase turning clamping speed
-   >> Looks liek the robot heading at the turn point might be off 
+   >> Looks like the robot heading at the turn point might be off 
    >> Consider changing the heading tolerance as we get closer to the target
 
    >> Looks  like the robot heading when reaching the target point will be off (not at the correct value)

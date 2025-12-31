@@ -18,7 +18,6 @@ from wpilib import DriverStation, SmartDashboard
 from wpimath.geometry import Rotation2d, Pose2d, Translation2d
 from wpimath.units import rotationsToRadians
 from subsystems.ledsubsystem import LEDSubsystem
-from commands.ledcommand import LEDCommand
 from subsystems.vision_subsystem import VisionSystem 
 from subsystems.vision_subsystem_dummy import VisionSystemDUMMY
 from apriltagalignmentdata import AprilTagAlignmentData
@@ -33,6 +32,7 @@ from commands.drive_to_apriltag_turnpoint_group import  DriveToAprilTagTurnPoint
 from commands.drive_forward_2_seconds import  Drive_Forward_X_Seconds
 from commands.print_robot_pose_position import PrintRobotPose
 from commands.reset_robot_pose_to_zero import ResetRobotPose
+from commands.ledcommand import LEDCommand
 
 class RobotContainer:
     """
@@ -44,12 +44,10 @@ class RobotContainer:
 
     def __init__(self) -> None:
 
-        ##  TRYING TO SILENCE A NUMBER OF ERRORS IN THE CONSOLE LOG
+        ## DF: TRYING TO SILENCE A NUMBER OF ERRORS IN THE CONSOLE LOG
 
         wpilib.DriverStation.silenceJoystickConnectionWarning(True)
 
-
-        ##   >>>  This command 
         # The function FRC LiveWindow.disableAllTelemetry() is a static method 
         # in the FRC (FIRST Robotics Competition) WPILib library that disables t
         # he sending of data for all sensors and actuators to the SmartDashboard 
@@ -59,7 +57,11 @@ class RobotContainer:
         
         # https://robotpy.readthedocs.io/projects/robotpy/en/latest/wpilib/LiveWindow.html        
 
-        ##  LiveWindow.disableAllTelemetry()
+        #    We are getting a number of Watch Dog errors due to excessive time being taken up by RobotPeriodic().
+        #    Near line 320, is a command "register_telemetry" which appears to cause the motors to create and log
+        #    telemetry  data.  By removing  this line, the errors have disappeared.   This is needed for simulation.
+        #    NOTE: It appears some CTRE settings require power cycling to update the configuration.
+        #
 
         self._max_speed = (
             TunerConstants.speed_at_12_volts
@@ -70,7 +72,7 @@ class RobotContainer:
 
         # Setting up bindings for necessary control of the swerve drive platform
         self._drive = (
-            swerve.requests.FieldCentric()
+            swerve.requests.FieldCentric()      ### DF: We could change this to  swerve.requests.RobotCentric()
             .with_rotational_deadband(
                 self._max_angular_rate * 0.075
             )  # Add a 10% deadband
@@ -94,14 +96,13 @@ class RobotContainer:
         self._logger = Telemetry(self._max_speed)
         self._joystick = CommandXboxController(0)
         self.drivetrain = TunerConstants.create_drivetrain()
-
-        self._apriltag_alignment_data = AprilTagAlignmentData()     # Data only class
+        self._apriltag_alignment_data = AprilTagAlignmentData()     ###  DF: Data only class to share data between Vision and Drivetrain
         self._ledsubsystem = LEDSubsystem()
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # Instantiate the Vision Subsystem if not in Test Mode (Using simulator)
 
-        self._apriltag_alignment_data.set_test_mode(True)
+        self._apriltag_alignment_data.set_test_mode(True)  # Change this parameter to enable use of fake photonvision data
 
         if (self._apriltag_alignment_data.get_test_mode()):   # True means use simulated data and NOT the photonvision
             self._visionsubsystem = VisionSystemDUMMY()   #  TEST
@@ -109,11 +110,8 @@ class RobotContainer:
         else:
             self._visionsubsystem = VisionSystem(self._apriltag_alignment_data)   
 
-        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
-        # self._ledsubsystem.setDefaultCommand(LEDCommand( self._ledsubsystem, 100))
-
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        # Setup For Path Planner
 
         # NamedCommmand must be before creating the auto_chooser
         NamedCommands.registerCommand('RedLEDs', LEDCommand(self._ledsubsystem,0)) 
@@ -133,20 +131,23 @@ class RobotContainer:
         # Expanding Path Planner:
         #
         # [step 1] Titles of Paths to be displayed on Smart Dashboard:
-        #          P1-Path-Alpha
-        #          P2-Path-Beta
-        #          P3-Path-Delta-Default
-        # [step 2] Draw paths and autos using names in step 1
-        # [step 3] Identify Robot Commands to be performed using auto
-        #          LEDCommand( self._ledsubsystem, 0)  # LED Red
-        #          LEDCommand( self._ledsubsystem, 60)  # LED Green
+        #          Examples:
+        #             P1-Path-Alpha
+        #             P2-Path-Beta
+        #             P3-Path-Delta-Default
+        # [step 2] Draw paths and autos using names in step 1.   Figure out the goals and exact positions/headings needed
+        # [step 3] Identify Robot Commands to be performed using auto.   LED commands, Elevator, Intake commands ....
+        #          LEDCommand( self._ledsubsystem, 0)    # LED Red
+        #          LEDCommand( self._ledsubsystem, 60)   # LED Green
         #          LEDCommand( self._ledsubsystem, 120)  # LED Blue
-        # [step 4] Paths created in PathPlanner App
+        # [step 4] Create the Names of the Paths to be created in PathPlanner App (later)
         #          P1-Path-Alpha
         #          P2-Path-Beta
         #          P3-Path-Delta-Default
-        # [step 5] 
-        #
+        # [step 5] Create the "AutoChooser" within the RobotContainer File
+        # [step 6] Create "NamedCommands" within the RobotContainer file
+        # [step 7] Create the actual paths and plans in Path Planner.  !!! Be sure to check the box "reset Odometry"
+        # [step 8] Test within the Simulation.  Be aware of which aliance (red/blue) in use.
         #
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -199,15 +200,23 @@ class RobotContainer:
         )
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        #   Current Commands Implemented and status:  (as of 12/9/2015)
+        #   Current Commands Implemented and status:  (as of 12/30/2015)
         # - - - - - - - - - - - - - - - - - - - - - - - - 
-        # drive_in_square_command_group.py      - DriveInSquareDemo                 - Working - (This is a group of commands)
-        # drive_specific_distance.py            - DriveDistanceSwerveCommand        - Working
-        # drive_to_specific_point.py            - DriveToSpecificPointSwerveCommand - Working
-        # ledcommand.py                         - LEDCommand                        - Working
-        # pause_command.py                      - PauseCommand                      - Working
-        # turn_specific_heading.py              - TurnHeadingSwerveCommand          - Working
-        # vision_alignment_mode.py              - AprilTagAligmentMode              - Updated - Ready to be tested
+        # drive_in_square_command_group.py      - DriveInSquareDemo                     - Working - (This is a group of commands)
+        # drive_specific_distance.py            - DriveDistanceSwerveCommand            - Working
+        # drive_to_specific_point.py            - DriveToSpecificPointSwerveCommand     - Working
+        # drive_to_specific_point_with_lateral	- DriveToSpecificPointXYSwerveCommand   - To be tested
+        # ledcommand.py                         - LEDCommand                            - Working
+        # pause_command.py                      - PauseCommand                          - Working
+        # turn_specific_heading.py              - TurnHeadingSwerveCommand              - Working
+        # vision_alignment_mode.py              - AprilTagAligmentMode                  - Updated - Ready to be tested
+        # vision_alignment_with_offset	        - vision_alignment_with_offset          - To be Tested
+        # drive_to_apriltag_turnpoint_group	    - DriveToAprilTagTurnPointCmdGroup      - To be Tested
+        # print_robot_pose_position	            - PrintRobotPose                        - Used for checking driving commands
+        # reset_robot_pose_to_zero	            - ResetRobotPose                        - Resets pose to 0,0,0 without code deployment
+        # drive_forward_2_seconds			    - Drive_Forward_X_Seconds               - Very simple example for teaching about commands
+
+
         # - - - - - - - - - - - - - - - - - - - - - - - - 
 
         # Most of the button bindings in this section can be removed.
@@ -215,7 +224,7 @@ class RobotContainer:
 
 
         self._joystick.leftBumper().whileTrue(
-        # >>>>>> DRIVE ROBOT-CENTRIC  When Left Bumper is held  <<<<<<<<<<<<<<<<  getPOV()
+        # >>>>>> DRIVE ROBOT-CENTRIC  When Left Bumper is held  <<<<<<<<<<<<<<<<  getPOV() in Simulation
                 self.drivetrain.apply_request(
                     lambda: (
                         self
@@ -272,11 +281,11 @@ class RobotContainer:
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # ERROR HERE:    Buttons not mapping correctly.
 
-        # self._joystick.leftTrigger().onTrue(PrintCommand("LT - LT - LT - LT - LT - LT - LT - LT - "))  # Triggered with A button
-        # self._joystick.a().onTrue(PrintCommand("AAAAAAAAAAAAAAAAAA"))  # Triggered with A button
-        # self._joystick.b().onTrue(PrintCommand("BBBBBBBBBBBBBBBBBB"))  # Triggered with X button
-        # self._joystick.x().onTrue(PrintCommand("XXXXXXXXXXXXXXXXXX"))  # Triggered with B button
-        # self._joystick.y().onTrue(PrintCommand("YYYYYYYYYYYYYYYYYY"))  # Triggered with Y button
+        self._joystick.leftTrigger().onTrue(PrintCommand("LT - LT - LT - LT - LT - LT - LT - LT - "))  # Triggered with A button
+        self._joystick.a().onTrue(PrintCommand("AAAAAAAAAAAAAAAAAA"))  # Triggered with A button
+        self._joystick.b().onTrue(PrintCommand("BBBBBBBBBBBBBBBBBB"))  # Triggered with X button
+        self._joystick.x().onTrue(PrintCommand("XXXXXXXXXXXXXXXXXX"))  # Triggered with B button
+        self._joystick.y().onTrue(PrintCommand("YYYYYYYYYYYYYYYYYY"))  # Triggered with Y button
 
 
         ## COMMENTS ON THE BUTTON MISMAPPING 
@@ -315,7 +324,7 @@ class RobotContainer:
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-        ## TODO:    See if this command is causing the WatchDog timer to trip on Real Robot
+        ## TODO:    See if this command is causing the WatchDog timer to trip on real Robot
 
         if utils.is_simulation():
             self.drivetrain.register_telemetry(

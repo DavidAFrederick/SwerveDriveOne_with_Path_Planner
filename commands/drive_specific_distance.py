@@ -8,13 +8,13 @@ from wpimath.geometry import Pose2d, Translation2d, Rotation2d
 from wpimath import units
 import math
 
-
 class DriveDistanceSwerveCommand(Command):
     """
     Drives the robot forward in a straight line.  Robot Centric movement
     Use defines forward movement distance
-    """
 
+    This command is likely obsoleted by the command "drive_to_specific_point_with_lateral.py"   
+    """
 
     def __init__(self, drivetrain : CommandSwerveDrivetrain, forward_movement_meters : float) -> None:
         self.drivetrain = drivetrain
@@ -54,8 +54,6 @@ class DriveDistanceSwerveCommand(Command):
         self.initial_pose = Pose2d(self.drivetrain.get_state().pose.x,
                                    self.drivetrain.get_state().pose.y, 
                                    self.drivetrain.get_state().pose.rotation().radians())
-
-        #### ?????  IS THERE A BETTER WAY OF GETTING THE ROBOT POSE?
 
         # Get just the X,Y position and rotation components of the current robot pose [Field-centric]
         self.initial_translation     = self.initial_pose.translation()
@@ -125,6 +123,9 @@ class DriveDistanceSwerveCommand(Command):
                             self.drivetrain.get_state().pose.rotation().radians())
         print(f">>> self.current_pose:: {self.current_pose}")
 
+# -----------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
 
     def code_reminders_not_being_used(self):
         #####(How to move a pose position)#############
