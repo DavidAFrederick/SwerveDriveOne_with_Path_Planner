@@ -5,7 +5,6 @@ from wpimath.geometry import Translation2d
 
 from apriltagalignmentdata import  AprilTagAlignmentData
 from commands.turn_specific_heading import TurnHeadingSwerveCommand
-from commands.drive_to_specific_point import DriveToSpecificPointSwerveCommand
 from commands.drive_to_specific_point_with_lateral import DriveToSpecificPointXYSwerveCommand
 from commands.pause_command import PauseCommand
 from commands.vision_alignment_with_offset import AprilTagWithOffsetAligmentCalculation

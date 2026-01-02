@@ -1,5 +1,9 @@
 Notes on Code checkout and troubleshooting
 
+Plans:
+1) Test Vision Alignment
+2) Investigate overuns
+
 Test Plan:
 1) Test all of the minor movement functions first (Set them up in the robotcontainer file)
     As of 12/28/2025
@@ -22,19 +26,6 @@ Problems to Solve:
    Tried turning off Telemetry in RobotContainer Line 61
    >>> Look at line 301 in robot container  
    !!! This solved the problem but required a robot power cycle (Likely because the motors stored the configuration)
-2) Robot driving to specific point has errors - Forward/reverse is backwards  [SOLVED]
-3) Robot driving to specific point has errors - Lateral goes all over the place  [TOP PROBLEM]
-   Looks like the robot is not turning fast enough to get to the target point.  
-   >> Increase kP
-   >> Increase distance tolerance
-   >> Slow down forward clamping speed 
-   >> Increase turning clamping speed
-   >> Looks like the robot heading at the turn point might be off 
-   >> Consider changing the heading tolerance as we get closer to the target
-
-   >> Looks  like the robot heading when reaching the target point will be off (not at the correct value)
-
-
 
 
 Enhancements:
@@ -42,15 +33,14 @@ Enhancements:
    Update to not place the robot into the X-Position
 2) Consider having the robot default to Robot-Oriented driving vs Field Oriented driving
 3) Determine how to get rid of the "Un-Licenced function" warnings on Motors. 
-4) Need to Tune all of the PID controllers.  Review the Video to see how CTRE does it. [DONE] 
-   (They recommend not using Ki)
-
+4) Need to Tune all of the PID controllers.  Review the Video to see how CTRE does it. 
+5) Update the code to detect when the PhotonVision is not in 3D mode and print errors to the console
 
 Items to check:
 1) Review all PID control systems to make sure the tolerance is using the 
    same units as the calculate function (Degrees vs Radians)
 2) Do we need to use the Robot Pose?
-3) Can we configure Photonvision 3D mode in software
+3) Can we configure Photonvision 3D mode in software. NO!  
 
 Items to Document:
 1) Need to document how to set the robot field position (Initial Robot Pose)
@@ -98,3 +88,32 @@ Looks like Line 25 of the Tuner_contants.py is the problem.
 "CLosed Loop" is a licensed feature.
 .with_static_feedforward_sign(signals.StaticFeedforwardSignValue.USE_CLOSED_LOOP_SIGN)
 >>>  Disableing line 25 did not remove the Licensing warning
+
+
+
+
+============
+files:
+apriltagalignmentdata.py
+robot.py
+robotcontainer.py
+telemetry.py
+
+command_swerve_drivetrain.py
+ledsubsystem.py
+vision_subsystem_dummy.py
+vision_subsystem.py
+
+drive_forward_2_seconds.py
+drive_in_square_command_group.py
+drive_specific_distance.py
+drive_to_apriltag_turnpoint_group.py
+drive_to_specific_point_with_lateral.py
+drive_to_specific_point.py
+ledcommand.py
+pause_command.py
+print_robot_pose_position.py
+reset_robot_pose_to_zero.py
+turn_specific_heading.py
+vision_alignment_mode.py
+vision_alignment_with_offset.py
