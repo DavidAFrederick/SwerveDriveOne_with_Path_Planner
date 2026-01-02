@@ -50,6 +50,7 @@ Items to check:
 1) Review all PID control systems to make sure the tolerance is using the 
    same units as the calculate function (Degrees vs Radians)
 2) Do we need to use the Robot Pose?
+3) Can we configure Photonvision 3D mode in software
 
 Items to Document:
 1) Need to document how to set the robot field position (Initial Robot Pose)
@@ -59,7 +60,7 @@ Items to Document:
 
    
 Hardware Updates:
-1) Add a switch to the robot to enable vision (Netgear switch ordered (5 volt))  [DONE]
+1) Mount the switch
 
 
 What is working / almost working:

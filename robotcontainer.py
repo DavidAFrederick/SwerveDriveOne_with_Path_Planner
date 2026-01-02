@@ -106,10 +106,10 @@ class RobotContainer:
         self._apriltag_alignment_data = AprilTagAlignmentData()     ###  DF: Data only class to share data between Vision and Drivetrain
         self._ledsubsystem = LEDSubsystem()
 
-        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - j- - - 
         # Instantiate the Vision Subsystem if not in Test Mode (Using simulator)
 
-        self._apriltag_alignment_data.set_test_mode(True)  # Change this parameter to enable use of fake photonvision data
+        self._apriltag_alignment_data.set_test_mode(False)  # Change this parameter to enable use of fake photonvision data
 
         if (self._apriltag_alignment_data.get_test_mode()):   # True means use simulated data and NOT the photonvision
             self._visionsubsystem = VisionSystemDUMMY()   #  TEST
