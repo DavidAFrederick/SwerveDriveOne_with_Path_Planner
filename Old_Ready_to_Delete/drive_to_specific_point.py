@@ -89,9 +89,11 @@ class DriveToSpecificPointSwerveCommand(Command):
 
         # [1]
         ### Get robot's current pose (Position and heading) [Field-Centric]
-        self.initial_pose = Pose2d(self.drivetrain.get_state().pose.x,
-                                   self.drivetrain.get_state().pose.y, 
-                                   self.drivetrain.get_state().pose.rotation().radians())
+        self.initial_pose = self.drivetrain.get_robot_current_pose()
+
+        # self.initial_pose = Pose2d(self.drivetrain.get_state().pose.x,
+        #                            self.drivetrain.get_state().pose.y, 
+        #                            self.drivetrain.get_state().pose.rotation().radians())
 
         print (f">>> drive_to_specific_point Initial condition {self.initial_pose}")
 
@@ -146,9 +148,11 @@ class DriveToSpecificPointSwerveCommand(Command):
         """
 
         ### Get robot's current pose (Position and heading)
-        self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,
-                                   self.drivetrain.get_state().pose.y, 
-                                   self.drivetrain.get_state().pose.rotation().radians())
+        self.current_pose = self.drivetrain.get_robot_current_pose()
+
+        # self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,
+        #                            self.drivetrain.get_state().pose.y, 
+        #                            self.drivetrain.get_state().pose.rotation().radians())
 
         #  TODO  May need to update this to use the real robot heading from the Pigeon2 IMU
         self.current_translation     = self.current_pose.translation()
@@ -206,9 +210,11 @@ class DriveToSpecificPointSwerveCommand(Command):
     def end(self, interrupted: bool) -> None:
         self.drivetrain.stop_driving()
         print (f">>> Complete Drive   SP !!!!!!!!!!!!")
-        self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,
-                            self.drivetrain.get_state().pose.y, 
-                            self.drivetrain.get_state().pose.rotation().radians())
+        self.current_pose = self.drivetrain.get_robot_current_pose()
+
+        # self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,
+        #                     self.drivetrain.get_state().pose.y, 
+        #                     self.drivetrain.get_state().pose.rotation().radians())
         print(f"self.current_pose:: {self.current_pose}   ", end='')
         print (f"Heading: {self.current_heading_degrees:5.1f}  ")
 
@@ -255,7 +261,9 @@ class DriveToSpecificPointSwerveCommand(Command):
         self.x_distance_meters = units.feetToMeters(self.x_distance_feet)
         self.y_distance_meters = units.feetToMeters(self.y_distance_feet)
 
-        self.current_pose = self.drivetrain.get_state().pose
+        # self.current_pose = self.drivetrain.get_state().pose
+        self.current_pose = self.drivetrain.get_robot_current_pose()
+
         #   Calculate a new position (pose) 
         self.relative_transform = Transform2d(Translation2d(
             self.x_distance_meters, self.y_distance_meters), 

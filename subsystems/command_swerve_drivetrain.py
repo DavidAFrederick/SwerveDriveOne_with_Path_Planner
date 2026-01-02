@@ -154,7 +154,9 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
             self.counter_for_periodic_printing = self.counter_for_periodic_printing + 1
             if (self.counter_for_periodic_printing % 5 == 0): ##  Print twice a second
                 self.counter_for_periodic_printing = 0
-                print(f"Robot Pose {self.get_state().pose}")
+                # print(f"Robot Pose {self.get_state().pose}")
+                print(f"Robot Pose {self.drivetrain.get_robot_current_pose()}")
+
 
         # Periodically try to apply the operator perspective.
         # If we haven't applied the operator perspective before, then we should apply it regardless of DS state.
@@ -247,4 +249,18 @@ class CommandSwerveDrivetrain(Subsystem, swerve.SwerveDrivetrain):
             # print (f"Current Gyro value: {self.current_gyro_heading:5.1f}")
         return self.current_gyro_heading    
     
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+#  This function returns type "SwerveDriveState" defined swerve_drivetrain.py (line 126).
+#  I don't know how to reference this class so I can't add return type.
 
+    # def get_robot_pose(self) -> SwerveDriveState:
+    def get_robot_current_pose(self) -> Pose2d:
+        self.robot_state = self.get_state()
+        self.initial_pose = Pose2d(self.robot_state.pose.x,
+                                   self.robot_state.pose.y, 
+                                   self.robot_state.pose.rotation().radians())
+        return self.initial_pose
+
+        # NOTE:  Can cause watchdog timer trips
+        #  The get_state() must take time. If used too often can cause Watchdog Timer trip warnings
+        #  Grab state once and use parse out the data

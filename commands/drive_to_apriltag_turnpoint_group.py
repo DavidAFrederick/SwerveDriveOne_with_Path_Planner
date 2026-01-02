@@ -46,7 +46,7 @@ class DriveToAprilTagTurnPointCmdGroup(SequentialCommandGroup):
 
         PrintCommand(">>> Pausing"),
         LEDCommand(self.led,120),
-        PauseCommand(1.0),
+        PauseCommand(0.5),
 
         PrintCommand(">>> ---------------------------------------"),
         PrintCommand("Drive to Specific point"),
@@ -57,7 +57,7 @@ class DriveToAprilTagTurnPointCmdGroup(SequentialCommandGroup):
         PrintCommand(">>> ---------------------------------------"),
 
         PrintCommand(">>> Pausing"),
-        PauseCommand(2.0),
+        PauseCommand(0.5),
 
         PrintCommand(">>> ---------------------------------------"),
         TurnHeadingSwerveCommand(self.drivetrain, 0.0, self.apriltag_alignment_data),

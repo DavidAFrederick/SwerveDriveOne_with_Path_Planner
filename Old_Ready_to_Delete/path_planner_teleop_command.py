@@ -23,10 +23,12 @@ class DriveToPoseCommand(Command):
         self.addRequirements(self.drivetrain)
 
 
-                        ### Get robot's current pose (Position and heading)
-        self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,
-                                   self.drivetrain.get_state().pose.y, 
-                                   self.drivetrain.get_state().pose.rotation().radians())
+        ### Get robot's current pose (Position and heading)
+        self.current_pose = self.drivetrain.get_robot_current_pose()
+
+        # self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,
+        #                            self.drivetrain.get_state().pose.y, 
+        #                            self.drivetrain.get_state().pose.rotation().radians())
         
 
         # Generate a simple path to the target pose

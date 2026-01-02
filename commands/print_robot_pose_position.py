@@ -23,15 +23,11 @@ class PrintRobotPose(Command):
     def execute(self) -> None:
         ### Get robot's current pose (Position and heading)
 
-        self.robot_state = self.drivetrain.get_state()  # NOTE:  Can cause watchdog timer trips
-        #  The get_state() must take time. If used too often can cause Watchdog Timer trip warnings
-        #  Grab state once and use parse out the data
+        self.initial_pose = self.drivetrain.get_robot_current_pose()
 
-        self.initial_pose = Pose2d(self.robot_state.pose.x,
-                                   self.robot_state.pose.y, 
-                                   self.robot_state.pose.rotation().radians())
         print(f">>>     Robot Pose: {self.initial_pose}  ",end='')
-        print(f"{self.robot_state.pose.rotation().degrees():6.2f} <<<<<<<<<<<<<<<<<<<<<<<<<")
+        print(f"{self.initial_pose.rotation().degrees():6.2f} <<<<<<<<<<<<<<<<<<<<<<<<<")
+        # print(f"{self.robot_state.pose.rotation().degrees():6.2f} <<<<<<<<<<<<<<<<<<<<<<<<<")
 
         
     def isFinished(self) -> bool:

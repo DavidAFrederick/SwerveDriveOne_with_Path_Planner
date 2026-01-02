@@ -75,9 +75,11 @@ class AprilTagWithOffsetAligmentCalculation(Command):
         # [1] Get the current robot position and heading from the current robot pose (Field-Centric)
 
         ### Get robot's current pose (Position and heading) [Field-Centric]
-        self.initial_pose = Pose2d(self.drivetrain.get_state().pose.x,
-                                   self.drivetrain.get_state().pose.y, 
-                                   self.drivetrain.get_state().pose.rotation().radians())
+        self.initial_pose = self.drivetrain.get_robot_current_pose()
+
+        # self.initial_pose = Pose2d(self.drivetrain.get_state().pose.x,
+        #                            self.drivetrain.get_state().pose.y, 
+        #                            self.drivetrain.get_state().pose.rotation().radians())
 
         # Get the X,Y position and rotation components of the current robot pose [Field-centric]
         self.initial_translation     = self.initial_pose.translation()

@@ -51,9 +51,11 @@ class DriveDistanceSwerveCommand(Command):
         self.pid_controller.reset()
 
         ### Get robot's current pose (Position and heading)
-        self.initial_pose = Pose2d(self.drivetrain.get_state().pose.x,
-                                   self.drivetrain.get_state().pose.y, 
-                                   self.drivetrain.get_state().pose.rotation().radians())
+        # self.initial_pose = Pose2d(self.drivetrain.get_state().pose.x,
+        #                            self.drivetrain.get_state().pose.y, 
+        #                            self.drivetrain.get_state().pose.rotation().radians())
+
+        self.initial_pose = self.drivetrain.get_robot_current_pose()
 
         # Get just the X,Y position and rotation components of the current robot pose [Field-centric]
         self.initial_translation     = self.initial_pose.translation()
@@ -84,9 +86,11 @@ class DriveDistanceSwerveCommand(Command):
         """
 
         ### Get robot's current pose (Position and heading)
-        self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,
-                                   self.drivetrain.get_state().pose.y, 
-                                   self.drivetrain.get_state().pose.rotation().radians())
+        self.current_pose = self.drivetrain.get_robot_current_pose()
+        
+        # self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,
+        #                            self.drivetrain.get_state().pose.y, 
+        #                            self.drivetrain.get_state().pose.rotation().radians())
 
         self.current_translation     = self.current_pose.translation()
         self.current_heading_degrees = self.current_pose.rotation().degrees()
@@ -118,9 +122,11 @@ class DriveDistanceSwerveCommand(Command):
     def end(self, interrupted: bool) -> None:
         self.drivetrain.stop_driving()
         print (f">>> Complete Drive !!!!!!!!!!!!")
-        self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,
-                            self.drivetrain.get_state().pose.y, 
-                            self.drivetrain.get_state().pose.rotation().radians())
+        self.current_pose = self.drivetrain.get_robot_current_pose()
+
+        # self.current_pose = Pose2d(self.drivetrain.get_state().pose.x,
+        #                     self.drivetrain.get_state().pose.y, 
+        #                     self.drivetrain.get_state().pose.rotation().radians())
         print(f">>> self.current_pose:: {self.current_pose}")
 
 # -----------------------------------------------------------------------------------------------------------
@@ -168,7 +174,9 @@ class DriveDistanceSwerveCommand(Command):
         self.x_distance_meters = units.feetToMeters(self.x_distance_feet)
         self.y_distance_meters = units.feetToMeters(self.y_distance_feet)
 
-        self.current_pose = self.drivetrain.get_state().pose
+        # self.current_pose = self.drivetrain.get_state().pose
+        self.current_pose = self.drivetrain.get_robot_current_pose()
+
         #   Calculate a new position (pose) 
         self.relative_transform = Transform2d(Translation2d(
             self.x_distance_meters, self.y_distance_meters), 

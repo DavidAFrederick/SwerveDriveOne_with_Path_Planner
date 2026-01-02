@@ -20,15 +20,14 @@ class ResetRobotPose(Command):
         pass       #  This function is not being used.
 
     def execute(self) -> None:
+        # Resetting pose
         start_pose = Pose2d(0,0, Rotation2d.fromDegrees(0))
         self.drivetrain.reset_pose(start_pose)
 
-        ### Get robot's current pose (Position and heading)
-        self.initial_pose = Pose2d(self.drivetrain.get_state().pose.x,
-                                   self.drivetrain.get_state().pose.y, 
-                                   self.drivetrain.get_state().pose.rotation().radians())
+        # Printing Pose
+        self.initial_pose = self.drivetrain.get_robot_current_pose()
         print(f">>>     Robot Pose: {self.initial_pose}  ",end='')
-        print(f"{self.drivetrain.get_state().pose.rotation().degrees():6.2f} <<<<<<<<<<<<<<<<<<<<<<<<<")
+        print(f"{self.initial_pose.rotation().degrees():6.2f} <<<<<<<<<<<<<<<<<<<<<<<<<")
         
     def isFinished(self) -> bool:
        return True             
