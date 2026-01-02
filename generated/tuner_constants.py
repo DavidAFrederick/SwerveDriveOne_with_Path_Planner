@@ -35,6 +35,9 @@ class TunerConstants:
         .with_k_d(0)
         .with_k_s(0)
         .with_k_v(0.124)
+        .with_k_a(0.005)   # Adding to Control Instant Acceleration
+        # // Example value: 0.01 V per rotation per second
+        # .motion_magic_acceleration
     )
 
     # The closed-loop output type to use for the steer motors;

@@ -31,23 +31,23 @@ class DriveToSpecificPointXYSwerveCommand(Command):
 
         # Create the three PID controllers,  One for forward movement, one for lateral movement and one for heading change
         self.speed = 0.0
-        self.distance_clamped_max_speed = 2.0
+        self.distance_clamped_max_speed = 1.0
         self.distance_kP = 3.0
         self.distance_kI = 0.0
         self.distance_kD = 0.01
         self.distance_kF = 0.0  
         self.pid_distance_controller = PIDController(self.distance_kP, self.distance_kI, self.distance_kD)
-        self.pid_distance_controller.setTolerance(0.2)     # Meters
+        self.pid_distance_controller.setTolerance(0.05)     # Meters
         self.reached_target_distance = False
 
         self.lateral_speed = 0.0
-        self.lateral_clamped_max_speed = 2.0
+        self.lateral_clamped_max_speed = 1.0
         self.lateral_kP = 3.0
         self.lateral_kI = 0.0
         self.lateral_kD = 0.01
         self.lateral_kF = 0.0  
         self.pid_lateral_controller = PIDController(self.lateral_kP, self.lateral_kI, self.lateral_kD)
-        self.pid_lateral_controller.setTolerance(0.2)     # Meters
+        self.pid_lateral_controller.setTolerance(0.05)     # Meters
         self.reached_lateral_distance = False
 
         self.turn_speed = 0.0

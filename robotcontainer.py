@@ -235,9 +235,9 @@ class RobotContainer:
                     lambda: (
                         self
                         ._robot_centric_drive
-                        .with_velocity_x(-self._joystick.getLeftY() *  self._max_speed * 0.5)
-                        .with_velocity_y(-self._joystick.getLeftX() *  self._max_speed *  0.5)
-                        .with_rotational_rate(-self._joystick.getRightX() * self._max_angular_rate)
+                        .with_velocity_x(-self._joystick.getLeftY() *  self._max_speed * 0.3)
+                        .with_velocity_y(-self._joystick.getLeftX() *  self._max_speed *  0.3)
+                        .with_rotational_rate(-self._joystick.getRightX() * self._max_angular_rate * 0.5)
                     ) # End of Lambda
                 )
         )
@@ -254,6 +254,7 @@ class RobotContainer:
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
         self._joystick.a().onTrue(DriveToAprilTagTurnPointCmdGroup(self.drivetrain,
                                                           self._visionsubsystem,
+                                                          self._ledsubsystem,
                                                           self._apriltag_alignment_data))
 
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
