@@ -8,7 +8,7 @@ import math
 class AprilTagWithOffsetAligmentCalculation(Command):
     """
     This command only does calculations to determine the location (called: turn-point) which will place the
-    robot directly in front of the Apriltag (1.08 Meters in front of AprilTag).  
+    robot directly in front of the Apriltag (1.08 Meters in front of AprilTag).  (Set near line 192)
     The result is stored in the "AprilTagAlignmentData" data object.
     
     """
@@ -44,20 +44,21 @@ class AprilTagWithOffsetAligmentCalculation(Command):
 
         [4]] Calculate the side lengths and angles within an obtuse triangle formed by the following 3 points [Field-Oriented]
            (P) Current position of the robot  (provided by pose) 
-           (Q) Center of the AprilTag  
-           (G) turn-point for robot to stop movement  (X,Y Position we are calculating)
+           (Q) turn-point for robot to stop movement (This is the X,Y Position we are calculating)
+           (G) Center of the AprilTag  
 
         The length of the sides are determined as follows:
-           Distance between (P) and (Q) - (side a) - Robot to AprilTag - Provided by PhotonVision [Pythagorean theorem]
-           Distance between (Q) and (G) - (side b) - 140% * length of side of robot - 42"  = 1.08 meters
-           Distance between (G) and (P) - (side c) - To be Calculated using Law of Cosines as follows:
+           Distance between (P) and (G) - (side a) - Robot to AprilTag - Provided by PhotonVision [Pythagorean theorem]
+           Distance between (G) and (Q) - (side b) - 140% * length of side of robot = 42"  = 1.08 meters
+           Distance between (P) and (Q) - (side c) - To be Calculated using Law of Cosines as follows:
 
+           
            Side c = SQRT[ (side a)^2 + (side b)^2 - 2 * (side a) * (side b) *  COS (Angle C) ]
  
-        The angles within this obtuse triangle are determined as follows:
-           Angle A (Opposite side a) - ArcSin((side a)/(side c) * Sin (Angle C))
-           Angle B (Opposite side b) - ArcSin((side a)/(side b) * Sin (Angle B))
-           Angle C (Opposite side c) - Angle Yaw + Angle Target (rotation) (OR (not sure)) Angle Yaw - Angle Target (rotation) 
+        The angles within this obtuse triangle are determined as follows (using the Law of Sines):
+           Angle A (Opposite side a) = ArcSin((side a)/(side c) * Sin (Angle C))
+           Angle B (Opposite side b) = ArcSin((side a)/(side b) * Sin (Angle B))
+           Angle C (Opposite side c) = Angle Yaw + Angle Target (rotation) (OR (not sure)) Angle Yaw - Angle Target (rotation) 
 
         [5] Calculate the turn-point position in robot centric terms (delta-x, delta-y)
 
@@ -85,14 +86,6 @@ class AprilTagWithOffsetAligmentCalculation(Command):
 
         # [2] Get the AprilTag Transform3d from the vision subsystem. X and Y position plus AprilTag Rotation (Robot-Centric)
         # Get Yaw to Target (Robot-Centric)
-
-
-        ## To Enable testing without the photonVision Camera System:
-        #  1) Disable / Comments out:  
-        #     # self.vision.get_tag_data()
-        #  2) Enable / Add code to create test vision data: 
-        #     # self.apriltag_alignment_data.set_apriltag_bestCameraToTarget_TEST()
-        #  3) In the RobotContainer, Disable the real vision subsystem and enable the Dummy Vision subsystem
 
 
         ## TODO Need to add a check to see  if data is available
@@ -123,7 +116,7 @@ class AprilTagWithOffsetAligmentCalculation(Command):
             self.pose_of_AprilTag_pitch_degrees   = self.aprilTag_position_and_pose.rotation().y_degrees
             self.pose_of_AprilTag_yaw_degrees_raw = self.aprilTag_position_and_pose.rotation().z_degrees
 
-            self.pose_of_AprilTag_yaw_degrees = 0.0
+            # self.pose_of_AprilTag_yaw_degrees = 0.0
 
             # PhotonVision provides the Yaw of the AprilTag itself within the Rotation part of the Transform3D.
             # If the Apriltag is perfectly perpendicular to the robot, a value of 180  is returned
@@ -147,46 +140,56 @@ class AprilTagWithOffsetAligmentCalculation(Command):
             self.distance_to_AprilTag_meters = math.sqrt(  math.pow(self.distance_to_AprilTag_X_meters, 2) +  
                                                            math.pow(self.distance_to_AprilTag_Y_meters, 2) )
 
+            print (f"Side a = self.distance_to_AprilTag_meters {self.distance_to_AprilTag_meters:6.3f}")
+
         # [4]] Calculate the side lengths and angles within an obtuse triangle formed by the following 3 points [Field-Oriented]
         #    (P) Current position of the robot  (provided by pose) 
-        #    (Q) Center of the AprilTag  
-        #    (G) turn-point for robot to stop movement
+        #    (Q) turn-point for robot to stop movement (This is the X,Y Position we are calculating)
+        #    (G) Center of the AprilTag  
 
-        # The angles within this obtuse triangle are determined as follows:
-        #    Angle A (Opposite side a) - ArcSin((side a)/(side c) * Sin (Angle C))
-        #    Angle B (Opposite side b) - ArcSin((side a)/(side b) * Sin (Angle B))
-        #    Angle C (Opposite side c) - Angle Yaw + Angle Target (rotation) (OR (not sure)) Angle Yaw - Angle Target (rotation) 
+        # The angles within this obtuse triangle are determined as follows  (using the Law of Sines):
+        #    Angle A (Opposite side a) = ArcSin((side a)/(side c) * Sin (Angle C))
+        #    Angle B (Opposite side b) = ArcSin((side a)/(side b) * Sin (Angle B))
+        #    Angle C (Opposite side c) = Angle Yaw + Angle Target (rotation) (OR (not sure)) Angle Yaw - Angle Target (rotation) 
 
         # The length of the sides are determined as follows:
-        #    Distance between (P) and (Q) - (side a) - Robot to AprilTag - Provided by PhotonVision [Pythagorean theorem]
-        #    Distance between (Q) and (G) - (side b) - 140% * length of side of robot - 42"  = 1.08 meters
-        #    Distance between (G) and (P) - (side c) - To be Calculated using Law of Cosines as follows:
+        #    Distance between (P) and (G) - (side a) - Robot to AprilTag - Provided by PhotonVision [Pythagorean theorem]
+        #    Distance between (G) and (Q) - (side b) - 140% * length of side of robot = 42"  = 1.08 meters
+        #    Distance between (P) and (Q) - (side c) - To be Calculated using Law of Cosines as follows:
 
         #    Side c = SQRT[ (side a)^2 + (side b)^2 - 2 * (side a) * (side b) *  COS (Angle C) ]
 
         # Calculate the sides and angles of the obtuse alignment triangle
 
-        # Heading Yaw: Robot Heading to AprilTag (Positive means April Tag is left of camera center)
+            # Start with Angle C.
+            #  if the plane of the front of the robot is parallel to the plane of the apriltag, then Angle-C = 90-abs(Yaw)
+            #  (Using the rule of parallel lines)
+
+        # Heading Yaw: Robot Heading to AprilTag (Positive means April Tag is right of camera center) [Corrected]
+        #  I am confused about the sign of the Yaw.  
+        #  The PhotonVision GUI displays Negative Yaw when the AprilTag is to the left of the camera center
+        #  The FRC and PhotonVision indicate Looking top down, CCW is positive
 
             # Angle C is calculated using triangle rules.
             # Theta J (angle opposite of Robot-Tag Yaw) = 90 - Yaw
-            # Theta C (in obtuse triangel) = Yaw + AprilTagYaw
+            # Theta C (in obtuse triangle) = Yaw + AprilTagYaw
             #       Found by saying 90 = Theta C + Theta J  - AprilTagYaw 
 
             # TODO: This angle is uncertain
-            # self.alignmentTriangle_Angle_C_degrees = abs(self.apriltag_alignment_data.apriltag_yaw) + self.pose_of_AprilTag_yaw_degrees # Original
+            # self.alignmentTriangle_Angle_C_degrees = abs(self.apriltag_alignment_data.apriltag_yaw) + self.pose_of_AprilTag_yaw_degrees 
+            # print(f"CHECK ANGLES 1:  Robot Yaw {self.apriltag_alignment_data.apriltag_yaw:6.2f}  Tag Yaw:{self.pose_of_AprilTag_yaw_degrees:6.2f} AngleC: {self.alignmentTriangle_Angle_C_degrees:6.2f}")
 
-            self.alignmentTriangle_Angle_C_degrees = self.apriltag_alignment_data.apriltag_yaw + self.pose_of_AprilTag_yaw_degrees
-            print(f"CHECK ANGLES:  Robot Yaw {self.apriltag_alignment_data.apriltag_yaw:6.2f}  Tag Yaw:{self.pose_of_AprilTag_yaw_degrees:6.2f} AngleC: {self.alignmentTriangle_Angle_C_degrees:6.2f}")
+            # TEMP TEMP TEMP: Trying to understand how to get Angle C
+            ##   ?? THIS LINE IS IN QUESTION
+            self.alignmentTriangle_Angle_C_degrees = abs(self.apriltag_alignment_data.apriltag_yaw)
+
+            print(f">>>> Angle C:   {self.alignmentTriangle_Angle_C_degrees:6.2f}     Degrees")
+            print(f">>>> Robot Yaw: {self.apriltag_alignment_data.apriltag_yaw:6.2f}  Degrees")
 
             ## ERROR - Does the code need absolute values
         ##  TODO:  Not 100% sure this is correct
 
-
             self.alignmentTriangle_Angle_C_radians = self.alignmentTriangle_Angle_C_degrees * math.pi  / 180
-
-            # TEMP TODO:  Figure this angle out
-            self.alignmentTriangle_Angle_C_radians = 0 - self.alignmentTriangle_Angle_C_radians
 
             self.alignmentTriangle_side_a_meters = self.distance_to_AprilTag_meters
             self.alignmentTriangle_side_b_meters = 1.08  # Offset distance   # TODO Need to make a Constant
@@ -194,14 +197,32 @@ class AprilTagWithOffsetAligmentCalculation(Command):
                                                               math.pow(self.alignmentTriangle_side_b_meters, 2 ) - 
                                                               2 * self.alignmentTriangle_side_a_meters * self.alignmentTriangle_side_b_meters *
                                                               math.cos(self.alignmentTriangle_Angle_C_radians))
-            
-        #    Angle A (Opposite side a) - ArcSin((side a)/(side c) * Sin (Angle C))
-        #    Angle B (Opposite side b) - ArcSin((side a)/(side b) * Sin (Angle B))
+        
+            print (f">>>> Side a: {self.alignmentTriangle_side_a_meters:6.2f}")
+            print (f">>>> Side b: {self.alignmentTriangle_side_b_meters:6.2f}")
+            print (f">>>> Side c: {self.alignmentTriangle_side_c_meters:6.2f}")
+
+        #    Side c = SQRT[ (side a)^2 + (side b)^2 - 2 * (side a) * (side b) *  COS (Angle C) ]
+        #         (Angle C is usually less than 90 degrees, so this should be positive)
+
+        #    Angle A (Opposite side a) = ArcSin((side a)/(side c) * Sin (Angle C))
+        #    Angle B (Opposite side b) = ArcSin((side a)/(side b) * Sin (Angle B))
         #    Angle A should be greater than 90 so took complement (180 - angle)  Pi in radians
 
             if (self.alignmentTriangle_side_c_meters != 0):
                 self.alignmentTriangle_Angle_A_radians = math.pi - (math.asin ((self.alignmentTriangle_side_a_meters/self.alignmentTriangle_side_c_meters) 
                                                         * math.sin(self.alignmentTriangle_Angle_C_radians)))
+
+                # Angle A calculation comes out small but needs to be large.  
+                # Taking complement (0 - Value)
+
+                #  Angle A (Opposite side a) = ArcSin((side a)/(side c) * Sin (Angle C))
+                #  ???  Why take complement?????
+
+                # ### ??? TEMP REMOVING COMPLEMENT
+                # self.alignmentTriangle_Angle_A_radians = math.asin ((self.alignmentTriangle_side_a_meters/self.alignmentTriangle_side_c_meters) 
+                #                                         * math.sin(self.alignmentTriangle_Angle_C_radians))
+
             else:
                 self.alignmentTriangle_Angle_A_radians = 2 * math.pi   #  Not sure if this is correct
                 print (">>> Divide by zero protection (1) !!!!!!!!!!!!!!!!!!!!!!")
@@ -213,12 +234,19 @@ class AprilTagWithOffsetAligmentCalculation(Command):
                 self.alignmentTriangle_Angle_B_radians = 0 # ??????
                 print (">>> Divide by zero protection (2) !!!!!!!!!!!!!!!!!!!!!!")
 
+            print (f">>>> Angle A (degrees):  {(180/math.pi * self.alignmentTriangle_Angle_A_radians):6.2f}")
+            print (f">>>> Angle B (degrees):  {(180/math.pi * self.alignmentTriangle_Angle_B_radians):6.2f}")
+            print (f">>>> Angle C (degrees):  {(180/math.pi * self.alignmentTriangle_Angle_C_radians):6.2f}")
+
+
         # [5] Calculate the turn-point position in robot centric terms (delta-x, delta-y)
                 ### TODO - ERROR HERE - Need to figure out to to calculate turnpoint angle
             # self.drive_to_turnpoint_angle_radians = (self.apriltag_alignment_data.apriltag_yaw * math.pi / 180 ) + self.alignmentTriangle_Angle_B_radians
             
-            ## TEMP TEMP
+            ##   ?? THIS LINE IS IN QUESTION
             self.drive_to_turnpoint_angle_radians = 0 - (self.apriltag_alignment_data.apriltag_yaw * math.pi / 180 ) + self.alignmentTriangle_Angle_B_radians
+            print(f">>>> Angle to Turn Point (Robot) {(180/math.pi * self.drive_to_turnpoint_angle_radians):6.2f}   ")
+
             self.drive_to_turnpoint_X_component_meters = self.alignmentTriangle_side_c_meters * math.cos(self.drive_to_turnpoint_angle_radians)
             self.drive_to_turnpoint_Y_component_meters = self.alignmentTriangle_side_c_meters * math.sin(self.drive_to_turnpoint_angle_radians)
 
@@ -228,7 +256,7 @@ class AprilTagWithOffsetAligmentCalculation(Command):
                 print(f"heading: {self.initial_heading_degrees:6.3} Degrees")
                 print(">>> Robot to AprilTag:  -    -    -    -    -    -    -    -    -    -    -    -    -    -    -")
                 print(f">>> AprilTag Position: X: {self.distance_to_AprilTag_X_meters:6.3f} Y: {self.distance_to_AprilTag_Y_meters:6.3f}   ", end='')
-                print(f"Yaw degrees of Apriltag off of robot heading (Positive Tag is left of camera center): ", end='')
+                print(f"Yaw degrees of Apriltag off of robot heading (Positive Tag is Right of camera center): ", end='')
                 print(f"{self.apriltag_alignment_data.get_apriltag_alignment_data_yaw():6.3f}")
                 print(">>> AprilTag (itself): pose (position and rotation)   -    -    -    -    -    -    -    -    -")
                 print(f">>> Raw AprilTag Pose {self.aprilTag_position_and_pose}")
@@ -271,6 +299,7 @@ class AprilTagWithOffsetAligmentCalculation(Command):
 
         else:
             print (">>> ---------- NOT -----  Running calc ++++++++++++++++=")
+            self.apriltag_alignment_data.set_apriltag_alignment_data_not_available()  # Zero out the data
 
 
     def execute(self) -> None:

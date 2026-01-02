@@ -73,7 +73,7 @@ class AprilTagAlignmentData:
         # self.apriltag_bestCameraToTarget = Transform3d(Translation3d(2.0, 0.6, 0.0), Rotation3d(0, 0, (165 * math.pi/180)))
         # self.apriltag_bestCameraToTarget = Transform3d(Translation3d(2.59, -0.96, 0.0), Rotation3d(0, 0, (-170 * math.pi/180)))
         # self.apriltag_bestCameraToTarget = Transform3d(Translation3d(2.59, -0.96, 0.0), Rotation3d(0, 0, (32 * math.pi/180)))
-        self.apriltag_bestCameraToTarget = Transform3d(Translation3d(3.26, 0.82, 0.03), Rotation3d(0, 0, (-3.1)))
+        self.apriltag_bestCameraToTarget = Transform3d(Translation3d(2.59, -0.96, 0.03), Rotation3d(0, 0, (168 * math.pi/180)))
         #### >>>  The simulation uses (3.26, -0.82) to get negative Yaw
         #### >>>  Real robot reports positive values (3.26, 0.82) and creates a negative yaw
         # >>  Rotation angle should be close to 180.  
