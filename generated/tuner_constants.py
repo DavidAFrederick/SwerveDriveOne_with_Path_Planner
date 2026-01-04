@@ -35,9 +35,6 @@ class TunerConstants:
         .with_k_d(0)
         .with_k_s(0)
         .with_k_v(0.124)
-        .with_k_a(0.005)   # Adding to Control Instant Acceleration
-        # // Example value: 0.01 V per rotation per second
-        # .motion_magic_acceleration
     )
 
     # The closed-loop output type to use for the steer motors;
@@ -62,6 +59,7 @@ class TunerConstants:
     # The stator current at which the wheels start to slip;
     # This needs to be tuned to your individual robot
     _slip_current: units.ampere = 120.0
+    ### Investigate this to limit wheel acceleration
 
     # Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     # Some configs will be overwritten; check the `with_*_initial_configs()` API documentation.
@@ -71,6 +69,7 @@ class TunerConstants:
         # Swerve azimuth does not require much torque output, so we can set a relatively low
         # stator current limit to help avoid brownouts without impacting performance.
         .with_stator_current_limit(60).with_stator_current_limit_enable(True)
+        ### Investigate this setting to control robot acceleration
     )
     _encoder_initial_configs = configs.CANcoderConfiguration()
     # Configs for the Pigeon 2; leave this None to skip applying Pigeon 2 configs
@@ -88,10 +87,11 @@ class TunerConstants:
     # Every 1 rotation of the azimuth results in _couple_ratio drive motor turns;
     # This may need to be tuned to your individual robot
     _couple_ratio = 5.4
+    ### Investigate this.  How much does the drive wheel rotate, when the steer gear is turned 1 revolution
 
     _drive_gear_ratio = 6.48
     _steer_gear_ratio = 12.1
-    _wheel_radius: units.meter = inchesToMeters(4)
+    _wheel_radius: units.meter = inchesToMeters(2)  ### Was initially set to 4"
 
     _invert_left_side = False
     _invert_right_side = True

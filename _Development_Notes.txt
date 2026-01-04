@@ -1,8 +1,11 @@
 Notes on Code checkout and troubleshooting
 
 Plans:
-1) Test Vision Alignment
-2) Investigate overuns
+1) Test Vision Alignment - Math looks right but wheels are slipping on floor, Try carpet
+2) Investigate overuns - Greatly redued but still present
+3) Investigate Stator Current Limits on Drive wheels to prevent slipping (See Tuner_Constants.py line 71)
+4) Investigate the mounting orientation of the CTRE Pigeon on the robot 
+5) Investigate our Pigeon2 initialization code.  (Default from CTRE)
 
 Test Plan:
 1) Test all of the minor movement functions first (Set them up in the robotcontainer file)
@@ -117,3 +120,13 @@ reset_robot_pose_to_zero.py
 turn_specific_heading.py
 vision_alignment_mode.py
 vision_alignment_with_offset.py
+
+========================
+
+Current Limits:
+
+CTRE Phoenix 6 file "config_groups.py" Line 1063.  
+(Accessed by jumping to definition of Slot0Configs() within the "tuner_constants.py" that instantiates the swerveDrive)
+    def with_stator_current_limit(self, new_stator_current_limit: ampere) -> 'CurrentLimitsConfigs':
+
+    def with_duty_cycle_open_loop_ramp_period(self, new_duty_cycle_open_loop_ramp_period: second) -> 'OpenLoopRampsConfigs':
