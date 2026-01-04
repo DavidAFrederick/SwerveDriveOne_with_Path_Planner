@@ -1,7 +1,7 @@
 Notes on Code checkout and troubleshooting
 
 Plans:
-1) Test Vision Alignment - Math looks right but wheels are slipping on floor, Try carpet
+1) Test Vision Alignment - Re-test with correct wheel size
 2) Investigate overuns - Greatly redued but still present
 3) Investigate Stator Current Limits on Drive wheels to prevent slipping (See Tuner_Constants.py line 71)
 4) Investigate the mounting orientation of the CTRE Pigeon on the robot 

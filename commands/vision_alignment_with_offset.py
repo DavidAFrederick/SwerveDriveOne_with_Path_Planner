@@ -252,7 +252,7 @@ class AprilTagWithOffsetAligmentCalculation(Command):
             self.drive_to_turnpoint_X_component_meters = self.alignmentTriangle_side_c_meters * math.cos(self.drive_to_turnpoint_angle_radians)
             self.drive_to_turnpoint_Y_component_meters = self.alignmentTriangle_side_c_meters * math.sin(self.drive_to_turnpoint_angle_radians)
 
-            if (True):
+            if (False):
                 print(">>> Robot:    -    -    -    -    -    -    -    -    -    -    -    -    -    -    -    -    -")
                 print(f">>> Robot initial Pose: X: {self.initial_translation.x:6.3f} Y: {self.initial_translation.y:6.3f} ", end='')
                 print(f"heading: {self.initial_heading_degrees:6.3} Degrees")
