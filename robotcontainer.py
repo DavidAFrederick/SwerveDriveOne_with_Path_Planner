@@ -168,7 +168,7 @@ class RobotContainer:
         and then passing it to a JoystickButton.
         """
 
-        move_speed_reduction = 0.4    #### Added to reduce speed while learning about swerve
+        move_speed_reduction = 1.0    #### Added to reduce speed while learning about swerve
         rotate_speed_reduction = 1.0  ###  NOTE THAT updating _max_speed did not seem to affect speed
         dead_zone = 0.055
         exp_scaling = 2.0

@@ -1,8 +1,8 @@
 Notes on Code checkout and troubleshooting
 
 Plans:
-1) Test Vision Alignment - Re-test with correct wheel size
-2) Investigate overuns - Greatly redued but still present
+1) Test Vision Alignment - Re-test with correct wheel size - [DONE]
+2) Investigate overuns - Greatly redued but still present - [Still preset]
 3) Investigate Stator Current Limits on Drive wheels to prevent slipping (See Tuner_Constants.py line 71)
 4) Investigate the mounting orientation of the CTRE Pigeon on the robot 
 5) Investigate our Pigeon2 initialization code.  (Default from CTRE)
@@ -25,7 +25,7 @@ Suggestions:
 2) Add ">>>" to all diagnostic print statements to allow the Log Display tool to filter Events - DONE
 
 Problems to Solve:
-1) RobotPeriodic() taking too long (39mSec) causing WatchDog warnings  [SOLVED]
+1) RobotPeriodic() taking too long (39mSec) causing WatchDog warnings  
    Tried turning off Telemetry in RobotContainer Line 61
    >>> Look at line 301 in robot container  
    !!! This solved the problem but required a robot power cycle (Likely because the motors stored the configuration)

@@ -35,6 +35,7 @@ class VisionSystem(Subsystem):
         ## >> The Transform3d object returned by PhotonTrackedTarget.getBestCameraToTarget() uses radians for its rotational components. 
 
         self.counter_for_periodic_printing = 0
+        self.counter_for_less_frequent_getting_camera_data = 0
         print (">>> VISION SYSTEM INITIALIZED 0))))))))))))))))))))))))))))))))")
 
 
@@ -44,9 +45,15 @@ class VisionSystem(Subsystem):
 
         #     return
 
-        if self._camera is not None:
-            # print(">>> CAMERA PRESENT", self._latest_result)
-            self._latest_result = self._camera.getLatestResult()
+        
+        # Reduce how often camera results are being pulled
+        # self.counter_for_less_frequent_getting_camera_data = self.counter_for_less_frequent_getting_camera_data + 1
+        # if (self.counter_for_less_frequent_getting_camera_data % 5 == 0): ##  Print twice a second
+        #     self.counter_for_less_frequent_getting_camera_data = 0
+        #     if self._camera is not None:
+        #         # print(">>> CAMERA PRESENT", self._latest_result)
+        #         self._latest_result = self._camera.getLatestResult()
+        pass
 
     def get_tag_data(self) -> list:
         target_list = self._latest_result.getTargets()    # Get current data from PhotonVision
